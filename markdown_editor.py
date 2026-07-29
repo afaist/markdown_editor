@@ -62,7 +62,7 @@ class MarkdownEditorPyQt(QMainWindow):
             "dark": self._get_dark_css(),
             "contrast": self._get_contrast_css(),
         }
-        
+
         # Темы редактора
         self.editor_theme = "light"
 
@@ -80,9 +80,9 @@ class MarkdownEditorPyQt(QMainWindow):
         # Загрузка последней сессии
         self.load_last_session()
 
+
     def _get_light_css(self):
         return """
-        <style>
         body {
             background-color: #ffffff;
             color: #333333;
@@ -116,12 +116,10 @@ class MarkdownEditorPyQt(QMainWindow):
         table { border-collapse: collapse; }
         th, td { border: 1px solid #ddd; padding: 6px; }
         th { background-color: #f5f5f5; }
-        </style>
         """
 
     def _get_dark_css(self):
         return """
-        <style>
         body {
             background-color: #1e1e1e;
             color: #d4d4d4;
@@ -155,12 +153,10 @@ class MarkdownEditorPyQt(QMainWindow):
         table { border-collapse: collapse; }
         th, td { border: 1px solid #404040; padding: 6px; }
         th { background-color: #3d3d3d; }
-        </style>
         """
 
     def _get_contrast_css(self):
         return """
-        <style>
         body {
             background-color: #000000;
             color: #ffffff;
@@ -194,11 +190,10 @@ class MarkdownEditorPyQt(QMainWindow):
         table { border-collapse: collapse; }
         th, td { border: 1px solid #666666; padding: 6px; }
         th { background-color: #2a2a2a; }
-        </style>
         """
 
-        
 
+    
     def init_ui(self):
         """Инициализация интерфейса"""
         # Центральный виджет с разделенным окном
@@ -225,7 +220,6 @@ class MarkdownEditorPyQt(QMainWindow):
         self.editor.setFont(QFont("Consolas", 11))
         self.set_editor_theme("light")  # ✅ Устанавливаем стиль
         editor_layout.addWidget(self.editor)
-
 
         self.splitter.addWidget(self.editor_frame)
 
@@ -280,6 +274,7 @@ class MarkdownEditorPyQt(QMainWindow):
             ("LaTeX inline", lambda: self.insert_text("$")),
             ("LaTeX block", lambda: self.insert_text("$$\n$$")),
             ("Ссылка", self.insert_link),
+            ("Изображение", self.insert_image),  # ✅ Добавлена кнопка
             ("Тема", self.toggle_theme),
             ("Тема редактора", self.toggle_editor_theme),  # ✅ Добавим кнопку
         ]
@@ -305,142 +300,177 @@ class MarkdownEditorPyQt(QMainWindow):
 
     def setup_menu(self):
         """Настройка меню"""
+
         menubar = self.menuBar()
+        if menubar is not None:
+            # Файл
+            file_menu = menubar.addMenu("Файл")
+            if file_menu is not None:
+                file_menu.addAction(
+                    QAction(
+                        "Новый",
+                        self,
+                        triggered=self.new_file,
+                        shortcut=QKeySequence.StandardKey.New,
+                    )
+                )
+                file_menu.addAction(
+                    QAction(
+                        "Открыть",
+                        self,
+                        triggered=self.open_file,
+                        shortcut=QKeySequence.StandardKey.Open,
+                    )
+                )
+                file_menu.addAction(
+                    QAction(
+                        "Сохранить",
+                        self,
+                        triggered=self.save_file,
+                        shortcut=QKeySequence.StandardKey.Save,
+                    )
+                )
+                file_menu.addAction(
+                    QAction("Сохранить как...", self, triggered=self.save_file_as)
+                )
+                file_menu.addSeparator()
+                file_menu.addAction(
+                    QAction(
+                        "Закрыть",
+                        self,
+                        triggered=self.close,
+                        shortcut=QKeySequence.StandardKey.Close,
+                    )
+                )
+                file_menu.addSeparator()
+                file_menu.addAction(
+                    QAction("Экспорт в HTML", self, triggered=self.export_to_html)
+                )
+                file_menu.addAction(
+                    QAction("Экспорт в PDF", self, triggered=self.export_to_pdf)
+                )
+                file_menu.addSeparator()
+                file_menu.addAction(
+                    QAction(
+                        "Выход",
+                        self,
+                        triggered=self.close,
+                        shortcut=QKeySequence.StandardKey.Quit,
+                    )
+                )
 
-        # Файл
-        file_menu = menubar.addMenu("Файл")
-        file_menu.addAction(
-            QAction(
-                "Новый",
-                self,
-                triggered=self.new_file,
-                shortcut=QKeySequence.StandardKey.New,
+            # Правка
+            edit_menu = menubar.addMenu("Правка")
+            if edit_menu is None:
+                return
+            edit_menu.addAction(
+                QAction(
+                    "Отменить",
+                    self,
+                    triggered=self.editor.undo,
+                    shortcut=QKeySequence.StandardKey.Undo,
+                )
             )
-        )
-        file_menu.addAction(
-            QAction(
-                "Открыть",
-                self,
-                triggered=self.open_file,
-                shortcut=QKeySequence.StandardKey.Open,
+            edit_menu.addAction(
+                QAction(
+                    "Повторить",
+                    self,
+                    triggered=self.editor.redo,
+                    shortcut=QKeySequence.StandardKey.Redo,
+                )
             )
-        )
-        file_menu.addAction(
-            QAction(
-                "Сохранить",
-                self,
-                triggered=self.save_file,
-                shortcut=QKeySequence.StandardKey.Save,
+            edit_menu.addSeparator()
+            edit_menu.addAction(
+                QAction(
+                    "Вырезать",
+                    self,
+                    triggered=self.editor.cut,
+                    shortcut=QKeySequence.StandardKey.Cut,
+                )
             )
-        )
-        file_menu.addAction(
-            QAction("Сохранить как...", self, triggered=self.save_file_as)
-        )
-        file_menu.addSeparator()
-        file_menu.addAction(
-            QAction(
-                "Закрыть",
-                self,
-                triggered=self.close,
-                shortcut=QKeySequence.StandardKey.Close,
+            edit_menu.addAction(
+                QAction(
+                    "Копировать",
+                    self,
+                    triggered=self.editor.copy,
+                    shortcut=QKeySequence.StandardKey.Copy,
+                )
             )
-        )
-        file_menu.addSeparator()
-        file_menu.addAction(
-            QAction("Экспорт в HTML", self, triggered=self.export_to_html)
-        )
-        file_menu.addAction(
-            QAction("Экспорт в PDF", self, triggered=self.export_to_pdf)
-        )
-        file_menu.addSeparator()
-        file_menu.addAction(
-            QAction(
-                "Выход",
-                self,
-                triggered=self.close,
-                shortcut=QKeySequence.StandardKey.Quit,
+            edit_menu.addAction(
+                QAction(
+                    "Вставить",
+                    self,
+                    triggered=self.editor.paste,
+                    shortcut=QKeySequence.StandardKey.Paste,
+                )
             )
-        )
+            edit_menu.addSeparator()
+            edit_menu.addAction(
+                QAction(
+                    "Найти и заменить",
+                    self,
+                    triggered=self.find_replace,
+                    shortcut=QKeySequence.StandardKey.Find,
+                )
+            )
+            # ✅ Добавляем пункт в меню Правка
+            edit_menu.addSeparator()
+            edit_menu.addAction(
+                QAction("Вставить изображение...", self, triggered=self.insert_image)
+            )
 
-        # Правка
-        edit_menu = menubar.addMenu("Правка")
-        edit_menu.addAction(
-            QAction(
-                "Отменить",
-                self,
-                triggered=self.editor.undo,
-                shortcut=QKeySequence.StandardKey.Undo,
+            # Вид
+            view_menu = menubar.addMenu("Вид")
+            if view_menu is None:
+                return
+            view_menu.addAction(
+                QAction("Обновить предпросмотр", self, triggered=self.update_preview)
             )
-        )
-        edit_menu.addAction(
-            QAction(
-                "Повторить",
-                self,
-                triggered=self.editor.redo,
-                shortcut=QKeySequence.StandardKey.Redo,
+            # В setup_menu():
+            view_menu.addAction(
+                QAction(
+                    "Тема: светлая", self, triggered=lambda: self.set_theme("light")
+                )
             )
-        )
-        edit_menu.addSeparator()
-        edit_menu.addAction(
-            QAction(
-                "Вырезать",
-                self,
-                triggered=self.editor.cut,
-                shortcut=QKeySequence.StandardKey.Cut,
+            view_menu.addAction(
+                QAction("Тема: тёмная", self, triggered=lambda: self.set_theme("dark"))
             )
-        )
-        edit_menu.addAction(
-            QAction(
-                "Копировать",
-                self,
-                triggered=self.editor.copy,
-                shortcut=QKeySequence.StandardKey.Copy,
+            view_menu.addAction(
+                QAction(
+                    "Тема: контрастная",
+                    self,
+                    triggered=lambda: self.set_theme("contrast"),
+                )
             )
-        )
-        edit_menu.addAction(
-            QAction(
-                "Вставить",
-                self,
-                triggered=self.editor.paste,
-                shortcut=QKeySequence.StandardKey.Paste,
-            )
-        )
-        edit_menu.addSeparator()
-        edit_menu.addAction(
-            QAction(
-                "Найти и заменить",
-                self,
-                triggered=self.find_replace,
-                shortcut=QKeySequence.StandardKey.Find,
-            )
-        )
 
-        # Вид
-        view_menu = menubar.addMenu("Вид")
-        view_menu.addAction(
-            QAction("Обновить предпросмотр", self, triggered=self.update_preview)
-        )
-        # В setup_menu():
-        view_menu.addAction(
-            QAction("Тема: светлая", self, triggered=lambda: self.set_theme("light"))
-        )
-        view_menu.addAction(
-            QAction("Тема: тёмная", self, triggered=lambda: self.set_theme("dark"))
-        )
-        view_menu.addAction(
-            QAction(
-                "Тема: контрастная", self, triggered=lambda: self.set_theme("contrast")
+            # Или в setup_menu():
+            view_menu.addAction(
+                QAction(
+                    "Тема редактора: светлая",
+                    self,
+                    triggered=lambda: self.set_editor_theme("light"),
+                )
             )
-        )
-        
-        # Или в setup_menu():
-        view_menu.addAction(QAction("Тема редактора: светлая", self, triggered=lambda: self.set_editor_theme("light")))
-        view_menu.addAction(QAction("Тема редактора: тёмная", self, triggered=lambda: self.set_editor_theme("dark")))
-        view_menu.addAction(QAction("Тема редактора: контрастная", self, triggered=lambda: self.set_editor_theme("contrast")))
+            view_menu.addAction(
+                QAction(
+                    "Тема редактора: тёмная",
+                    self,
+                    triggered=lambda: self.set_editor_theme("dark"),
+                )
+            )
+            view_menu.addAction(
+                QAction(
+                    "Тема редактора: контрастная",
+                    self,
+                    triggered=lambda: self.set_editor_theme("contrast"),
+                )
+            )
 
-        # Справка
-        help_menu = menubar.addMenu("Справка")
-        help_menu.addAction(QAction("О программе", self, triggered=self.show_about))
+            # Справка
+            help_menu = menubar.addMenu("Справка")
+            if help_menu is None:
+                return
+            help_menu.addAction(QAction("О программе", self, triggered=self.show_about))
 
     def setup_bindings(self):
         """Настройка обработчиков событий"""
@@ -474,8 +504,9 @@ class MarkdownEditorPyQt(QMainWindow):
 
         self.statusbar.showMessage("Предпросмотр обновлён")
 
+# ... existing code ...
     def render_markdown(self, text, theme_name="light"):
-        """Рендеринг Markdown в HTML с поддержкой LaTeX (локальные скрипты)"""
+        """Рендеринг Markdown в HTML с поддержкой LaTeX (включая блоки кода)"""
         # Сброс кэша формул
         self.display_math_cache = []
         self.inline_math_cache = []
@@ -497,35 +528,187 @@ class MarkdownEditorPyQt(QMainWindow):
 
         html_content = md.convert(processed_text)
 
-        # Восстановление LaTeX-формул
-        def restore_display(match):
+        # Функция восстановления для обычных случаев
+        def restore_normal(match):
             index = int(match.group(1))
             if index < len(self.display_math_cache):
                 return f"$${self.display_math_cache[index]}$$"
             return match.group(0)
 
-        def restore_inline(match):
+        def restore_inline_normal(match):
             index = int(match.group(1))
             if index < len(self.inline_math_cache):
                 return f"${self.inline_math_cache[index]}$"
             return match.group(0)
 
-        # Замена плейсхолдеров на формулы
+        # Функция восстановления для экранированных случаев (внутри codehilite)
+        def restore_escaped(match):
+            index = int(match.group(1))
+            if index < len(self.display_math_cache):
+                return f"$${self.display_math_cache[index]}$$"
+            return match.group(0)
+
+        def restore_inline_escaped(match):
+            index = int(match.group(1))
+            if index < len(self.inline_math_cache):
+                return f"${self.inline_math_cache[index]}$"
+            return match.group(0)
+
+        # 1. Сначала восстанавливаем обычные комментарии (если они не внутри codehilite или если кодихайт не экранировал)
         html_content = re.sub(
-            r"<!-- display-math-(\d+) -->", restore_display, html_content
+            r"<!--\s*display-math-(\d+)\s*-->", restore_normal, html_content
         )
         html_content = re.sub(
-            r"<!-- inline-math-(\d+) -->", restore_inline, html_content
+            r"<!--\s*inline-math-(\d+)\s*-->", restore_inline_normal, html_content
         )
 
-        # ✅ Локальные пути к файлам KaTeX
+        # 2. Затем восстанавливаем экранированные комментарии (которые остались внутри <code>)
+        html_content = re.sub(
+            r"&lt;!--\s*display-math-(\d+)\s*--&gt;", restore_escaped, html_content
+        )
+        html_content = re.sub(
+            r"&lt;!--\s*inline-math-(\d+)\s*--&gt;",
+            restore_inline_escaped,
+            html_content,
+        )
+
+        # Локальные пути к файлам KaTeX
         base_dir = os.path.dirname(__file__)
         katex_css = os.path.join(base_dir, "katex", "katex.min.css")
         katex_js = os.path.join(base_dir, "katex", "katex.min.js")
         auto_render_js = os.path.join(base_dir, "katex", "auto-render.min.js")
 
-        # Получаем CSS-стили
+        # Получаем CSS-стили (теперь они без тегов <style>)
         theme_css = self.themes.get(theme_name, self.themes["light"])
+
+        # Стили для печати и колонтитулов
+        # Теперь весь CSS будет обернут в ОДИН тег <style> в конце
+        print_styles = f"""
+        <style>
+            /* Базовые стили */
+            {theme_css}
+
+            /* Стили для печати/PDF */
+            @media print {{
+                @page {{
+                    size: A4;
+                    margin: 2cm 2.5cm 2cm 2.5cm;
+                    
+                    /* Попытка явного задания колонтитулов */
+                    @top-center {{
+                        content: string(title);
+                        font-size: 9px;
+                        color: #888;
+                    }}
+                    @bottom-center {{
+                        content: "Страница " counter(page) " из " counter(pages);
+                        font-size: 9px;
+                        color: #888;
+                    }}
+                }}
+                
+                /* Заголовки не должны разрываться от текста */
+                h1, h2, h3, h4, h5, h6 {{
+                    page-break-after: avoid;
+                    orphans: 2;
+                    widows: 2;
+                }}
+                
+                /* Новая страница перед каждым h1 */
+                h1 {{
+                    page-break-before: always;
+                }}
+                /* Исключаем первую страницу */
+                body > h1:first-child {{
+                    page-break-before: auto;
+                }}
+                
+                /* Элементы не должны разрываться */
+                table, img, pre {{
+                    page-break-inside: avoid;
+                }}
+                
+                /* Принудительная печать фонов и цветов */
+                body {{
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }}
+                
+                /* Убираем все лишнее */
+                body {{
+                    margin: 0;
+                    padding: 0;
+                }}
+            }}
+        </style>
+        """
+
+        # Важно: добавляем мету для заголовка, если мы используем string(title)
+        # Но проще использовать простой текст в @page, как было.
+        # В QtWebEngine string() может не поддерживаться в @page.
+        # Вернемся к простому тексту, но убедимся, что нет конфликтов.
+
+        # Исправленная версия print_styles для максимальной совместимости с QtWebEngine:
+        print_styles = f"""
+        <style>
+            /* Базовые стили */
+            {theme_css}
+
+            /* Стили для печати/PDF */
+            @media print {{
+                @page {{
+                    size: A4;
+                    margin: 2cm 2.5cm 2cm 2.5cm;
+                    
+                    /* Попытка явного задания колонтитулов */
+                    @top-center {{
+                        content: string(title);
+                        font-size: 9px;
+                        color: #888;
+                    }}
+                    @bottom-center {{
+                        content: "Страница " counter(page) " из " counter(pages);
+                        font-size: 9px;
+                        color: #888;
+                    }}
+                }}
+                
+                /* Заголовки не должны разрываться от текста */
+                h1, h2, h3, h4, h5, h6 {{
+                    page-break-after: avoid;
+                    orphans: 2;
+                    widows: 2;
+                }}
+                
+                /* Новая страница перед каждым h1 */
+                h1 {{
+                    page-break-before: always;
+                }}
+                /* Исключаем первую страницу */
+                body > h1:first-child {{
+                    page-break-before: auto;
+                }}
+                
+                /* Элементы не должны разрываться */
+                table, img, pre {{
+                    page-break-inside: avoid;
+                }}
+                
+                /* Принудительная печать фонов и цветов */
+                body {{
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }}
+                
+                /* Убираем все лишнее */
+                body {{
+                    margin: 0;
+                    padding: 0;
+                }}
+            }}
+        </style>
+        """
+
 
         full_html = f"""<!DOCTYPE html>
 <html>
@@ -533,16 +716,15 @@ class MarkdownEditorPyQt(QMainWindow):
     <meta charset="UTF-8">
     <title>Markdown Preview — {theme_name}</title>
     <link rel="stylesheet" href="file://{katex_css}">
-    {theme_css}
+    {print_styles}
 </head>
 <body>
 {html_content}
 
-<!-- Подключаем скрипты прямо в body, без defer -->
 <script src="file://{katex_js}"></script>
 <script src="file://{auto_render_js}"></script>
 <script>
-    window.onload = function() {{
+    document.addEventListener("DOMContentLoaded", function() {{
         if (typeof renderMathInElement !== 'undefined') {{
             renderMathInElement(document.body, {{
                 delimiters: [
@@ -551,11 +733,160 @@ class MarkdownEditorPyQt(QMainWindow):
                 ]
             }});
         }}
-    }};
+    }});
 </script>
 </body>
 </html>"""
         return full_html
+
+
+    def render_markdown(self, text, theme_name="light"):
+        """Рендеринг Markdown в HTML с поддержкой LaTeX (включая блоки кода)"""
+        # Сброс кэша формул
+        self.display_math_cache = []
+        self.inline_math_cache = []
+
+        # Обработка LaTeX-формул до конвертации Markdown
+        processed_text = self.process_latex_before_markdown(text)
+
+        # Конвертация Markdown в HTML
+        import markdown
+
+        md = markdown.Markdown(
+            extensions=[
+                "markdown.extensions.fenced_code",
+                "markdown.extensions.codehilite",
+                "markdown.extensions.tables",
+                "markdown.extensions.toc",
+            ]
+        )
+
+        html_content = md.convert(processed_text)
+
+        # Функция восстановления для обычных случаев
+        def restore_normal(match):
+            index = int(match.group(1))
+            if index < len(self.display_math_cache):
+                return f"$${self.display_math_cache[index]}$$"
+            return match.group(0)
+
+        def restore_inline_normal(match):
+            index = int(match.group(1))
+            if index < len(self.inline_math_cache):
+                return f"${self.inline_math_cache[index]}$"
+            return match.group(0)
+
+        # Функция восстановления для экранированных случаев (внутри codehilite)
+        def restore_escaped(match):
+            index = int(match.group(1))
+            if index < len(self.display_math_cache):
+                return f"$${self.display_math_cache[index]}$$"
+            return match.group(0)
+
+        def restore_inline_escaped(match):
+            index = int(match.group(1))
+            if index < len(self.inline_math_cache):
+                return f"${self.inline_math_cache[index]}$"
+            return match.group(0)
+
+        # 1. Сначала восстанавливаем обычные комментарии (если они не внутри codehilite или если кодихайт не экранировал)
+        html_content = re.sub(
+            r"<!--\s*display-math-(\d+)\s*-->", restore_normal, html_content
+        )
+        html_content = re.sub(
+            r"<!--\s*inline-math-(\d+)\s*-->", restore_inline_normal, html_content
+        )
+
+        # 2. Затем восстанавливаем экранированные комментарии (которые остались внутри <code>)
+        html_content = re.sub(
+            r"&lt;!--\s*display-math-(\d+)\s*--&gt;", restore_escaped, html_content
+        )
+        html_content = re.sub(
+            r"&lt;!--\s*inline-math-(\d+)\s*--&gt;",
+            restore_inline_escaped,
+            html_content,
+        )
+
+        # Локальные пути к файлам KaTeX
+        base_dir = os.path.dirname(__file__)
+        katex_css = os.path.join(base_dir, "katex", "katex.min.css")
+        katex_js = os.path.join(base_dir, "katex", "katex.min.js")
+        auto_render_js = os.path.join(base_dir, "katex", "auto-render.min.js")
+
+        # Получаем CSS-стили (теперь они без тегов <style>)
+        theme_css = self.themes.get(theme_name, self.themes["light"])
+
+        # Стили для печати и колонтитулов
+        # Теперь весь CSS будет обернут в ОДИН тег <style> в конце
+        print_styles = f"""
+<style>
+            {theme_css}
+            @media print {{
+                @page {{
+                    size: A4 portrait;
+                    margin: 2cm 2cm 2cm 2cm;
+                    @top-center {{
+                        content: "Markdown Editor";
+                        font-size: 8pt;
+                        color: #999;
+                    }}
+                    @bottom-center {{
+                        content: counter(page) " / " counter(pages);
+                        font-size: 8pt;
+                        color: #999;
+                    }}
+                }}
+                h1, h2, h3, h4, h5, h6 {{
+                    page-break-after: avoid;
+                }}
+                h1 {{
+                    page-break-before: always;
+                }}
+                body > h1:first-child {{
+                    page-break-before: auto;
+                }}
+                table, img, pre {{
+                    page-break-inside: avoid;
+                }}
+                body {{
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }}
+            }}
+        </style>
+        """
+        
+        full_html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Markdown Preview — {theme_name}</title>
+    <link rel="stylesheet" href="file://{katex_css}">
+    {print_styles}
+</head>
+<body>
+{html_content}
+
+<script src="file://{katex_js}"></script>
+<script src="file://{auto_render_js}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {{
+        if (typeof renderMathInElement !== 'undefined') {{
+            renderMathInElement(document.body, {{
+                delimiters: [
+                    {{left: "$$", right: "$$", display: true}},
+                    {{left: "$", right: "$", display: false}}
+                ]
+            }});
+        }}
+    }});
+</script>
+</body>
+</html>"""
+        return full_html
+# ... existing code ...
+
+
 
     def process_latex_before_markdown(self, text):
         """Обработка LaTeX-формул в Markdown-тексте (до конвертации в HTML)"""
@@ -641,6 +972,34 @@ class MarkdownEditorPyQt(QMainWindow):
                 self.editor.setTextCursor(cursor)
                 self.update_preview()
 
+    def insert_image(self):
+        """Вставка изображения"""
+        filepath, _ = QFileDialog.getOpenFileName(
+            self,
+            "Вставить изображение",
+            "",
+            "Images (*.png *.jpg *.jpeg *.gif *.bmp *.webp);;All files (*)",
+        )
+        if filepath:
+            # Формируем относительный путь к изображению, если файл рядом с документом
+            # Или используем абсолютный путь, если файл где-то еще.
+            # Для надежности в Markdown лучше использовать относительный путь или url-encoded путь.
+            # Здесь используем абсолютный путь, но экранируем пробелы для совместимости.
+
+            # Простой вариант: вставляем абсолютный путь в скобках
+            # Вариант 2: вставляем относительный путь, если файл лежит в той же папке что и .md
+            # (Требует логики определения текущей директории документа, что сложнее)
+
+            # Пока используем абсолютный путь, но заменяем обратные слеши на прямые (для Windows)
+            display_path = filepath.replace("\\", "/")
+
+            cursor = self.editor.textCursor()
+            # Markdown синтаксис: ![Описание](путь)
+            image_markdown = f"![изображение]({display_path})"
+            cursor.insertText(image_markdown)
+            self.editor.setTextCursor(cursor)
+            self.update_preview()
+
     def toggle_theme(self):
         """Переключение темы предпросмотра"""
         theme_order = ["light", "dark", "contrast"]
@@ -687,7 +1046,6 @@ class MarkdownEditorPyQt(QMainWindow):
                             }
                         """)
         self.editor_theme = theme_name
-        
 
     def toggle_editor_theme(self):
         """Переключение темы редактора"""
@@ -695,7 +1053,7 @@ class MarkdownEditorPyQt(QMainWindow):
         current_idx = theme_order.index(self.editor_theme)
         new_theme = theme_order[(current_idx + 1) % len(theme_order)]
         self.set_editor_theme(new_theme)
-        self.statusbar.showMessage(f"Тема редактора: {new_theme.capitalize()}")   
+        self.statusbar.showMessage(f"Тема редактора: {new_theme.capitalize()}")
 
     def update_char_count(self):
         """Обновление счётчика символов и слов"""
@@ -798,91 +1156,8 @@ class MarkdownEditorPyQt(QMainWindow):
                     self, "Ошибка", f"Не удалось экспортировать в HTML:\n{str(e)}"
                 )
 
-    def export_to_pdf(self):
-        filepath, _ = QFileDialog.getSaveFileName(
-            self, "Экспорт в PDF", "", "PDF files (*.pdf);;All files (*)"
-        )
-        if not filepath:
-            return
-
-        if not filepath.lower().endswith(".pdf"):
-            filepath += ".pdf"
-
-        def _cleanup_and_show_error(msg):
-            try:
-                os.unlink(tmp_path)
-            except Exception:
-                pass
-            QMessageBox.critical(self, "Ошибка", msg)
-
-        try:
-            # Создаём временный HTML-файл
-            with tempfile.NamedTemporaryFile(
-                suffix=".html", delete=False, mode="w", encoding="utf-8"
-            ) as tmp:
-                html_content = self.render_markdown(self.editor.toPlainText())
-                tmp.write(html_content)
-                tmp_path = tmp.name
-
-            # Обработчик загрузки завершён
-            def on_load_finished(ok):
-                if not ok:
-                    _cleanup_and_show_error("Не удалось загрузить HTML для экспорта.")
-                    return
-
-                try:
-                    self.preview.page().loadFinished.disconnect(on_load_finished)
-                except TypeError:
-                    pass
-
-                # Ждём завершения загрузки страницы и рендеринга KaTeX
-                QTimer.singleShot(1500, lambda: self._attempt_pdf_write(filepath, tmp_path))
-
-            self.preview.page().loadFinished.connect(on_load_finished)
-            self.preview.setUrl(QUrl.fromLocalFile(tmp_path))
-
-        except Exception as e:
-            QMessageBox.critical(
-                self, "Ошибка", f"Не удалось экспортировать в PDF:\n{str(e)}"
-            )
-
-    def _attempt_pdf_write(self, filepath, tmp_path):
-        """Попытка записи PDF с повтором, если ещё не готово"""
-        try:
-            page = self.preview.page()
-            if page is None:
-                os.unlink(tmp_path)
-                return
-
-            # Ждём, пока документ загрузится полностью
-            future = page.printToPdf(filepath)
-
-            if future is None:
-                # Если future == None — пробуем снова через 200 мс
-                QTimer.singleShot(200, lambda: self._attempt_pdf_write(filepath, tmp_path))
-                return
-
-            def on_pdf_written(success):
-                try:
-                    os.unlink(tmp_path)
-                except Exception:
-                    pass
-                if success:
-                    self.statusbar.showMessage(f"Экспорт в PDF завершен: {filepath}")
-                else:
-                    QMessageBox.critical(
-                        self, "Ошибка", "Не удалось экспортировать в PDF."
-                    )
-
-            future.then(on_pdf_written)
-
-        except Exception as e:
-            try:
-                os.unlink(tmp_path)
-            except Exception:
-                pass
-            QMessageBox.critical(self, "Ошибка", f"Ошибка печати: {str(e)}")
-
+    
+    # Исправленная версия export_to_pdf с замыканием:
     def export_to_pdf(self):
         """Экспорт в PDF (с использованием отрендеренного HTML)"""
         filepath, _ = QFileDialog.getSaveFileName(
@@ -894,85 +1169,94 @@ class MarkdownEditorPyQt(QMainWindow):
         if not filepath.lower().endswith(".pdf"):
             filepath += ".pdf"
 
-        def _cleanup_and_show_error(msg):
-            try:
-                os.unlink(tmp_path)
-            except Exception:
-                pass
-            QMessageBox.critical(self, "Ошибка", msg)
+        # Показываем сообщение о начале экспорта
+        self.statusbar.showMessage("Экспорт в PDF... Генерация PDF")
 
         try:
             # Создаём временный HTML-файл
+            tmp_path = None
             with tempfile.NamedTemporaryFile(
                 suffix=".html", delete=False, mode="w", encoding="utf-8"
             ) as tmp:
-                html_content = self.render_markdown(self.editor.toPlainText())
+                html_content = self.render_markdown(self.editor.toPlainText(), theme_name=self.theme_name)
                 tmp.write(html_content)
                 tmp_path = tmp.name
 
-            # Обработчик загрузки завершён
+            # Загружаем временный HTML-файл в предпросмотр
+            self.preview.setUrl(QUrl.fromLocalFile(tmp_path))
+
+            # Обработчик завершения загрузки страницы
             def on_load_finished(ok):
                 if not ok:
-                    _cleanup_and_show_error("Не удалось загрузить HTML для экспорта.")
+                    QMessageBox.critical(self, "Ошибка", "Не удалось загрузить HTML для экспорта.")
+                    self.statusbar.showMessage("")
+                    self._cleanup_temp_file(tmp_path)
                     return
 
-                # Удаляем соединение
+                # Отключаем обработчик загрузки, чтобы не вызывать его повторно
                 try:
                     self.preview.page().loadFinished.disconnect(on_load_finished)
                 except TypeError:
-                    pass  # уже отключено
+                    pass
 
                 page = self.preview.page()
                 if page is None:
-                    _cleanup_and_show_error("Страница не инициализирована.")
+                    QMessageBox.critical(self, "Ошибка", "Страница предпросмотра не инициализирована.")
+                    self.statusbar.showMessage("")
+                    self._cleanup_temp_file(tmp_path)
                     return
 
-                # Запускаем печать с задержкой, чтобы KaTeX успел отрисовать формулы
+                # Функция попытки записи PDF
                 def attempt_pdf_write():
                     try:
-                        future = page.printToPdf(filepath)
-                        if future is None:
-                            # Если future == None — пробуем снова через 200 мс
-                            QTimer.singleShot(200, attempt_pdf_write)
-                            return
-
-                        def on_pdf_written(success):
+                        # Используем колбэк. Мы не можем передать аргументы напрямую,
+                        # поэтому используем замыкание внутри attempt_pdf_write
+                        def callback(pdf_data):
                             try:
-                                os.unlink(tmp_path)
-                            except Exception:
-                                pass
-                            if success:
-                                self.statusbar.showMessage(
-                                    f"Экспорт в PDF завершен: {filepath}"
-                                )
-                            else:
-                                QMessageBox.critical(
-                                    self, "Ошибка", "Не удалось экспортировать в PDF."
-                                )
+                                # pdf_data - это QByteArray
+                                with open(filepath, 'wb') as f:
+                                    f.write(bytes(pdf_data))
+                                
+                                self.statusbar.showMessage(f"Экспорт в PDF завершен: {filepath}")
+                            except Exception as e:
+                                QMessageBox.critical(self, "Ошибка", f"Не удалось записать PDF файл: {str(e)}")
+                                self.statusbar.showMessage("")
+                            finally:
+                                self._cleanup_temp_file(tmp_path)
 
-                        future.then(on_pdf_written)
+                        page.printToPdf(callback)
+
                     except Exception as e:
-                        _cleanup_and_show_error(f"Ошибка печати: {str(e)}")
+                        QMessageBox.critical(self, "Ошибка", f"Ошибка печати: {str(e)}")
+                        self.statusbar.showMessage("")
+                        self._cleanup_temp_file(tmp_path)
 
-                # Сначала ждём 500 мс для загрузки скриптов KaTeX
+                # Даем браузеру время обработать загруженный HTML и отрендерить KaTeX
                 QTimer.singleShot(500, attempt_pdf_write)
 
-            # Подключаем loadFinished
+            # Подключаем обработчик загрузки
             self.preview.page().loadFinished.connect(on_load_finished)
 
-            # Загружаем HTML
-            self.preview.setUrl(QUrl.fromLocalFile(tmp_path))
-
         except Exception as e:
-            QMessageBox.critical(
-                self, "Ошибка", f"Не удалось экспортировать в PDF:\n{str(e)}"
-            )
+            QMessageBox.critical(self, "Ошибка", f"Не удалось начать экспорт в PDF:\n{str(e)}")
+            self.statusbar.showMessage("")
+            if tmp_path and os.path.exists(tmp_path):
+                self._cleanup_temp_file(tmp_path)
 
     def _cleanup_temp_file(self, path):
         try:
-            os.unlink(path)
+            if path and os.path.exists(path):
+                os.unlink(path)
         except Exception:
             pass
+
+    def _on_pdf_ready(self, pdf_bytes, filepath, tmp_path):
+        """
+        Этот метод больше не используется напрямую printToPdf,
+        но может быть полезен, если вы решите использовать Future API иначе.
+        """
+        pass
+
 
     def save_last_session(self, filepath):
         """Сохранение последней сессии"""
