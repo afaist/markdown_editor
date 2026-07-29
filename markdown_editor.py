@@ -1364,3 +1364,45 @@ class MarkdownEditorPyQt(QMainWindow):
             "Разработано с использованием Python 3.8+, PyQt6, QtWebEngine\n"
             "Поддержка LaTeX и Markdown.",
         )
+
+    def closeEvent(self, event):
+        """Обработка события закрытия окна"""
+        if self.is_dirty:
+            # Создаем диалог с вопросом о сохранении
+            msg = QMessageBox(self)
+            msg.setWindowTitle("Подтверждение выхода")
+            msg.setText("Вы собираетесь выйти. Сохранить текущий файл?")
+            msg.setStandardButtons(
+                QMessageBox.StandardButton.Save
+                | QMessageBox.StandardButton.Discard
+                | QMessageBox.StandardButton.Cancel
+            )
+            
+            # Устанавливаем текст для кнопок (опционально, стандартные слова "Сохранить", "Отказаться", "Отмена")
+            save_btn = msg.button(QMessageBox.StandardButton.Save)
+            save_btn.setText("Сохранить")
+            discard_btn = msg.button(QMessageBox.StandardButton.Discard)
+            discard_btn.setText("Без сохранения")
+            cancel_btn = msg.button(QMessageBox.StandardButton.Cancel)
+            cancel_btn.setText("Отмена")
+
+            reply = msg.exec()
+
+            if reply == QMessageBox.StandardButton.Save:
+                self.save_file()
+                if self.is_dirty:
+                    # Если сохранение не удалось (например, пользователь отменил "Сохранить как")
+                    event.ignore()
+                    return
+            
+            elif reply == QMessageBox.StandardButton.Cancel:
+                # Отменяем закрытие
+                event.ignore()
+                return
+            
+            else:
+                # Discard changes - продолжаем закрытие
+                event.accept()
+        else:
+            # Если изменений нет, закрываем сразу
+            event.accept()
