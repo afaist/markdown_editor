@@ -232,7 +232,8 @@ markdown_editor/
 │   ├── text_insertions.py       # Вставка форматированного текста
 │   ├── find_replace.py          # Диалог «Найти и заменить»
 │   ├── session_manager.py       # Сохранение/загрузка последней сессии
-│   ├── get_katex.sh             # Скрипт для загрузки KaTeX
+│   ├── get_katex.sh             # Скрипт для загрузки KaTeX (bash)
+│   ├── download_katex.py        # Скрипт для загрузки KaTeX (Python)
 │   ├── download_prism.py        # Скрипт для загрузки Prism.js
 │   ├── katex/                   # Библиотека KaTeX
 │   │   ├── katex.min.css        # Стили KaTeX
@@ -316,14 +317,17 @@ python test_runner.py
 Если файлы KaTeX или Prism.js отсутствуют, запустите соответствующие скрипты:
 
 ```bash
-# Загрузка KaTeX
+# Загрузка KaTeX (bash, загружает в корневую katex/)
 bash get_katex.sh
 
-# Загрузка Prism.js
-python download_prism.py
+# Загрузка KaTeX (Python, загружает в markdown_editor_pkg/katex/)
+python markdown_editor_pkg/download_katex.py
+
+# Загрузка Prism.js (Python, загружает в markdown_editor_pkg/prism/)
+python markdown_editor_pkg/download_prism.py
 ```
 
-> **Примечание:** Скрипты загружают зависимости в корневые папки `katex/` и `prism/` для обратной совместимости. Фактически приложение использует ресурсы из `markdown_editor_pkg/katex/` и `markdown_editor_pkg/prism/`.
+> **Примечание:** `bash get_katex.sh` загружает в корневую папку `katex/` (для обратной совместимости). Рекомендуется использовать `python markdown_editor_pkg/download_katex.py` — он загружает напрямую в `markdown_editor_pkg/katex/`, откуда приложение и подгружает ресурсы. `download_prism.py` также перемещён в `markdown_editor_pkg/`.
 
 ## 📄 Лицензия
 
