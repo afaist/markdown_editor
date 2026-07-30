@@ -1,0 +1,33 @@
+"""Сохранение и загрузка последней сессии (путь к последнему открытому файлу)."""
+
+import json
+from pathlib import Path
+
+
+SESSION_CONFIG_FILE = Path.home() / ".markdown_editor_config.json"
+
+
+class SessionManager:
+    """Сохраняет и восстанавливает путь к последнему открытому файлу."""
+
+    @staticmethod
+    def save(filepath: str) -> None:
+        """Сохранить путь к файлу в конфигурационном файле."""
+        try:
+            config = {"last_file": filepath}
+            with open(SESSION_CONFIG_FILE, "w", encoding="utf-8") as f:
+                json.dump(config, f)
+        except Exception:
+            pass
+
+    @staticmethod
+    def load() -> str | None:
+        """Загрузить путь к последнему файлу. Возвращает None, если не найден."""
+        if not SESSION_CONFIG_FILE.exists():
+            return None
+        try:
+            with open(SESSION_CONFIG_FILE, "r", encoding="utf-8") as f:
+                config = json.load(f)
+            return config.get("last_file")
+        except Exception:
+            return None
