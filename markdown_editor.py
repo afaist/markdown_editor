@@ -504,9 +504,8 @@ class MarkdownEditorPyQt(QMainWindow):
 
         self.statusbar.showMessage("Предпросмотр обновлён")
 
-# ... existing code ...
     def render_markdown(self, text, theme_name="light"):
-        """Рендеринг Markdown в HTML с поддержкой LaTeX (включая блоки кода)"""
+        """Рендеринг Markdown в HTML с поддержкой LaTeX и GitHub Callouts"""
         # Сброс кэша формул
         self.display_math_cache = []
         self.inline_math_cache = []
@@ -572,239 +571,74 @@ class MarkdownEditorPyQt(QMainWindow):
             html_content,
         )
 
-        # Локальные пути к файлам KaTeX
-        base_dir = os.path.dirname(__file__)
-        katex_css = os.path.join(base_dir, "katex", "katex.min.css")
-        katex_js = os.path.join(base_dir, "katex", "katex.min.js")
-        auto_render_js = os.path.join(base_dir, "katex", "auto-render.min.js")
+        # 3. Поддержка зачеркнутого текста (~~text~~)
+        # Так как стандартная библиотека markdown не всегда поддерживает GFM (зачеркивание),
+        # мы обрабатываем это вручную, заменяя ~~ на <del>, но игнорируя содержимое тегов <code> и <pre>.
+        html_content = self._apply_strikethrough(html_content)
 
-        # Получаем CSS-стили (теперь они без тегов <style>)
-        theme_css = self.themes.get(theme_name, self.themes["light"])
+        # 4. Обработка GitHub Callouts
+        # Стандартный парсер markdown превращает все строки > [...] в один <blockquote>
+        # Нам нужно распарсить этот blockquote и разбить его на отдельные div.callout
+        
+        def process_blockquote(match):
+            blockquote_content = match.group(1)
+            
+            # Извлекаем все параграфы <p>...</p> из содержимого blockquote
+            paragraphs = re.findall(r'<p>(.*?)</p>', blockquote_content, re.DOTALL | re.IGNORECASE)
+            
+            if not paragraphs:
+                return match.group(0)
 
-        # Стили для печати и колонтитулов
-        # Теперь весь CSS будет обернут в ОДИН тег <style> в конце
-        print_styles = f"""
-        <style>
-            /* Базовые стили */
-            {theme_css}
+            callouts_html = []
+            current_type = None
+            current_paragraphs = []
 
-            /* Стили для печати/PDF */
-            @media print {{
-                @page {{
-                    size: A4;
-                    margin: 2cm 2.5cm 2cm 2.5cm;
+            def flush_current_callout():
+                nonlocal current_type, current_paragraphs
+                if current_type and current_paragraphs:
+                    # Объединяем параграфы в один текст для callout
+                    content = "\n".join(current_paragraphs)
+                    callouts_html.append(
+                        f'<div class="callout callout-{current_type}">\n{content}\n</div>'
+                    )
+                current_type = None
+                current_paragraphs = []
+
+            for p in paragraphs:
+                # Проверяем, начинается ли параграф с маркера вызова
+                # Ищем [!TYPE] в начале строки (с учетом возможных пробелов)
+                type_match = re.match(r'\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]', p, re.IGNORECASE)
+                
+                if type_match:
+                    # Если это новый тип вызова
+                    # Сначала сохраняем предыдущий вызов, если он был
+                    flush_current_callout()
                     
-                    /* Попытка явного задания колонтитулов */
-                    @top-center {{
-                        content: string(title);
-                        font-size: 9px;
-                        color: #888;
-                    }}
-                    @bottom-center {{
-                        content: "Страница " counter(page) " из " counter(pages);
-                        font-size: 9px;
-                        color: #888;
-                    }}
-                }}
-                
-                /* Заголовки не должны разрываться от текста */
-                h1, h2, h3, h4, h5, h6 {{
-                    page-break-after: avoid;
-                    orphans: 2;
-                    widows: 2;
-                }}
-                
-                /* Новая страница перед каждым h1 */
-                h1 {{
-                    page-break-before: always;
-                }}
-                /* Исключаем первую страницу */
-                body > h1:first-child {{
-                    page-break-before: auto;
-                }}
-                
-                /* Элементы не должны разрываться */
-                table, img, pre {{
-                    page-break-inside: avoid;
-                }}
-                
-                /* Принудительная печать фонов и цветов */
-                body {{
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
-                }}
-                
-                /* Убираем все лишнее */
-                body {{
-                    margin: 0;
-                    padding: 0;
-                }}
-            }}
-        </style>
-        """
+                    current_type = type_match.group(1).lower()
+                    # Добавляем этот параграф как первый в новую группу
+                    current_paragraphs.append(p)
+                else:
+                    # Если текущий параграф не является началом нового callout,
+                    # он является продолжением текущего callout (если он есть)
+                    if current_type:
+                        current_paragraphs.append(p)
+            
+            flush_current_callout()
 
-        # Важно: добавляем мету для заголовка, если мы используем string(title)
-        # Но проще использовать простой текст в @page, как было.
-        # В QtWebEngine string() может не поддерживаться в @page.
-        # Вернемся к простому тексту, но убедимся, что нет конфликтов.
+            # Если мы нашли хотя бы один callout, заменяем весь blockquote на собранные div'ы
+            if callouts_html:
+                return "\n".join(callouts_html)
+            else:
+                # Если callouts не найдены, возвращаем оригинальный блокquote
+                return match.group(0)
 
-        # Исправленная версия print_styles для максимальной совместимости с QtWebEngine:
-        print_styles = f"""
-        <style>
-            /* Базовые стили */
-            {theme_css}
-
-            /* Стили для печати/PDF */
-            @media print {{
-                @page {{
-                    size: A4;
-                    margin: 2cm 2.5cm 2cm 2.5cm;
-                    
-                    /* Попытка явного задания колонтитулов */
-                    @top-center {{
-                        content: string(title);
-                        font-size: 9px;
-                        color: #888;
-                    }}
-                    @bottom-center {{
-                        content: "Страница " counter(page) " из " counter(pages);
-                        font-size: 9px;
-                        color: #888;
-                    }}
-                }}
-                
-                /* Заголовки не должны разрываться от текста */
-                h1, h2, h3, h4, h5, h6 {{
-                    page-break-after: avoid;
-                    orphans: 2;
-                    widows: 2;
-                }}
-                
-                /* Новая страница перед каждым h1 */
-                h1 {{
-                    page-break-before: always;
-                }}
-                /* Исключаем первую страницу */
-                body > h1:first-child {{
-                    page-break-before: auto;
-                }}
-                
-                /* Элементы не должны разрываться */
-                table, img, pre {{
-                    page-break-inside: avoid;
-                }}
-                
-                /* Принудительная печать фонов и цветов */
-                body {{
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
-                }}
-                
-                /* Убираем все лишнее */
-                body {{
-                    margin: 0;
-                    padding: 0;
-                }}
-            }}
-        </style>
-        """
-
-
-        full_html = f"""<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Markdown Preview — {theme_name}</title>
-    <link rel="stylesheet" href="file://{katex_css}">
-    {print_styles}
-</head>
-<body>
-{html_content}
-
-<script src="file://{katex_js}"></script>
-<script src="file://{auto_render_js}"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {{
-        if (typeof renderMathInElement !== 'undefined') {{
-            renderMathInElement(document.body, {{
-                delimiters: [
-                    {{left: "$$", right: "$$", display: true}},
-                    {{left: "$", right: "$", display: false}}
-                ]
-            }});
-        }}
-    }});
-</script>
-</body>
-</html>"""
-        return full_html
-
-
-    def render_markdown(self, text, theme_name="light"):
-        """Рендеринг Markdown в HTML с поддержкой LaTeX (включая блоки кода)"""
-        # Сброс кэша формул
-        self.display_math_cache = []
-        self.inline_math_cache = []
-
-        # Обработка LaTeX-формул до конвертации Markdown
-        processed_text = self.process_latex_before_markdown(text)
-
-        # Конвертация Markdown в HTML
-        import markdown
-
-        md = markdown.Markdown(
-            extensions=[
-                "markdown.extensions.fenced_code",
-                "markdown.extensions.codehilite",
-                "markdown.extensions.tables",
-                "markdown.extensions.toc",
-            ]
-        )
-
-        html_content = md.convert(processed_text)
-
-        # Функция восстановления для обычных случаев
-        def restore_normal(match):
-            index = int(match.group(1))
-            if index < len(self.display_math_cache):
-                return f"$${self.display_math_cache[index]}$$"
-            return match.group(0)
-
-        def restore_inline_normal(match):
-            index = int(match.group(1))
-            if index < len(self.inline_math_cache):
-                return f"${self.inline_math_cache[index]}$"
-            return match.group(0)
-
-        # Функция восстановления для экранированных случаев (внутри codehilite)
-        def restore_escaped(match):
-            index = int(match.group(1))
-            if index < len(self.display_math_cache):
-                return f"$${self.display_math_cache[index]}$$"
-            return match.group(0)
-
-        def restore_inline_escaped(match):
-            index = int(match.group(1))
-            if index < len(self.inline_math_cache):
-                return f"${self.inline_math_cache[index]}$"
-            return match.group(0)
-
-        # 1. Сначала восстанавливаем обычные комментарии (если они не внутри codehilite или если кодихайт не экранировал)
+        # Ищем blockquote и обрабатываем
+        # re.DOTALL позволяет . захватывать переносы строк
         html_content = re.sub(
-            r"<!--\s*display-math-(\d+)\s*-->", restore_normal, html_content
-        )
-        html_content = re.sub(
-            r"<!--\s*inline-math-(\d+)\s*-->", restore_inline_normal, html_content
-        )
-
-        # 2. Затем восстанавливаем экранированные комментарии (которые остались внутри <code>)
-        html_content = re.sub(
-            r"&lt;!--\s*display-math-(\d+)\s*--&gt;", restore_escaped, html_content
-        )
-        html_content = re.sub(
-            r"&lt;!--\s*inline-math-(\d+)\s*--&gt;",
-            restore_inline_escaped,
+            r'<blockquote>(.*?)</blockquote>',
+            process_blockquote,
             html_content,
+            flags=re.DOTALL | re.IGNORECASE
         )
 
         # Локальные пути к файлам KaTeX
@@ -817,27 +651,53 @@ class MarkdownEditorPyQt(QMainWindow):
         theme_css = self.themes.get(theme_name, self.themes["light"])
 
         # Стили для печати и колонтитулов
-        # Теперь весь CSS будет обернут в ОДИН тег <style> в конце
         print_styles = f"""
-<style>
+        <style>
+            /* Базовые стили */
             {theme_css}
+
+            /* Стили для Callouts */
+            .callout {{
+                padding: 1em;
+                margin: 1em 0;
+                border-left: 4px solid;
+                background-color: var(--callout-bg, transparent);
+            }}
+            .callout-note {{ border-color: #0969da; background-color: #ddf4ff; color: #1a1a1a; }}
+            .callout-note.dark {{ background-color: #1a1a1a; color: #ffffff; }}
+            
+            .callout-tip {{ border-color: #1a7f37; background-color: #dafbe1; color: #1a1a1a; }}
+            .callout-tip.dark {{ background-color: #1a1a1a; color: #ffffff; }}
+
+            .callout-important {{ border-color: #8250df; background-color: #eae6ff; color: #1a1a1a; }}
+            .callout-important.dark {{ background-color: #1a1a1a; color: #ffffff; }}
+
+            .callout-warning {{ border-color: #9a6700; background-color: #fff8c5; color: #1a1a1a; }}
+            .callout-warning.dark {{ background-color: #1a1a1a; color: #ffffff; }}
+
+            .callout-caution {{ border-color: #cf222e; background-color: #ffebe9; color: #1a1a1a; }}
+            .callout-caution.dark {{ background-color: #1a1a1a; color: #ffffff; }}
+
+            /* Стили для печати/PDF */
             @media print {{
                 @page {{
-                    size: A4 portrait;
-                    margin: 2cm 2cm 2cm 2cm;
+                    size: A4;
+                    margin: 2cm 2.5cm 2cm 2.5cm;
                     @top-center {{
                         content: "Markdown Editor";
-                        font-size: 8pt;
-                        color: #999;
+                        font-size: 9px;
+                        color: #888;
                     }}
                     @bottom-center {{
-                        content: counter(page) " / " counter(pages);
-                        font-size: 8pt;
-                        color: #999;
+                        content: "Страница " counter(page) " из " counter(pages);
+                        font-size: 9px;
+                        color: #888;
                     }}
                 }}
                 h1, h2, h3, h4, h5, h6 {{
                     page-break-after: avoid;
+                    orphans: 2;
+                    widows: 2;
                 }}
                 h1 {{
                     page-break-before: always;
@@ -852,10 +712,13 @@ class MarkdownEditorPyQt(QMainWindow):
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
                 }}
+                .callout {{
+                    break-inside: avoid;
+                }}
             }}
         </style>
         """
-        
+
         full_html = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -884,9 +747,47 @@ class MarkdownEditorPyQt(QMainWindow):
 </body>
 </html>"""
         return full_html
-# ... existing code ...
 
 
+    def _apply_strikethrough(self, html):
+        """
+        Безопасно заменяет ~~text~~ на <del>text</del>, избегая замены внутри тегов <pre> и <code>.
+        """
+        # Шаблоны для тегов, внутри которых НЕЛЬЗЯ менять ~~
+        # Мы будем заменять только в частях текста, не входящих в эти теги.
+        
+        # Эта функция разбивает HTML на "блоки кода" и "текст", обрабатывает текст и собирает обратно.
+        
+        # Шаблоны для извлечения блоков кода
+        code_pattern = re.compile(r'(<pre>.*?</pre>|<code>.*?</code>)', re.DOTALL)
+        
+        # Сохраняем блоки кода
+        code_blocks = []
+        
+        def save_code(match):
+            code_blocks.append(match.group(0))
+            # Возвращаем уникальный плейсхолдер
+            return f"\x00CODE_BLOCK_{len(code_blocks)-1}\x00"
+        
+        # Заменяем блоки кода на плейсхолдеры
+        processed_html = code_pattern.sub(save_code, html)
+        
+        # Теперь в processed_html нет тегов <pre> и <code>, можно безопасно заменять ~~
+        # Заменяем ~~text~~ на <del>text</del>
+        # Используем re.DOTALL для многострочного текста, если нужно, но обычно стрейкчер однострочный.
+        strikethrough_pattern = re.compile(r'~~(.+?)~~')
+        processed_html = strikethrough_pattern.sub(r'<del>\1</del>', processed_html)
+        
+        # Восстанавливаем блоки кода
+        restore_code_pattern = re.compile(r'\x00CODE_BLOCK_(\d+)\x00')
+        
+        def restore_code(match):
+            idx = int(match.group(1))
+            return code_blocks[idx]
+            
+        final_html = restore_code_pattern.sub(restore_code, processed_html)
+        
+        return final_html
 
     def process_latex_before_markdown(self, text):
         """Обработка LaTeX-формул в Markdown-тексте (до конвертации в HTML)"""
