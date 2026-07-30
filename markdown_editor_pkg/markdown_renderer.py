@@ -1,14 +1,13 @@
-# markdown_editor_pkg/markdown_renderer.py
 """Рендеринг Markdown в HTML с поддержкой LaTeX, тем и GitHub Callouts."""
 
 import os
-import re
 import markdown
 from PyQt6.QtCore import QUrl
 
 from markdown_editor_pkg.latex_processor import LaTeXProcessor, StrikethroughProcessor
 from markdown_editor_pkg.callout_processor import CalloutProcessor
 from markdown_editor_pkg.themes import ThemesManager
+from markdown_editor_pkg.prism_processor import PrismJSProcessor
 
 
 class MarkdownRenderer:
@@ -92,6 +91,7 @@ class MarkdownRenderer:
         self.latex_processor = LaTeXProcessor()
         self.strikethrough_processor = StrikethroughProcessor()
         self.callout_processor = CalloutProcessor()
+        self.prism_processor = PrismJSProcessor()
 
     def render(self, text: str, theme_name: str = "light", base_dir: str = "") -> str:
         """
@@ -106,11 +106,10 @@ class MarkdownRenderer:
         self.latex_processor.reset()
         processed_text = self.latex_processor.process(text)
 
-        # 2. Конвертируем Markdown → HTML
+        # 2. Конвертируем Markdown → HTML (codehilite удалён, используется Prism.js)
         md = markdown.Markdown(
             extensions=[
                 "markdown.extensions.fenced_code",
-                "markdown.extensions.codehilite",
                 "markdown.extensions.tables",
                 "markdown.extensions.toc",
             ]
@@ -163,10 +162,6 @@ class MarkdownRenderer:
         function cleanMathElements() {{
             // Удаляем нулевые пробелы и другие скрытые символы
             container.innerHTML = container.innerHTML.replace(/[\u200B-\u200D\uFEFF]/g, '');
-            
-            // Иногда markdown добавляет переносы строк или пробелы, которые мешают
-            // Попробуем найти все $$ ... $$ и $ ... $ и убедиться, что вокруг нет лишних символов
-            // Но лучше довериться auto-render, если он настроен правильно.
         }}
 
         cleanMathElements();
@@ -178,7 +173,6 @@ class MarkdownRenderer:
                     {{left: "$", right: "$", display: false}}
                 ],
                 throwOnError: false,
-                throwOnError:false, //duplicate key fix if any, though JS objects dont allow dupes
                 displayMode: true
             }});
         }} catch (e) {{
@@ -188,6 +182,9 @@ class MarkdownRenderer:
 </script>
 </body>
 </html>"""
+
+        # 7. Встраиваем Prism.js
+        full_html = self.prism_processor.inject_prism(full_html, theme_name, base_dir)
 
         return full_html
 

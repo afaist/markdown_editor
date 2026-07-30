@@ -384,6 +384,7 @@ class MarkdownEditorPyQt(QMainWindow):
                 self.current_file = last_file
                 self.is_dirty = False
                 self.update_preview()
+                self.update_char_count()
             except Exception:
                 pass
 

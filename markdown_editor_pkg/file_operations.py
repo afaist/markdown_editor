@@ -38,6 +38,7 @@ class FileOperations:
             self.editor.current_file = filepath
             self.editor.is_dirty = False
             self.editor.update_preview()
+            self.editor.update_char_count()
             self.statusbar.showMessage(f"Файл открыт: {filepath}")
             self.editor.save_last_session(filepath)
         except Exception as e:

@@ -44,11 +44,9 @@ def main():
         ("components/prism-css.min.js", f"{base_url}/components/prism-css.min.js"),
         ("components/prism-markup.min.js", f"{base_url}/components/prism-markup.min.js"),
         
-        # CSS Тема Okaidia
+        # CSS Темы Prism.js
         ("themes/prism-okaidia.min.css", f"{base_url}/themes/prism-okaidia.min.css"),
-        
-        # Дополнительные CSS темы для поддержки тем редактора (опционально, но полезно)
-        # Если вы хотите использовать другие темы, добавьте их здесь.
+        ("themes/prism-tomorrow.min.css", f"{base_url}/themes/prism-tomorrow.min.css"),
     ]
 
     for filename, url in files_to_download:
