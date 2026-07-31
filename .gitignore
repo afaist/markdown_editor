@@ -33,6 +33,7 @@ project/
 
 # Generated files
 *.md
+!examples.md
 *.html
 *.pdf
 *.log
