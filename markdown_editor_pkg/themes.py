@@ -1,10 +1,21 @@
 """Темы предпросмотра и редактора Markdown."""
 
 from PyQt6.QtWidgets import QTextEdit
+from PyQt6.QtGui import QFontDatabase
 
 
 class ThemesManager:
-    """Управление темами предпросмотра (CSS для WebView) и редактора."""
+    """Управление темами предпросмотра (CSS для WebView), редактора, шрифтами и размером шрифта."""
+
+    # Стандартные шрифты (без системных)
+    DEFAULT_FONTS = ["Consolas", "Courier New", "Monaco", "Fira Code", "JetBrains Mono",
+                     "Arial", "Times New Roman", "Verdana", "Georgia", "Ubuntu Mono",
+                     "DejaVu Sans Mono", "Liberation Mono", "Menlo", "SF Mono"]
+
+    # Минимальный и максимальный размер шрифта
+    MIN_FONT_SIZE = 6
+    MAX_FONT_SIZE = 72
+    DEFAULT_FONT_SIZE = 11
 
     THEMES_CSS = {
         "light": """
@@ -114,10 +125,49 @@ class ThemesManager:
         """,
     }
 
+    THEME_ORDER = ["light", "dark", "contrast"]
+
+    def __init__(self):
+        self.theme_name = "light"
+        self.editor_theme = "light"
+        # Шрифт и размер шрифта по умолчанию
+        self._font_family = "Consolas"
+        self._font_size = 11
+
+    # ─── CSS-темы (предпросмотр) ───────────────────────────────────────
+
+    def get_preview_css(self) -> str:
+        """Получить CSS для темы предпросмотра."""
+        return self.THEMES_CSS.get(self.theme_name, self.THEMES_CSS["light"])
+
+    def toggle_preview_theme(self) -> str:
+        """Переключить тему предпросмотра. Возвращает новое имя темы."""
+        current_idx = self.THEME_ORDER.index(self.theme_name)
+        self.theme_name = self.THEME_ORDER[(current_idx + 1) % len(self.THEME_ORDER)]
+        return self.theme_name
+
+    def set_preview_theme(self, theme_name: str) -> None:
+        """Установить тему предпросмотра."""
+        if theme_name in self.THEMES_CSS:
+            self.theme_name = theme_name
+
+    # ─── QSS-темы (редактор) ──────────────────────────────────────────
+
+    def get_editor_style(self) -> str:
+        """Получить QSS-стиль для редактора."""
+        base = self.EDITOR_STYLES.get(self.editor_theme, self.EDITOR_STYLES["light"])
+        return base
+
+    def toggle_editor_theme(self) -> str:
+        """Переключить тему редактора. Возвращает новое имя темы."""
+        current_idx = self.THEME_ORDER.index(self.editor_theme)
+        self.editor_theme = self.THEME_ORDER[(current_idx + 1) % len(self.THEME_ORDER)]
+        return self.editor_theme
+
+    # Стили для редактора — хранятся отдельно
     EDITOR_STYLES = {
         "light": """
             QTextEdit {
-                font-family: Arial, sans-serif;
                 background-color: #ffffff;
                 color: #000000;
                 selection-background-color: #666666;
@@ -142,39 +192,85 @@ class ThemesManager:
         """,
     }
 
-    THEME_ORDER = ["light", "dark", "contrast"]
-
-    def __init__(self):
-        self.theme_name = "light"
-        self.editor_theme = "light"
-
-    def get_preview_css(self) -> str:
-        """Получить CSS для темы предпросмотра."""
-        return self.THEMES_CSS.get(self.theme_name, self.THEMES_CSS["light"])
-
-    def get_editor_style(self) -> str:
-        """Получить QSS-стиль для редактора."""
-        return self.EDITOR_STYLES.get(self.editor_theme, self.EDITOR_STYLES["light"])
-
-    def toggle_preview_theme(self) -> str:
-        """Переключить тему предпросмотра. Возвращает новое имя темы."""
-        current_idx = self.THEME_ORDER.index(self.theme_name)
-        self.theme_name = self.THEME_ORDER[(current_idx + 1) % len(self.THEME_ORDER)]
-        return self.theme_name
-
-    def set_preview_theme(self, theme_name: str) -> None:
-        """Установить тему предпросмотра."""
-        if theme_name in self.THEMES_CSS:
-            self.theme_name = theme_name
-
-    def toggle_editor_theme(self) -> str:
-        """Переключить тему редактора. Возвращает новое имя темы."""
-        current_idx = self.THEME_ORDER.index(self.editor_theme)
-        self.editor_theme = self.THEME_ORDER[(current_idx + 1) % len(self.THEME_ORDER)]
-        return self.editor_theme
-
     def set_editor_theme(self, theme_name: str, text_edit: QTextEdit) -> None:
         """Установить тему редактора и применить стиль к QTextEdit."""
         if theme_name in self.EDITOR_STYLES:
             self.editor_theme = theme_name
             text_edit.setStyleSheet(self.EDITOR_STYLES[theme_name])
+            # Применяем текущий шрифт и размер
+            self._apply_font_to_edit(text_edit)
+
+    # ─── Шрифт и размер шрифта ────────────────────────────────────────
+
+    @property
+    def font_family(self) -> str:
+        """Текущее имя шрифта."""
+        return self._font_family
+
+    @font_family.setter
+    def font_family(self, family: str) -> None:
+        """Установить имя шрифта."""
+        if family:
+            self._font_family = family
+
+    @property
+    def font_size(self) -> int:
+        """Текущий размер шрифта."""
+        return self._font_size
+
+    def _apply_font_to_edit(self, text_edit: QTextEdit) -> None:
+        """Применить текущие параметры шрифта к QTextEdit."""
+        if text_edit is None:
+            return
+        # Проверяем, является ли text_edit экземпляром QTextEdit, чтобы избежать ошибок типа
+        if not hasattr(text_edit, 'font'):
+            return
+            
+        font = text_edit.font()
+        font.setFamily(self._font_family)
+        font.setPointSize(self._font_size)
+        text_edit.setFont(font)
+
+    def set_font(self, family: str, size: int, text_edit: QTextEdit | None) -> None:
+        """Установить шрифт и размер, применить к QTextEdit."""
+        if text_edit is None:
+            self._font_family = family
+            self._font_size = size
+            return
+
+        self._font_family = family
+        self._font_size = size
+        self._apply_font_to_edit(text_edit)
+            
+    def increase_font(self, text_edit: QTextEdit, step: int = 1) -> int:
+        """Увеличить размер шрифта. Возвращает новый размер."""
+        self._font_size = min(self.MAX_FONT_SIZE, self._font_size + step)
+        if text_edit is not None:
+            self._apply_font_to_edit(text_edit)
+        return self._font_size
+
+    def decrease_font(self, text_edit: QTextEdit, step: int = 1) -> int:
+        """Уменьшить размер шрифта. Возвращает новый размер."""
+        self._font_size = max(self.MIN_FONT_SIZE, self._font_size - step)
+        if text_edit is not None:
+            self._apply_font_to_edit(text_edit)
+        return self._font_size
+
+    def get_available_fonts(self) -> list:
+        """Получить список доступных шрифтов: сначала DEFAULT_FONTS, затем системные."""
+        db = QFontDatabase.families()
+        # Сначала шрифты из списка, которые есть в системе
+        result = [f for f in self.DEFAULT_FONTS if f in db]
+        # Затем все остальные системные шрифты (без дубликатов)
+        
+        for f in sorted(db):
+            if f not in result:
+                result.append(f)
+        return result
+
+    def reset_font_to_default(self, text_edit: QTextEdit | None) -> None:
+        """Сбросить шрифт и размер к значениям по умолчанию."""
+        self._font_family = "Consolas"
+        self._font_size = 11
+        if text_edit is not None:
+            self._apply_font_to_edit(text_edit)

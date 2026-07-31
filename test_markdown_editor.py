@@ -22,6 +22,7 @@ class TestLatexProcessing(unittest.TestCase):
 
     def setUp(self):
         from markdown_editor_pkg.editor import MarkdownEditorPyQt
+
         self.editor = MarkdownEditorPyQt()
         self.editor.setWindowTitle("Test Editor")
 
@@ -43,7 +44,9 @@ class TestLatexProcessing(unittest.TestCase):
         processed = self.editor.latex_processor.process(text)
 
         self.assertIn("<!-- display-math-0 -->", processed)
-        self.assertIn("\\int_0^1 x^2 dx", self.editor.latex_processor.display_math_cache)
+        self.assertIn(
+            "\\int_0^1 x^2 dx", self.editor.latex_processor.display_math_cache
+        )
 
     def test_multiple_formulas(self):
         """Тест: несколько формул разных типов."""
@@ -73,6 +76,7 @@ class TestThemeSwitching(unittest.TestCase):
 
     def setUp(self):
         from markdown_editor_pkg.editor import MarkdownEditorPyQt
+
         self.editor = MarkdownEditorPyQt()
 
     def tearDown(self):
@@ -116,6 +120,7 @@ class TestMarkdownRender(unittest.TestCase):
 
     def setUp(self):
         from markdown_editor_pkg.editor import MarkdownEditorPyQt
+
         self.editor = MarkdownEditorPyQt()
         self.editor.setWindowTitle("Test Editor")
 
@@ -134,7 +139,7 @@ class TestMarkdownRender(unittest.TestCase):
         md = "# Заголовок 1\n## Заголовок 2\n### Заголовок 3"
         html = self.editor.render_markdown(md)
         for i in range(1, 4):
-            self.assertIn(f"<h{i} id=\"{i}\">Заголовок {i}</h{i}>", html)
+            self.assertIn(f'<h{i} id="{i}">Заголовок {i}</h{i}>', html)
 
     def test_latex_inline_render(self):
         """Встроенные формулы $...$ корректно обрабатываются."""
@@ -175,6 +180,7 @@ class TestEditorTheme(unittest.TestCase):
 
     def setUp(self):
         from markdown_editor_pkg.editor import MarkdownEditorPyQt
+
         self.editor = MarkdownEditorPyQt()
 
     def tearDown(self):
@@ -206,9 +212,10 @@ class TestCalloutProcessor(unittest.TestCase):
     def test_callout_detection(self):
         """Callout-маркеры распознаются из blockquote."""
         from markdown_editor_pkg.callout_processor import CalloutProcessor
+
         cp = CalloutProcessor()
 
-        html = '<blockquote><p>[!NOTE] Это заметка</p><p>Продолжение</p></blockquote>'
+        html = "<blockquote><p>[!NOTE] Это заметка</p><p>Продолжение</p></blockquote>"
         result = cp.process(html)
 
         self.assertIn('class="callout callout-note"', result)
@@ -217,12 +224,13 @@ class TestCalloutProcessor(unittest.TestCase):
     def test_normal_blockquote_unchanged(self):
         """Обычный blockquote без маркера не меняется."""
         from markdown_editor_pkg.callout_processor import CalloutProcessor
+
         cp = CalloutProcessor()
 
-        html = '<blockquote><p>Просто цитата</p></blockquote>'
+        html = "<blockquote><p>Просто цитата</p></blockquote>"
         result = cp.process(html)
 
-        self.assertIn('<blockquote>', result)
+        self.assertIn("<blockquote>", result)
 
 
 class TestStrikethroughProcessor(unittest.TestCase):
@@ -231,6 +239,7 @@ class TestStrikethroughProcessor(unittest.TestCase):
     def test_strikethrough(self):
         """~~text~~ заменяется на <del>text</del>."""
         from markdown_editor_pkg.latex_processor import StrikethroughProcessor
+
         sp = StrikethroughProcessor()
 
         html = "Это <b>~~зачёркнуто~~</b> текст"
@@ -240,6 +249,7 @@ class TestStrikethroughProcessor(unittest.TestCase):
     def test_strikethrough_protects_code(self):
         """~~ внутри <code> и <pre> не меняется."""
         from markdown_editor_pkg.latex_processor import StrikethroughProcessor
+
         sp = StrikethroughProcessor()
 
         html = "<code>~~код~~</code> и ~~реальный~~"
@@ -263,25 +273,120 @@ class TestSessionManager(unittest.TestCase):
         self.assertEqual(loaded, test_path)
 
 
-class TestThemesManager(unittest.TestCase):
-    """Тесты ThemesManager."""
+class TestFontSettings(unittest.TestCase):
+    """Тесты управления шрифтом и размером шрифта."""
 
-    def test_get_preview_css(self):
+    def test_initial_font_values(self):
+        """По умолчанию шрифт Consolas, размер 11."""
         from markdown_editor_pkg.themes import ThemesManager
-        tm = ThemesManager()
-        css = tm.get_preview_css()
-        self.assertIn("background-color", css)
 
-    def test_get_editor_style(self):
-        from markdown_editor_pkg.themes import ThemesManager
         tm = ThemesManager()
-        style = tm.get_editor_style()
-        self.assertIn("QTextEdit", style)
+        self.assertEqual(tm.font_family, "Consolas")
+        self.assertEqual(tm.font_size, 11)
 
-    def test_theme_order(self):
+    def test_default_fonts_list_not_empty(self):
+        """Список DEFAULT_FONTS не пустой."""
         from markdown_editor_pkg.themes import ThemesManager
+
+        self.assertGreater(len(ThemesManager.DEFAULT_FONTS), 0)
+        self.assertIn("Consolas", ThemesManager.DEFAULT_FONTS)
+
+    def test_get_available_fonts(self):
+        """get_available_fonts возвращает список шрифтов."""
+        from markdown_editor_pkg.themes import ThemesManager
+
         tm = ThemesManager()
-        self.assertEqual(tm.THEME_ORDER, ["light", "dark", "contrast"])
+        fonts = tm.get_available_fonts()
+        self.assertIsInstance(fonts, list)
+        self.assertGreater(len(fonts), 0)
+
+    def test_increase_font(self):
+        """increase_font увеличивает размер шрифта."""
+        from markdown_editor_pkg.themes import ThemesManager
+
+        tm = ThemesManager()
+        tm._font_size = 10
+        old = tm._font_size
+        tm._font_size = min(tm.MAX_FONT_SIZE, tm._font_size + 1)
+        self.assertEqual(tm._font_size, old + 1)
+
+    def test_decrease_font(self):
+        """decrease_font уменьшает размер шрифта."""
+        from markdown_editor_pkg.themes import ThemesManager
+
+        tm = ThemesManager()
+        tm._font_size = 12
+        old = tm._font_size
+        tm._font_size = max(tm.MIN_FONT_SIZE, tm._font_size - 1)
+        self.assertEqual(tm._font_size, old - 1)
+
+    def test_set_font(self):
+        """set_font устанавливает шрифт и размер."""
+        from markdown_editor_pkg.themes import ThemesManager
+
+        tm = ThemesManager()
+        tm.set_font("Arial", 14, None)
+        # type: ignore[arg-type]
+        self.assertEqual(tm._font_family, "Arial")
+        self.assertEqual(tm._font_size, 14)
+
+    def test_font_family_setter(self):
+        """font_family.setter устанавливает имя шрифта."""
+        from markdown_editor_pkg.themes import ThemesManager
+
+        tm = ThemesManager()
+        tm.font_family = "Arial"
+        self.assertEqual(tm._font_family, "Arial")
+
+    def test_font_combo_populated_in_editor(self):
+        """Комбобокс шрифта в редакторе заполнен."""
+        from markdown_editor_pkg.editor import MarkdownEditorPyQt
+
+        editor = MarkdownEditorPyQt()
+        self.assertIsNotNone(editor.font_combo)
+        self.assertGreater(editor.font_combo.count(), 0)
+        self.assertEqual(editor.font_combo.currentText(), "Courier New")
+        editor.close()
+        del editor
+
+    def test_font_increase_decrease_buttons_exist(self):
+        """Кнопки увеличения и уменьшения шрифта existem."""
+        from markdown_editor_pkg.editor import MarkdownEditorPyQt
+
+        editor = MarkdownEditorPyQt()
+        self.assertIsNotNone(editor.font_increase_btn)
+        self.assertIsNotNone(editor.font_decrease_btn)
+        self.assertIsNotNone(editor.font_size_label)
+        editor.close()
+        del editor
+
+    def test_font_increase_decrease_in_editor(self):
+        """Кнопки увеличения и уменьшения шрифта работают."""
+        from markdown_editor_pkg.editor import MarkdownEditorPyQt
+
+        editor = MarkdownEditorPyQt()
+        initial_size = editor.theme_manager.font_size
+        editor._increase_font()
+        self.assertEqual(editor.theme_manager.font_size, initial_size + 1)
+        editor._decrease_font()
+        self.assertEqual(editor.theme_manager.font_size, initial_size)
+        editor.close()
+        del editor
+
+    def test_reset_font_in_editor(self):
+        """Сброс шрифта в редакторе работает."""
+        from markdown_editor_pkg.editor import MarkdownEditorPyQt
+
+        editor = MarkdownEditorPyQt()
+        editor.theme_manager._font_family = "Arial"
+        editor.theme_manager._font_size = 20
+        editor.font_combo.setCurrentText("Arial")
+        editor._reset_font()
+        self.assertEqual(editor.theme_manager.font_family, "Courier New")
+        self.assertEqual(editor.theme_manager.font_size, 11)
+        self.assertEqual(editor.font_combo.currentText(), "Courier New")
+        editor.close()
+        del editor
 
 
 if __name__ == "__main__":

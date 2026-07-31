@@ -14,6 +14,8 @@ from PyQt6.QtWidgets import (
     QMessageBox,
     QStatusBar,
     QLabel,
+    QComboBox,
+    QPushButton,
 )
 
 from markdown_editor_pkg.themes import ThemesManager
@@ -57,6 +59,12 @@ class MarkdownEditorPyQt(QMainWindow):
         self.preview_timer = QTimer()
         self.preview_timer.setSingleShot(True)
         self.preview_timer.timeout.connect(self.update_preview)
+
+        # Ссылки на виджеты шрифта
+        self.font_combo: QComboBox | None = None
+        self.font_size_label: QLabel | None = None
+        self.font_increase_btn: QPushButton | None = None
+        self.font_decrease_btn: QPushButton | None = None
 
         # Инициализация
         self.init_ui()
@@ -110,7 +118,6 @@ class MarkdownEditorPyQt(QMainWindow):
         preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         preview_layout.addWidget(preview_label)
 
-        from PyQt6.QtWebEngineWidgets import QWebEngineView
         self.preview = QWebEngineView()
         preview_layout.addWidget(self.preview)
 
@@ -173,6 +180,65 @@ class MarkdownEditorPyQt(QMainWindow):
             action.triggered.connect(callback)
             toolbar.addAction(action)
 
+        toolbar.addSeparator()
+
+        # ─── Выбор шрифта ───
+        self.font_combo = QComboBox()
+        available_fonts = self.theme_manager.get_available_fonts()
+        self.font_combo.addItems(available_fonts)
+        
+        # Гарантируем, что текущий шрифт в ThemesManager выбран
+        current_family = self.theme_manager.font_family
+        
+        # Пробуем найти и установить шрифт
+        # Используем findText для проверки наличия, а затем setCurrentIndex для точности
+        font_idx = self.font_combo.findText(current_family, Qt.MatchFlag.MatchExactly)
+        
+        if font_idx >= 0:
+            self.font_combo.setCurrentIndex(font_idx)
+        elif available_fonts:
+            # Если текущего шрифта нет в списке (редкий случай), ищем "Consolas" принудительно
+            # если он есть в списке, иначе берем первый доступный
+            consolas_idx = self.font_combo.findText("Consolas", Qt.MatchFlag.MatchExactly)
+            if consolas_idx >= 0:
+                self.font_combo.setCurrentIndex(consolas_idx)
+            else:
+                self.font_combo.setCurrentIndex(0)
+        
+        # Связываем изменение шрифта
+        self.font_combo.currentTextChanged.connect(self._on_font_changed)
+
+        self.font_combo.setMinimumWidth(160)
+        toolbar.addWidget(self.font_combo)
+        
+        # ─── Размер шрифта: + ───
+        self.font_increase_btn = QPushButton("+")
+        self.font_increase_btn.setToolTip("Увеличить шрифт")
+        self.font_increase_btn.setFixedWidth(32)
+        self.font_increase_btn.clicked.connect(self._increase_font)
+        toolbar.addWidget(self.font_increase_btn)
+
+        # ─── Отображение размера шрифта ───
+        self.font_size_label = QLabel("11")
+        self.font_size_label.setToolTip("Размер шрифта")
+        self.font_size_label.setFixedWidth(30)
+        self.font_size_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        toolbar.addWidget(self.font_size_label)
+
+        # ─── Размер шрифта: − ───
+        self.font_decrease_btn = QPushButton("−")
+        self.font_decrease_btn.setToolTip("Уменьшить шрифт")
+        self.font_decrease_btn.setFixedWidth(32)
+        self.font_decrease_btn.clicked.connect(self._decrease_font)
+        toolbar.addWidget(self.font_decrease_btn)
+
+        # ─── Сброс шрифта ───
+        toolbar.addSeparator()
+        reset_action = QAction("Сбросить шрифт", self)
+        reset_action.setToolTip("Сбросить шрифт и размер к значениям по умолчанию")
+        reset_action.triggered.connect(self._reset_font)
+        toolbar.addAction(reset_action)
+
     def setup_menu(self) -> None:
         """Настройка меню."""
         menubar = self.menuBar()
@@ -223,6 +289,9 @@ class MarkdownEditorPyQt(QMainWindow):
         view_menu = menubar.addMenu("Вид")
         if view_menu is not None:
             view_menu.addAction(QAction("Обновить предпросмотр", self, triggered=self.update_preview))
+            view_menu.addSeparator()
+
+            # Темы предпросмотра
             view_menu.addAction(QAction("Тема: светлая", self,
                                         triggered=lambda: self.set_theme("light")))
             view_menu.addAction(QAction("Тема: тёмная", self,
@@ -230,17 +299,86 @@ class MarkdownEditorPyQt(QMainWindow):
             view_menu.addAction(QAction("Тема: контрастная", self,
                                         triggered=lambda: self.set_theme("contrast")))
             view_menu.addSeparator()
+
+            # Темы редактора
             view_menu.addAction(QAction("Тема редактора: светлая", self,
                                         triggered=lambda: self.set_editor_theme("light")))
             view_menu.addAction(QAction("Тема редактора: тёмная", self,
                                         triggered=lambda: self.set_editor_theme("dark")))
             view_menu.addAction(QAction("Тема редактора: контрастная", self,
                                         triggered=lambda: self.set_editor_theme("contrast")))
+            view_menu.addSeparator()
+
+            # Шрифт
+            view_menu.addAction(QAction("Увеличить шрифт", self,
+                                        triggered=self._increase_font,
+                                        shortcut=QKeySequence.StandardKey.ZoomIn))
+            view_menu.addAction(QAction("Уменьшить шрифт", self,
+                                        triggered=self._decrease_font,
+                                        shortcut=QKeySequence.StandardKey.ZoomOut))
+            view_menu.addAction(QAction("Сбросить шрифт", self,
+                                        triggered=self._reset_font,
+                                        shortcut=QKeySequence("Ctrl+0")))
 
         # Справка
         help_menu = menubar.addMenu("Справка")
         if help_menu is not None:
             help_menu.addAction(QAction("О программе", self, triggered=self._show_about))
+
+    # ─── Обработчики шрифта ──────────────────────────────────────────────
+
+    def _on_font_changed(self, family: str) -> None:
+        """Обработка изменения шрифта из комбобокса."""
+        self.theme_manager.set_font(family, self.theme_manager.font_size, self.editor)
+        self._update_font_size_label()
+        if self._statusbar_ref:
+            self._statusbar_ref.showMessage(f"Шрифт: {family}, размер: {self.theme_manager.font_size}")
+
+    def _increase_font(self) -> None:
+        """Увеличить размер шрифта."""
+        new_size = self.theme_manager.increase_font(self.editor)
+        self._update_font_size_label()
+        if self._statusbar_ref:
+            self._statusbar_ref.showMessage(f"Размер шрифта: {new_size}")
+
+    def _decrease_font(self) -> None:
+        """Уменьшить размер шрифта."""
+        new_size = self.theme_manager.decrease_font(self.editor)
+        self._update_font_size_label()
+        if self._statusbar_ref:
+            self._statusbar_ref.showMessage(f"Размер шрифта: {new_size}")
+
+    def _reset_font(self) -> None:
+        """Сбросить шрифт к значениям по умолчанию."""
+        self.theme_manager.reset_font_to_default(self.editor)
+        if self.font_combo:
+            # Ищем Consolas в комбобоксе
+            font_idx = self.font_combo.findText("Consolas", Qt.MatchFlag.MatchExactly)
+            if font_idx >= 0:
+                self.font_combo.setCurrentIndex(font_idx)
+            else:
+                # Consolas нет в системе — ищем первый шрифт из DEFAULT_FONTS,
+                # который есть в комбобоксе, либо берём первый доступный
+                for default_font in self.theme_manager.DEFAULT_FONTS:
+                    idx = self.font_combo.findText(default_font, Qt.MatchFlag.MatchExactly)
+                    if idx >= 0:
+                        self.font_combo.setCurrentIndex(idx)
+                        break
+                else:
+                    # Fallback: первый доступный шрифт
+                    if self.font_combo.count() > 0:
+                        self.font_combo.setCurrentIndex(0)
+                        # Синхронизируем theme_manager с тем, что реально выбрано в комбобоксе
+                        self.theme_manager._font_family = self.font_combo.currentText()
+                        self._update_font_size_label()
+        if self._statusbar_ref:
+            self._statusbar_ref.showMessage(
+                f"Шрифт сброшен: {self.theme_manager.font_family}, размер: {self.theme_manager.font_size}")
+                        
+    def _update_font_size_label(self) -> None:
+        """Обновить метку с размером шрифта."""
+        if self.font_size_label:
+            self.font_size_label.setText(str(self.theme_manager.font_size))
 
     # ─── Обработчики событий ─────────────────────────────────────────────
 

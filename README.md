@@ -133,7 +133,7 @@ def hello():
 
 #### GitHub Callouts
 
-```markdown
+
 > [!note]
 > Замечание
 
@@ -148,7 +148,6 @@ def hello():
 
 > [!caution]
 > Осторожно
-```
 
 #### Темы оформления
 
