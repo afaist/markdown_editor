@@ -162,8 +162,7 @@ int main() {
 
 Пример ссылки на изображение:
 
-![Пример изображения]("https://ru.ruwiki.ru/wiki/%D0%A4%D0%B0%D0%B9%D0%BB:Gorno-Altaysk_Center_0665.jpg")
-
+![изображение](pk.webp)
 ---
 
 ## Таблицы
