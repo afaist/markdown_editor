@@ -45,16 +45,6 @@ class MarkdownRenderer:
                 @page {{
                     size: A4;
                     margin: 2cm 2.5cm 2cm 2.5cm;
-                    @top-center {{
-                        content: "Markdown Editor";
-                        font-size: 9px;
-                        color: #888;
-                    }}
-                    @bottom-center {{
-                        content: "Страница " counter(page) " из " counter(pages);
-                        font-size: 9px;
-                        color: #888;
-                    }}
                 }}
                 h1, h2, h3, h4, h5, h6 {{
                     page-break-after: avoid;
@@ -78,6 +68,47 @@ class MarkdownRenderer:
                     break-inside: avoid;
                 }}
             }}
+
+            /* Колонтитулы — для экрана и печати */
+            .page-header {{
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                padding: 1.2cm 2.5cm 0.5cm 2.5cm;
+                text-align: center;
+                font-size: 9px;
+                color: #888;
+                border-bottom: 1px solid #ddd;
+                z-index: 1000;
+            }}
+            .page-footer {{
+                display: none;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 0.5cm 2.5cm 1.2cm 2.5cm;
+                text-align: center;
+                font-size: 9px;
+                color: #888;
+                border-top: 1px solid #ddd;
+                z-index: 1000;
+            }}
+
+            @media print {{
+                .page-header {{
+                    display: block;
+                }}
+                .page-footer {{
+                    display: block;
+                }}
+                body {{
+                    padding-top: 1.5cm;
+                    padding-bottom: 1.5cm;
+                }}
+            }}
         </style>
     """
 
@@ -93,7 +124,7 @@ class MarkdownRenderer:
         self.callout_processor = CalloutProcessor()
         self.prism_processor = PrismJSProcessor()
 
-    def render(self, text: str, theme_name: str = "light", base_dir: str = "") -> str:
+    def render(self, text: str, theme_name: str = "light", base_dir: str = "", headers: dict = None) -> str:
         """
         Рендерит Markdown в полный HTML-документ.
         
@@ -101,6 +132,7 @@ class MarkdownRenderer:
             text: Markdown-текст.
             theme_name: Имя темы ("light", "dark", "contrast").
             base_dir: Директория для относительных путей к ресурсам.
+            headers: Словарь с настройками колонтитулов.
         """
         # 1. Извлекаем LaTeX-формулы
         self.latex_processor.reset()
@@ -134,6 +166,17 @@ class MarkdownRenderer:
         katex_js = os.path.join(base_dir, self.KATEX_JS) if base_dir else self.KATEX_JS
         auto_render_js = os.path.join(base_dir, self.KATEX_AUTO_RENDER_JS) if base_dir else self.KATEX_AUTO_RENDER_JS
 
+        # Формируем колонтитулы
+        show_headers = headers.get("show_headers", False) if headers else False
+        header_text = headers.get("header_text", "") if headers else ""
+        footer_text = headers.get("footer_text", "") if headers else ""
+
+        header_html = ""
+        footer_html = ""
+        if show_headers:
+            header_html = f'<div class="page-header">{header_text}</div>\n'
+            footer_html = f'<div class="page-footer">{footer_text}</div>\n'
+
         full_html = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -143,7 +186,9 @@ class MarkdownRenderer:
     {print_styles}
 </head>
 <body>
+{header_html}
 {html_content}
+{footer_html}
 
 <script src="file://{katex_js}"></script>
 <script src="file://{auto_render_js}"></script>
@@ -161,7 +206,7 @@ class MarkdownRenderer:
         // Функция для очистки содержимого
         function cleanMathElements() {{
             // Удаляем нулевые пробелы и другие скрытые символы
-            container.innerHTML = container.innerHTML.replace(/[\u200B-\u200D\uFEFF]/g, '');
+            container.innerHTML = container.innerHTML.replace(/[\\u200B-\\u200D\\uFEFF]/g, '');
         }}
 
         cleanMathElements();

@@ -94,6 +94,19 @@ class FileOperations:
 
     # ─── Экспорт ─────────────────────────────────────────────────────────
 
+    def _get_pdf_headers(self) -> dict:
+        """Возвращает настройки колонтитулов для PDF-экспорта."""
+        filename = self.editor.current_file or ""
+        doc_title = "Markdown Editor"
+        if filename:
+            doc_title = os.path.basename(filename)
+
+        return {
+            "show_headers": True,
+            "header_text": doc_title,
+            "footer_text": "markdown_editor",
+        }
+
     def export_to_html(self) -> None:
         """Экспортировать Markdown в HTML-файл."""
         filepath, _ = QFileDialog.getSaveFileName(
@@ -135,10 +148,12 @@ class FileOperations:
             with tempfile.NamedTemporaryFile(
                 suffix=".html", delete=False, mode="w", encoding="utf-8"
             ) as tmp:
+                headers = self._get_pdf_headers()
                 html_content = self.renderer.render(
                     self.editor.editor.toPlainText(),
                     theme_name=self.editor.theme_manager.theme_name,
                     base_dir=os.path.dirname(__file__),
+                    headers=headers,
                 )
                 tmp.write(html_content)
                 tmp_path = tmp.name

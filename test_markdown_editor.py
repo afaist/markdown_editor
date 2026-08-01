@@ -389,5 +389,98 @@ class TestFontSettings(unittest.TestCase):
         del editor
 
 
+class TestPdfHeaders(unittest.TestCase):
+    """Тесты колонтитулов при экспорте в PDF."""
+
+    def setUp(self):
+        from markdown_editor_pkg.editor import MarkdownEditorPyQt
+
+        self.editor = MarkdownEditorPyQt()
+        self.editor.setWindowTitle("Test Editor")
+
+    def tearDown(self):
+        self.editor.close()
+        del self.editor
+
+    def test_render_with_headers(self):
+        """Рендеринг с колонтитулами включает page-header и page-footer."""
+        headers = {
+            "show_headers": True,
+            "header_text": "TestDoc.md",
+            "footer_text": "Страница {page}",
+        }
+        html = self.editor.renderer.render(
+            "# Hello",
+            theme_name="light",
+            headers=headers,
+        )
+        self.assertIn('class="page-header"', html)
+        self.assertIn('class="page-footer"', html)
+        self.assertIn("TestDoc.md", html)
+        self.assertIn("Страница {page}", html)
+
+    def test_render_without_headers(self):
+        """Рендеринг без колонтитулов не включает page-header/footer."""
+        html = self.editor.renderer.render(
+            "# Hello",
+            theme_name="light",
+            headers={"show_headers": False},
+        )
+        self.assertNotIn('class="page-header"', html)
+        self.assertNotIn('class="page-footer"', html)
+
+    def test_render_default_no_headers(self):
+        """Рендеринг без параметра headers не включает колонтитулы."""
+        html = self.editor.renderer.render(
+            "# Hello",
+            theme_name="light",
+        )
+        self.assertNotIn('class="page-header"', html)
+        self.assertNotIn('class="page-footer"', html)
+
+    def test_pdf_headers_in_print_styles(self):
+        """PRINT_STYLES_TEMPLATE содержит стили для колонтитулов."""
+        template = self.editor.renderer.PRINT_STYLES_TEMPLATE
+        self.assertIn(".page-header", template)
+        self.assertIn(".page-footer", template)
+        self.assertIn("position: fixed", template)
+        self.assertIn("@media print", template)
+
+    def test_pdf_headers_no_css_page_center(self):
+        """PRINT_STYLES_TEMPLATE не содержит нерабочие @top-center."""
+        template = self.editor.renderer.PRINT_STYLES_TEMPLATE
+        self.assertNotIn("@top-center", template)
+        self.assertNotIn("@bottom-center", template)
+
+
+class TestFileOperationsHeaders(unittest.TestCase):
+    """Тесты колонтитулов в FileOperations."""
+
+    def setUp(self):
+        from markdown_editor_pkg.editor import MarkdownEditorPyQt
+
+        self.editor = MarkdownEditorPyQt()
+        self.editor.setWindowTitle("Test Editor")
+
+    def tearDown(self):
+        self.editor.close()
+        del self.editor
+
+    def test_get_pdf_headers_no_file(self):
+        """Колонтитулы без открытого файла используют default название."""
+        self.editor.current_file = None
+        headers = self.editor.file_ops._get_pdf_headers()
+        self.assertTrue(headers["show_headers"])
+        self.assertEqual(headers["header_text"], "Markdown Editor")
+        self.assertIn("markdown_editor", headers["footer_text"])
+
+    def test_get_pdf_headers_with_file(self):
+        """Колонтитулы с открытым файлом используют имя файла."""
+        self.editor.current_file = "/home/user/my_document.md"
+        headers = self.editor.file_ops._get_pdf_headers()
+        self.assertTrue(headers["show_headers"])
+        self.assertEqual(headers["header_text"], "my_document.md")
+
+
 if __name__ == "__main__":
     unittest.main()
