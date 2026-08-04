@@ -131,12 +131,16 @@ class MarkdownEditorPyQt(QMainWindow):
 
         self.char_count_label = QLabel("Символов: 0")
         self.word_count_label = QLabel("Слов: 0")
+        self.file_name_label = QLabel("")
+        self.file_name_label.setMinimumWidth(250)
+        self._statusbar_ref.addPermanentWidget(self.file_name_label)
         self._statusbar_ref.addPermanentWidget(self.char_count_label)
         self._statusbar_ref.addPermanentWidget(self.word_count_label)
 
         # -- Связи --
         self.editor.textChanged.connect(self.on_text_change)
         self.editor.textChanged.connect(self.update_char_count)
+        self.editor.textChanged.connect(self.update_file_status)
 
         # -- Панели --
         self.setup_toolbar()
@@ -392,6 +396,27 @@ class MarkdownEditorPyQt(QMainWindow):
         self.preview_timer.stop()
         self.preview_timer.start(300)
 
+    def update_file_status(self) -> None:
+        """Обновить отображение имени файла в строке состояния."""
+        if not self.file_name_label:
+            return
+
+        if self.current_file:
+            filename = os.path.basename(self.current_file)
+            if self.is_dirty:
+                self.file_name_label.setText(f"Файл не сохранён. {filename}")
+                self.file_name_label.setStyleSheet("color: #cc6600; font-weight: bold;")
+            else:
+                self.file_name_label.setText(filename)
+                self.file_name_label.setStyleSheet("color: #333333; font-weight: normal;")
+        else:
+            if self.is_dirty:
+                self.file_name_label.setText("Файл не сохранён. Имя не задано.")
+                self.file_name_label.setStyleSheet("color: #cc0000; font-weight: bold;")
+            else:
+                self.file_name_label.setText("")
+                self.file_name_label.setStyleSheet("color: #333333; font-weight: normal;")
+
     def update_preview(self) -> None:
         """Обновить предпросмотр."""
         markdown_text = self.editor.toPlainText()
@@ -535,6 +560,7 @@ class MarkdownEditorPyQt(QMainWindow):
                 self.is_dirty = False
                 self.update_preview()
                 self.update_char_count()
+                self.update_file_status()
             except Exception:
                 pass
 

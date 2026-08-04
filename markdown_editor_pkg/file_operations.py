@@ -45,6 +45,7 @@ class FileOperations:
             self.editor.is_dirty = False
             self.editor.update_preview()
             self.editor.update_char_count()
+            self.editor.update_file_status()
             self.statusbar.showMessage(f"Файл открыт: {filepath}")
             self.editor.save_last_session(filepath)
         except Exception as e:
@@ -61,6 +62,7 @@ class FileOperations:
             with open(self.editor.current_file, "w", encoding="utf-8") as f:
                 f.write(content)
             self.editor.is_dirty = False
+            self.editor.update_file_status()
             self.statusbar.showMessage(f"Файл сохранен: {self.editor.current_file}")
         except Exception as e:
             QMessageBox.critical(self.editor, "Ошибка", f"Не удалось сохранить файл:\n{str(e)}")
@@ -96,6 +98,7 @@ class FileOperations:
         self.editor.current_file = None
         self.editor.is_dirty = False
         self.editor.update_preview()
+        self.editor.update_file_status()
         self.statusbar.showMessage("Новый файл создан")
 
     # ─── Экспорт ─────────────────────────────────────────────────────────
