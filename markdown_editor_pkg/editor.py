@@ -1,4 +1,4 @@
-"""Главный класс MarkdownEditorPyQt — собирает все подмодули в одно целое."""
+"""Главный класс MarkdownEditorPyQt - собирает все подмодули в одно целое."""
 
 import os
 from PyQt6.QtCore import QUrl, Qt, QTimer
@@ -24,6 +24,7 @@ from markdown_editor_pkg.file_operations import FileOperations
 from markdown_editor_pkg.text_insertions import TextInsertions
 from markdown_editor_pkg.find_replace import FindReplaceDialog
 from markdown_editor_pkg.session_manager import SessionManager
+from markdown_editor_pkg.header_footer_dialog import HeaderFooterDialog
 
 from markdown_editor_pkg.latex_processor import LaTeXProcessor
 from PyQt6.QtWebEngineWidgets import QWebEngineView
@@ -83,7 +84,7 @@ class MarkdownEditorPyQt(QMainWindow):
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
         self.setCentralWidget(self.splitter)
 
-        # — Редактор —
+        # -- Редактор --
         self.editor_frame = QFrame()
         editor_layout = QVBoxLayout()
         editor_layout.setSpacing(0)
@@ -104,7 +105,7 @@ class MarkdownEditorPyQt(QMainWindow):
 
         self.splitter.addWidget(self.editor_frame)
 
-        # — Предпросмотр —
+        # -- Предпросмотр --
         self.preview_frame = QFrame()
         preview_layout = QVBoxLayout()
         preview_layout.setSpacing(0)
@@ -124,7 +125,7 @@ class MarkdownEditorPyQt(QMainWindow):
         self.splitter.addWidget(self.preview_frame)
         self.splitter.setSizes([600, 600])
 
-        # — Строка состояния —
+        # -- Строка состояния --
         self._statusbar_ref = QStatusBar()
         self.setStatusBar(self._statusbar_ref)
 
@@ -133,11 +134,11 @@ class MarkdownEditorPyQt(QMainWindow):
         self._statusbar_ref.addPermanentWidget(self.char_count_label)
         self._statusbar_ref.addPermanentWidget(self.word_count_label)
 
-        # — Связи —
+        # -- Связи --
         self.editor.textChanged.connect(self.on_text_change)
         self.editor.textChanged.connect(self.update_char_count)
 
-        # — Панели —
+        # -- Панели --
         self.setup_toolbar()
         self.setup_menu()
 
@@ -182,7 +183,7 @@ class MarkdownEditorPyQt(QMainWindow):
 
         toolbar.addSeparator()
 
-        # ─── Выбор шрифта ───
+        # -- Выбор шрифта --
         self.font_combo = QComboBox()
         available_fonts = self.theme_manager.get_available_fonts()
         self.font_combo.addItems(available_fonts)
@@ -191,14 +192,11 @@ class MarkdownEditorPyQt(QMainWindow):
         current_family = self.theme_manager.font_family
         
         # Пробуем найти и установить шрифт
-        # Используем findText для проверки наличия, а затем setCurrentIndex для точности
         font_idx = self.font_combo.findText(current_family, Qt.MatchFlag.MatchExactly)
         
         if font_idx >= 0:
             self.font_combo.setCurrentIndex(font_idx)
         elif available_fonts:
-            # Если текущего шрифта нет в списке (редкий случай), ищем "Consolas" принудительно
-            # если он есть в списке, иначе берем первый доступный
             consolas_idx = self.font_combo.findText("Consolas", Qt.MatchFlag.MatchExactly)
             if consolas_idx >= 0:
                 self.font_combo.setCurrentIndex(consolas_idx)
@@ -211,28 +209,28 @@ class MarkdownEditorPyQt(QMainWindow):
         self.font_combo.setMinimumWidth(160)
         toolbar.addWidget(self.font_combo)
         
-        # ─── Размер шрифта: + ───
+        # -- Размер шрифта: + --
         self.font_increase_btn = QPushButton("+")
         self.font_increase_btn.setToolTip("Увеличить шрифт")
         self.font_increase_btn.setFixedWidth(32)
         self.font_increase_btn.clicked.connect(self._increase_font)
         toolbar.addWidget(self.font_increase_btn)
 
-        # ─── Отображение размера шрифта ───
+        # -- Отображение размера шрифта --
         self.font_size_label = QLabel("11")
         self.font_size_label.setToolTip("Размер шрифта")
         self.font_size_label.setFixedWidth(30)
         self.font_size_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         toolbar.addWidget(self.font_size_label)
 
-        # ─── Размер шрифта: − ───
-        self.font_decrease_btn = QPushButton("−")
+        # -- Размер шрифта: - --
+        self.font_decrease_btn = QPushButton("-")
         self.font_decrease_btn.setToolTip("Уменьшить шрифт")
         self.font_decrease_btn.setFixedWidth(32)
         self.font_decrease_btn.clicked.connect(self._decrease_font)
         toolbar.addWidget(self.font_decrease_btn)
 
-        # ─── Сброс шрифта ───
+        # -- Сброс шрифта --
         toolbar.addSeparator()
         reset_action = QAction("Сбросить шрифт", self)
         reset_action.setToolTip("Сбросить шрифт и размер к значениям по умолчанию")
@@ -261,6 +259,7 @@ class MarkdownEditorPyQt(QMainWindow):
             file_menu.addSeparator()
             file_menu.addAction(QAction("Экспорт в HTML", self, triggered=self.file_ops.export_to_html))
             file_menu.addAction(QAction("Экспорт в PDF", self, triggered=self.file_ops.export_to_pdf))
+            file_menu.addAction(QAction("Настройки PDF-экспорта...", self, triggered=self._show_pdf_settings))
             file_menu.addSeparator()
             file_menu.addAction(QAction("Выход", self, triggered=self.close,
                                         shortcut=QKeySequence.StandardKey.Quit))
@@ -357,7 +356,7 @@ class MarkdownEditorPyQt(QMainWindow):
             if font_idx >= 0:
                 self.font_combo.setCurrentIndex(font_idx)
             else:
-                # Consolas нет в системе — ищем первый шрифт из DEFAULT_FONTS,
+                # Consolas нет в системе - ищем первый шрифт из DEFAULT_FONTS,
                 # который есть в комбобоксе, либо берём первый доступный
                 for default_font in self.theme_manager.DEFAULT_FONTS:
                     idx = self.font_combo.findText(default_font, Qt.MatchFlag.MatchExactly)
@@ -418,6 +417,19 @@ class MarkdownEditorPyQt(QMainWindow):
         self.editor.blockSignals(True)
         self.editor.setPlainText(text)
         self.editor.blockSignals(False)
+
+    # ─── PDF настройки ───────────────────────────────────────────────────
+
+    def _show_pdf_settings(self) -> None:
+        """Открыть диалог настроек PDF-экспорта."""
+        current_headers = self.file_ops._pdf_headers if self.file_ops._pdf_headers is not None else None
+        dialog = HeaderFooterDialog(self, current_headers=current_headers)
+        if dialog.exec() == HeaderFooterDialog.DialogCode.Accepted:
+            headers = dialog.get_headers()
+            self.file_ops.set_pdf_headers(headers)
+            if self._statusbar_ref:
+                status = "Настройки PDF-экспорта сохранены" if headers["show_headers"] else "Колонтитулы PDF отключены"
+                self._statusbar_ref.showMessage(status)
 
     # ─── Обратная совместимость (для старых тестов) ─────────────────────
 

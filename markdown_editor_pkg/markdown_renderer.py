@@ -27,7 +27,7 @@ class MarkdownRenderer:
             }}
             .callout-note {{ border-color: #0969da; background-color: #ddf4ff; color: #1a1a1a; }}
             .callout-note.dark {{ background-color: #1a1a1a; color: #ffffff; }}
-            
+
             .callout-tip {{ border-color: #1a7f37; background-color: #dafbe1; color: #1a1a1a; }}
             .callout-tip.dark {{ background-color: #1a1a1a; color: #ffffff; }}
 
@@ -42,10 +42,6 @@ class MarkdownRenderer:
 
             /* Стили для печати/PDF */
             @media print {{
-                @page {{
-                    size: A4;
-                    margin: 2cm 2.5cm 2cm 2.5cm;
-                }}
                 h1, h2, h3, h4, h5, h6 {{
                     page-break-after: avoid;
                     orphans: 2;
@@ -67,9 +63,21 @@ class MarkdownRenderer:
                 .callout {{
                     break-inside: avoid;
                 }}
+
+                /* Колонтитулы — видны при печати */
+                .page-header {{
+                    display: block !important;
+                }}
+                .page-footer {{
+                    display: block !important;
+                }}
+                body {{
+                    padding-top: 1.5cm;
+                    padding-bottom: 1.5cm;
+                }}
             }}
 
-            /* Колонтитулы — для экрана и печати */
+            /* Колонтитулы - скрыты на экране, фиксированные при печати */
             .page-header {{
                 display: none;
                 position: fixed;
@@ -96,19 +104,6 @@ class MarkdownRenderer:
                 border-top: 1px solid #ddd;
                 z-index: 1000;
             }}
-
-            @media print {{
-                .page-header {{
-                    display: block;
-                }}
-                .page-footer {{
-                    display: block;
-                }}
-                body {{
-                    padding-top: 1.5cm;
-                    padding-bottom: 1.5cm;
-                }}
-            }}
         </style>
     """
 
@@ -127,7 +122,7 @@ class MarkdownRenderer:
     def render(self, text: str, theme_name: str = "light", base_dir: str = "", headers: dict = None) -> str:
         """
         Рендерит Markdown в полный HTML-документ.
-        
+
         Args:
             text: Markdown-текст.
             theme_name: Имя темы ("light", "dark", "contrast").
@@ -177,6 +172,22 @@ class MarkdownRenderer:
             header_html = f'<div class="page-header">{header_text}</div>\n'
             footer_html = f'<div class="page-footer">{footer_text}</div>\n'
 
+        # JS для замены placeholder {page} на реальное число страниц
+        page_count_js = ""
+        if show_headers and "{page}" in footer_text:
+            page_count_js = f"""
+    document.addEventListener("DOMContentLoaded", function() {{
+        // Оценка числа страниц: делим высоту контента на высоту видимой области
+        const contentHeight = document.body.scrollHeight;
+        const viewHeight = window.innerHeight || document.documentElement.clientHeight;
+        const pageCount = Math.max(1, Math.ceil(contentHeight / viewHeight));
+    
+        const footer = document.querySelector('.page-footer');
+        if (footer) {{
+            footer.textContent = footer.textContent.replace('{{page}}', String(pageCount));
+        }}
+    }});"""
+    
         full_html = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -202,7 +213,7 @@ class MarkdownRenderer:
 
         // Убираем скрытые символы и нормализуем пробелы вокруг формул
         const container = document.body;
-        
+
         // Функция для очистки содержимого
         function cleanMathElements() {{
             // Удаляем нулевые пробелы и другие скрытые символы
@@ -225,6 +236,7 @@ class MarkdownRenderer:
         }}
     }});
 </script>
+{page_count_js}
 </body>
 </html>"""
 

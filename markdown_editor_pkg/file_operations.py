@@ -17,6 +17,12 @@ class FileOperations:
         self.editor = editor
         self.statusbar = statusbar
         self.renderer = renderer
+        # Настройки колонтитулов PDF (None = использовать значения по умолчанию)
+        self._pdf_headers: dict | None = None
+
+    def set_pdf_headers(self, headers: dict) -> None:
+        """Установить пользовательские настройки колонтитулов PDF."""
+        self._pdf_headers = headers
 
     # ─── Открытие / Сохранение ───────────────────────────────────────────
 
@@ -96,6 +102,10 @@ class FileOperations:
 
     def _get_pdf_headers(self) -> dict:
         """Возвращает настройки колонтитулов для PDF-экспорта."""
+        # Если пользователь задал настройки — используем их
+        if self._pdf_headers is not None:
+            return self._pdf_headers
+
         filename = self.editor.current_file or ""
         doc_title = "Markdown Editor"
         if filename:
@@ -104,7 +114,7 @@ class FileOperations:
         return {
             "show_headers": True,
             "header_text": doc_title,
-            "footer_text": "markdown_editor",
+                        "footer_text": "markdown_editor — {page} стр.",
         }
 
     def export_to_html(self) -> None:

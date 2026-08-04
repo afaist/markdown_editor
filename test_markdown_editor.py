@@ -452,6 +452,22 @@ class TestPdfHeaders(unittest.TestCase):
         self.assertNotIn("@top-center", template)
         self.assertNotIn("@bottom-center", template)
 
+    def test_page_count_js_injected_with_placeholder(self):
+        """JS для нумерации страниц добавляется при наличии {page} в footer."""
+        headers = {
+            "show_headers": True,
+            "header_text": "Test",
+            "footer_text": "Страница {page}",
+        }
+        html = self.editor.renderer.render(
+            "# Hello",
+            theme_name="light",
+            headers=headers,
+        )
+        self.assertIn("scrollHeight", html)
+        self.assertIn("pageCount", html)
+        self.assertIn("page-footer", html)
+
 
 class TestFileOperationsHeaders(unittest.TestCase):
     """Тесты колонтитулов в FileOperations."""
@@ -473,6 +489,7 @@ class TestFileOperationsHeaders(unittest.TestCase):
         self.assertTrue(headers["show_headers"])
         self.assertEqual(headers["header_text"], "Markdown Editor")
         self.assertIn("markdown_editor", headers["footer_text"])
+        self.assertIn("{page}", headers["footer_text"])
 
     def test_get_pdf_headers_with_file(self):
         """Колонтитулы с открытым файлом используют имя файла."""
@@ -480,6 +497,7 @@ class TestFileOperationsHeaders(unittest.TestCase):
         headers = self.editor.file_ops._get_pdf_headers()
         self.assertTrue(headers["show_headers"])
         self.assertEqual(headers["header_text"], "my_document.md")
+        self.assertIn("{page}", headers["footer_text"])
 
 
 if __name__ == "__main__":
