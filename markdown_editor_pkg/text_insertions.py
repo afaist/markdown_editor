@@ -81,3 +81,40 @@ class TextInsertions:
             cursor.insertText(image_markdown)
             self.editor.editor.setTextCursor(cursor)
             self.editor.update_preview()
+
+    def insert_inline_latex(self) -> None:
+        """Вставляет $...$ и помещает курсор между ними."""
+        cursor = self.editor.editor.textCursor()
+        cursor.insertText("$")
+        
+        # Вставляем закрывающий $
+        cursor.insertText("$")
+        # Перемещаем курсор на одну позицию назад (внутрь закрывающего $, т.е. между ними)
+        cursor.movePosition(QTextCursor.MoveOperation.Left)
+        self.editor.editor.setTextCursor(cursor)
+        self.editor.update_preview()
+
+    def insert_block_latex(self) -> None:
+        """Вставляет $$\n$$ и помещает курсор между ними (на новую строку)."""
+        cursor = self.editor.editor.textCursor()
+        cursor.insertText("\n$$\n\n$$")
+        # Курсор сейчас в конце второй строки.
+        # Нам нужно поставить его в начало второй строки (после первого \n и второго $)
+        # Путь: Вверх (к первому \n), Направо (к первому $), Направо (к первому $), Направо (к концу первой строки/началу второй)
+        
+        # Проще: двигаться назад до начала первой строки, затем вперед на 4 символа ($, $, \n)
+        # Но стандартные операции QTextCursor работают посимвольно.
+        
+        # Алгоритм:
+        # 1. Вставили "$$\n$$"
+        # 2. Cursor находится сразу после последнего $.
+        # 3. Нам нужно переместить его на позицию сразу после "\n$$".
+        # Длина вставленного текста без последнего $: 5 символов ($$ + \n + $$) -> нет, 4 символа до последнего символа.
+        # Индекс 0: $, 1: $, 2: \n, 3: $, 4: $ (курсор тут, длина 5)
+        # Нам нужно индекс 3 (сразу после третьего символа).
+        
+        # Двигаемся назад на 2 символа (от конца до начала второго $$)
+        cursor.movePosition(QTextCursor.MoveOperation.Left, n=3)
+        
+        self.editor.editor.setTextCursor(cursor)
+        self.editor.update_preview()

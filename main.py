@@ -5,8 +5,11 @@ Markdown Editor - Простой редактор Markdown с предпросм
 
 from markdown_editor_pkg.editor import MarkdownEditorPyQt
 import sys
+
+
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt
+
 
 def main():
     """Основная функция приложения"""
@@ -14,6 +17,7 @@ def main():
     window = MarkdownEditorPyQt()
     window.show()
     sys.exit(app.exec())
+
 
 if __name__ == "__main__":
     main()

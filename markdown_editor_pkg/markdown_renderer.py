@@ -173,20 +173,23 @@ class MarkdownRenderer:
             footer_html = f'<div class="page-footer">{footer_text}</div>\n'
 
         # JS для замены placeholder {page} на реальное число страниц
+        # Этот блок теперь корректно обернут в <script> и не будет выведен как текст
         page_count_js = ""
         if show_headers and "{page}" in footer_text:
             page_count_js = f"""
+<script>
     document.addEventListener("DOMContentLoaded", function() {{
-        // Оценка числа страниц: делим высоту контента на высоту видимой области
         const contentHeight = document.body.scrollHeight;
         const viewHeight = window.innerHeight || document.documentElement.clientHeight;
+        // Избегаем деления на ноль и учитываем min 1 страницу
         const pageCount = Math.max(1, Math.ceil(contentHeight / viewHeight));
     
         const footer = document.querySelector('.page-footer');
         if (footer) {{
             footer.textContent = footer.textContent.replace('{{page}}', String(pageCount));
         }}
-    }});"""
+    }});
+</script>"""
     
         full_html = f"""<!DOCTYPE html>
 <html>
@@ -196,7 +199,7 @@ class MarkdownRenderer:
     <link rel="stylesheet" href="file://{katex_css}">
     {print_styles}
 </head>
-<body>
+<body
 {header_html}
 {html_content}
 {footer_html}
@@ -204,7 +207,7 @@ class MarkdownRenderer:
 <script src="file://{katex_js}"></script>
 <script src="file://{auto_render_js}"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {{
+        document.addEventListener("DOMContentLoaded", function() {{
         // Проверяем, загружен ли KaTeX
         if (typeof renderMathInElement === 'undefined') {{
             console.error("KaTeX auto-render not loaded");

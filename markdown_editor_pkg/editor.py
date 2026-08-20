@@ -2,7 +2,7 @@
 
 import os
 from PyQt6.QtCore import QUrl, Qt, QTimer
-from PyQt6.QtGui import QFont, QAction, QKeySequence
+from PyQt6.QtGui import QFont, QAction, QKeySequence, QCloseEvent
 from PyQt6.QtWidgets import (
     QMainWindow,
     QTextEdit,
@@ -159,8 +159,8 @@ class MarkdownEditorPyQt(QMainWindow):
             ("Список", self.text_insertions.insert_unordered_list),
             ("Цитата", lambda: self.text_insertions.insert_text("> ")),
             ("Код", lambda: self.text_insertions.insert_text("```\n```")),
-            ("LaTeX inline", lambda: self.text_insertions.insert_text("$")),
-            ("LaTeX block", lambda: self.text_insertions.insert_text("$$\n$$")),
+            ("LaTeX inline", self.text_insertions.insert_inline_latex),
+            ("LaTeX block", self.text_insertions.insert_block_latex),
             ("Ссылка", self.text_insertions.insert_link),
             ("Изображение", self.text_insertions.insert_image),
             ("Тема", self._toggle_theme),
@@ -250,83 +250,157 @@ class MarkdownEditorPyQt(QMainWindow):
         # Файл
         file_menu = menubar.addMenu("Файл")
         if file_menu is not None:
-            file_menu.addAction(QAction("Новый", self, triggered=self.file_ops.new_file,
-                                        shortcut=QKeySequence.StandardKey.New))
-            file_menu.addAction(QAction("Открыть", self, triggered=self.file_ops.open_file,
-                                        shortcut=QKeySequence.StandardKey.Open))
-            file_menu.addAction(QAction("Сохранить", self, triggered=self.file_ops.save_file,
-                                        shortcut=QKeySequence.StandardKey.Save))
-            file_menu.addAction(QAction("Сохранить как...", self, triggered=self.file_ops.save_file_as))
+            new_action = QAction("Новый", self)
+            new_action.setShortcut(QKeySequence.StandardKey.New)
+            new_action.triggered.connect(self.file_ops.new_file)
+            file_menu.addAction(new_action)
+
+            open_action = QAction("Открыть", self)
+            open_action.setShortcut(QKeySequence.StandardKey.Open)
+            open_action.triggered.connect(self.file_ops.open_file)
+            file_menu.addAction(open_action)
+
+            save_action = QAction("Сохранить", self)
+            save_action.setShortcut(QKeySequence.StandardKey.Save)
+            save_action.triggered.connect(self.file_ops.save_file)
+            file_menu.addAction(save_action)
+
+            save_as_action = QAction("Сохранить как...", self)
+            save_as_action.triggered.connect(self.file_ops.save_file_as)
+            file_menu.addAction(save_as_action)
+
             file_menu.addSeparator()
-            file_menu.addAction(QAction("Закрыть", self, triggered=self.close,
-                                        shortcut=QKeySequence.StandardKey.Close))
+
+            close_action = QAction("Закрыть", self)
+            close_action.setShortcut(QKeySequence.StandardKey.Close)
+            close_action.triggered.connect(self.close)
+            file_menu.addAction(close_action)
+
             file_menu.addSeparator()
-            file_menu.addAction(QAction("Экспорт в HTML", self, triggered=self.file_ops.export_to_html))
-            file_menu.addAction(QAction("Экспорт в PDF", self, triggered=self.file_ops.export_to_pdf))
-            file_menu.addAction(QAction("Настройки PDF-экспорта...", self, triggered=self._show_pdf_settings))
+
+            export_html_action = QAction("Экспорт в HTML", self)
+            export_html_action.triggered.connect(self.file_ops.export_to_html)
+            file_menu.addAction(export_html_action)
+
+            export_pdf_action = QAction("Экспорт в PDF", self)
+            export_pdf_action.triggered.connect(self.file_ops.export_to_pdf)
+            file_menu.addAction(export_pdf_action)
+
+            pdf_settings_action = QAction("Настройки PDF-экспорта...", self)
+            pdf_settings_action.triggered.connect(self._show_pdf_settings)
+            file_menu.addAction(pdf_settings_action)
+
             file_menu.addSeparator()
-            file_menu.addAction(QAction("Выход", self, triggered=self.close,
-                                        shortcut=QKeySequence.StandardKey.Quit))
+
+            exit_action = QAction("Выход", self)
+            exit_action.setShortcut(QKeySequence.StandardKey.Quit)
+            exit_action.triggered.connect(self.close)
+            file_menu.addAction(exit_action)
 
         # Правка
         edit_menu = menubar.addMenu("Правка")
         if edit_menu is not None:
-            edit_menu.addAction(QAction("Отменить", self, triggered=self.editor.undo,
-                                        shortcut=QKeySequence.StandardKey.Undo))
-            edit_menu.addAction(QAction("Повторить", self, triggered=self.editor.redo,
-                                        shortcut=QKeySequence.StandardKey.Redo))
+            undo_action = QAction("Отменить", self)
+            undo_action.setShortcut(QKeySequence.StandardKey.Undo)
+            undo_action.triggered.connect(self.editor.undo)
+            edit_menu.addAction(undo_action)
+
+            redo_action = QAction("Повторить", self)
+            redo_action.setShortcut(QKeySequence.StandardKey.Redo)
+            redo_action.triggered.connect(self.editor.redo)
+            edit_menu.addAction(redo_action)
+
             edit_menu.addSeparator()
-            edit_menu.addAction(QAction("Вырезать", self, triggered=self.editor.cut,
-                                        shortcut=QKeySequence.StandardKey.Cut))
-            edit_menu.addAction(QAction("Копировать", self, triggered=self.editor.copy,
-                                        shortcut=QKeySequence.StandardKey.Copy))
-            edit_menu.addAction(QAction("Вставить", self, triggered=self.editor.paste,
-                                        shortcut=QKeySequence.StandardKey.Paste))
+
+            cut_action = QAction("Вырезать", self)
+            cut_action.setShortcut(QKeySequence.StandardKey.Cut)
+            cut_action.triggered.connect(self.editor.cut)
+            edit_menu.addAction(cut_action)
+
+            copy_action = QAction("Копировать", self)
+            copy_action.setShortcut(QKeySequence.StandardKey.Copy)
+            copy_action.triggered.connect(self.editor.copy)
+            edit_menu.addAction(copy_action)
+
+            paste_action = QAction("Вставить", self)
+            paste_action.setShortcut(QKeySequence.StandardKey.Paste)
+            paste_action.triggered.connect(self.editor.paste)
+            edit_menu.addAction(paste_action)
+
             edit_menu.addSeparator()
-            edit_menu.addAction(QAction("Найти и заменить", self, triggered=self._find_replace,
-                                        shortcut=QKeySequence.StandardKey.Find))
+
+            find_action = QAction("Найти и заменить", self)
+            find_action.setShortcut(QKeySequence.StandardKey.Find)
+            find_action.triggered.connect(self._find_replace)
+            edit_menu.addAction(find_action)
+
             edit_menu.addSeparator()
-            edit_menu.addAction(QAction("Вставить изображение...", self, triggered=self.text_insertions.insert_image))
+
+            insert_image_action = QAction("Вставить изображение...", self)
+            insert_image_action.triggered.connect(self.text_insertions.insert_image)
+            edit_menu.addAction(insert_image_action)
 
         # Вид
         view_menu = menubar.addMenu("Вид")
         if view_menu is not None:
-            view_menu.addAction(QAction("Обновить предпросмотр", self, triggered=self.update_preview))
+            update_preview_action = QAction("Обновить предпросмотр", self)
+            update_preview_action.triggered.connect(self.update_preview)
+            view_menu.addAction(update_preview_action)
+
             view_menu.addSeparator()
 
             # Темы предпросмотра
-            view_menu.addAction(QAction("Тема: светлая", self,
-                                        triggered=lambda: self.set_theme("light")))
-            view_menu.addAction(QAction("Тема: тёмная", self,
-                                        triggered=lambda: self.set_theme("dark")))
-            view_menu.addAction(QAction("Тема: контрастная", self,
-                                        triggered=lambda: self.set_theme("contrast")))
+            light_theme_action = QAction("Тема: светлая", self)
+            light_theme_action.triggered.connect(lambda: self.set_theme("light"))
+            view_menu.addAction(light_theme_action)
+
+            dark_theme_action = QAction("Тема: тёмная", self)
+            dark_theme_action.triggered.connect(lambda: self.set_theme("dark"))
+            view_menu.addAction(dark_theme_action)
+
+            contrast_theme_action = QAction("Тема: контрастная", self)
+            contrast_theme_action.triggered.connect(lambda: self.set_theme("contrast"))
+            view_menu.addAction(contrast_theme_action)
+
             view_menu.addSeparator()
 
             # Темы редактора
-            view_menu.addAction(QAction("Тема редактора: светлая", self,
-                                        triggered=lambda: self.set_editor_theme("light")))
-            view_menu.addAction(QAction("Тема редактора: тёмная", self,
-                                        triggered=lambda: self.set_editor_theme("dark")))
-            view_menu.addAction(QAction("Тема редактора: контрастная", self,
-                                        triggered=lambda: self.set_editor_theme("contrast")))
+            editor_light_action = QAction("Тема редактора: светлая", self)
+            editor_light_action.triggered.connect(lambda: self.set_editor_theme("light"))
+            view_menu.addAction(editor_light_action)
+
+            editor_dark_action = QAction("Тема редактора: тёмная", self)
+            editor_dark_action.triggered.connect(lambda: self.set_editor_theme("dark"))
+            view_menu.addAction(editor_dark_action)
+
+            editor_contrast_action = QAction("Тема редактора: контрастная", self)
+            editor_contrast_action.triggered.connect(lambda: self.set_editor_theme("contrast"))
+            view_menu.addAction(editor_contrast_action)
+
             view_menu.addSeparator()
 
             # Шрифт
-            view_menu.addAction(QAction("Увеличить шрифт", self,
-                                        triggered=self._increase_font,
-                                        shortcut=QKeySequence.StandardKey.ZoomIn))
-            view_menu.addAction(QAction("Уменьшить шрифт", self,
-                                        triggered=self._decrease_font,
-                                        shortcut=QKeySequence.StandardKey.ZoomOut))
-            view_menu.addAction(QAction("Сбросить шрифт", self,
-                                        triggered=self._reset_font,
-                                        shortcut=QKeySequence("Ctrl+0")))
+            font_increase_action = QAction("Увеличить шрифт", self)
+            font_increase_action.setShortcut(QKeySequence.StandardKey.ZoomIn)
+            font_increase_action.triggered.connect(self._increase_font)
+            view_menu.addAction(font_increase_action)
+
+            font_decrease_action = QAction("Уменьшить шрифт", self)
+            font_decrease_action.setShortcut(QKeySequence.StandardKey.ZoomOut)
+            font_decrease_action.triggered.connect(self._decrease_font)
+            view_menu.addAction(font_decrease_action)
+
+            font_reset_action = QAction("Сбросить шрифт", self)
+            font_reset_action.setShortcut(QKeySequence("Ctrl+0"))
+            font_reset_action.triggered.connect(self._reset_font)
+            view_menu.addAction(font_reset_action)
 
         # Справка
         help_menu = menubar.addMenu("Справка")
         if help_menu is not None:
-            help_menu.addAction(QAction("О программе", self, triggered=self._show_about))
+            about_action = QAction("О программе", self)
+            about_action.triggered.connect(self._show_about)
+            help_menu.addAction(about_action)
 
     # ─── Обработчики шрифта ──────────────────────────────────────────────
 
@@ -445,9 +519,10 @@ class MarkdownEditorPyQt(QMainWindow):
 
     # ─── PDF настройки ───────────────────────────────────────────────────
 
+# ... existing code ...
     def _show_pdf_settings(self) -> None:
         """Открыть диалог настроек PDF-экспорта."""
-        current_headers = self.file_ops._pdf_headers if self.file_ops._pdf_headers is not None else None
+        current_headers = self.file_ops._pdf_headers if self.file_ops._pdf_headers is not None else {}
         dialog = HeaderFooterDialog(self, current_headers=current_headers)
         if dialog.exec() == HeaderFooterDialog.DialogCode.Accepted:
             headers = dialog.get_headers()
@@ -455,6 +530,7 @@ class MarkdownEditorPyQt(QMainWindow):
             if self._statusbar_ref:
                 status = "Настройки PDF-экспорта сохранены" if headers["show_headers"] else "Колонтитулы PDF отключены"
                 self._statusbar_ref.showMessage(status)
+
 
     # ─── Обратная совместимость (для старых тестов) ─────────────────────
 
@@ -578,7 +654,8 @@ class MarkdownEditorPyQt(QMainWindow):
 
     # ─── Закрытие ────────────────────────────────────────────────────────
 
-    def closeEvent(self, event) -> None:  # noqa: N802
+# ... existing code ...
+    def closeEvent(self, event_: QCloseEvent) -> None: # type: ignore
         """Обработка события закрытия окна."""
         if self.is_dirty:
             msg = QMessageBox(self)
@@ -591,23 +668,26 @@ class MarkdownEditorPyQt(QMainWindow):
             )
 
             save_btn = msg.button(QMessageBox.StandardButton.Save)
-            save_btn.setText("Сохранить")
+            if save_btn:  # Check that the button exists (just in case)
+                save_btn.setText("Сохранить")
             discard_btn = msg.button(QMessageBox.StandardButton.Discard)
-            discard_btn.setText("Без сохранения")
+            if discard_btn:
+                discard_btn.setText("Без сохранения")
             cancel_btn = msg.button(QMessageBox.StandardButton.Cancel)
-            cancel_btn.setText("Отмена")
+            if cancel_btn:
+                cancel_btn.setText("Отмена")
 
             reply = msg.exec()
 
             if reply == QMessageBox.StandardButton.Save:
                 self.file_ops.save_file()
                 if self.is_dirty:
-                    event.ignore()
+                    event_.ignore()
                     return
             elif reply == QMessageBox.StandardButton.Cancel:
-                event.ignore()
+                event_.ignore()
                 return
             else:
-                event.accept()
+                event_.accept()
         else:
-            event.accept()
+            event_.accept()
