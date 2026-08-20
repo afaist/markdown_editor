@@ -1,3 +1,4 @@
+# markdown_editor_pkg/markdown_renderer.py
 """Рендеринг Markdown в HTML с поддержкой LaTeX, тем и GitHub Callouts."""
 
 import os
@@ -14,6 +15,7 @@ class MarkdownRenderer:
     """Конвертирует Markdown-текст в полный HTML-документ с LaTeX и темами."""
 
     # Стили для печати/PDF
+    # Используем явный counter-increment
     PRINT_STYLES_TEMPLATE = """
         <style>
             {theme_css}
@@ -24,6 +26,7 @@ class MarkdownRenderer:
                 margin: 1em 0;
                 border-left: 4px solid;
                 background-color: var(--callout-bg, transparent);
+                break-inside: avoid;
             }}
             .callout-note {{ border-color: #0969da; background-color: #ddf4ff; color: #1a1a1a; }}
             .callout-note.dark {{ background-color: #1a1a1a; color: #ffffff; }}
@@ -40,6 +43,14 @@ class MarkdownRenderer:
             .callout-caution {{ border-color: #cf222e; background-color: #ffebe9; color: #1a1a1a; }}
             .callout-caution.dark {{ background-color: #1a1a1a; color: #ffffff; }}
 
+            /* Общие стили для колонтитулов (скрыты на экране) */
+            .page-header {{
+                display: none;
+            }}
+            .page-footer {{
+                display: none;
+            }}
+
             /* Стили для печати/PDF */
             @media print {{
                 h1, h2, h3, h4, h5, h6 {{
@@ -53,56 +64,57 @@ class MarkdownRenderer:
                 body > h1:first-child {{
                     page-break-before: auto;
                 }}
-                table, img, pre {{
+                table, img, pre, .callout {{
                     page-break-inside: avoid;
                 }}
                 body {{
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
                 }}
-                .callout {{
-                    break-inside: avoid;
+
+                /* Явное задание счетчика страницы на уровне страницы */
+                @page {{
+                    margin: 2cm;
+                    counter-increment: page;
                 }}
 
-                /* Колонтитулы — видны при печати */
+                /* Показываем колонтитулы только при печати */
                 .page-header {{
                     display: block !important;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    padding: 1cm;
+                    text-align: center;
+                    font-size: 9px;
+                    color: #888;
+                    border-bottom: 1px solid #ddd;
+                    background: white;
+                    z-index: 1000;
                 }}
                 .page-footer {{
                     display: block !important;
+                    position: fixed;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    padding: 1cm;
+                    text-align: center;
+                    font-size: 9px;
+                    color: #888;
+                    border-top: 1px solid #ddd;
+                    background: white;
+                    z-index: 1000;
                 }}
+
+                
+                
+                /* Настройка отступов тела документа */
                 body {{
                     padding-top: 1.5cm;
                     padding-bottom: 1.5cm;
                 }}
-            }}
-
-            /* Колонтитулы - скрыты на экране, фиксированные при печати */
-            .page-header {{
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                padding: 1.2cm 2.5cm 0.5cm 2.5cm;
-                text-align: center;
-                font-size: 9px;
-                color: #888;
-                border-bottom: 1px solid #ddd;
-                z-index: 1000;
-            }}
-            .page-footer {{
-                display: none;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                padding: 0.5cm 2.5cm 1.2cm 2.5cm;
-                text-align: center;
-                font-size: 9px;
-                color: #888;
-                border-top: 1px solid #ddd;
-                z-index: 1000;
             }}
         </style>
     """
@@ -122,18 +134,12 @@ class MarkdownRenderer:
     def render(self, text: str, theme_name: str = "light", base_dir: str = "", headers: dict = None) -> str:
         """
         Рендерит Markdown в полный HTML-документ.
-
-        Args:
-            text: Markdown-текст.
-            theme_name: Имя темы ("light", "dark", "contrast").
-            base_dir: Директория для относительных путей к ресурсам.
-            headers: Словарь с настройками колонтитулов.
         """
         # 1. Извлекаем LaTeX-формулы
         self.latex_processor.reset()
         processed_text = self.latex_processor.process(text)
 
-        # 2. Конвертируем Markdown → HTML (codehilite удалён, используется Prism.js)
+        # 2. Конвертируем Markdown → HTML
         md = markdown.Markdown(
             extensions=[
                 "markdown.extensions.fenced_code",
@@ -172,59 +178,21 @@ class MarkdownRenderer:
             header_html = f'<div class="page-header">{header_text}</div>\n'
             footer_html = f'<div class="page-footer">{footer_text}</div>\n'
 
-        # JS для замены placeholder {page} на реальное число страниц
-        # Этот блок теперь корректно обернут в <script> и не будет выведен как текст
-        page_count_js = ""
-        if show_headers and "{page}" in footer_text:
-            page_count_js = f"""
-<script>
-    document.addEventListener("DOMContentLoaded", function() {{
-        const contentHeight = document.body.scrollHeight;
-        const viewHeight = window.innerHeight || document.documentElement.clientHeight;
-        // Избегаем деления на ноль и учитываем min 1 страницу
-        const pageCount = Math.max(1, Math.ceil(contentHeight / viewHeight));
-    
-        const footer = document.querySelector('.page-footer');
-        if (footer) {{
-            footer.textContent = footer.textContent.replace('{{page}}', String(pageCount));
-        }}
-    }});
-</script>"""
-    
-        full_html = f"""<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Markdown Preview — {theme_name}</title>
-    <link rel="stylesheet" href="file://{katex_css}">
-    {print_styles}
-</head>
-<body
-{header_html}
-{html_content}
-{footer_html}
-
+        # JavaScript для KaTeX остается, он необходим для рендеринга формул в HTML
+        katex_js_code = f"""
 <script src="file://{katex_js}"></script>
 <script src="file://{auto_render_js}"></script>
 <script>
-        document.addEventListener("DOMContentLoaded", function() {{
-        // Проверяем, загружен ли KaTeX
+    document.addEventListener("DOMContentLoaded", function() {{
         if (typeof renderMathInElement === 'undefined') {{
             console.error("KaTeX auto-render not loaded");
             return;
         }}
-
-        // Убираем скрытые символы и нормализуем пробелы вокруг формул
         const container = document.body;
-
-        // Функция для очистки содержимого
         function cleanMathElements() {{
-            // Удаляем нулевые пробелы и другие скрытые символы
             container.innerHTML = container.innerHTML.replace(/[\\u200B-\\u200D\\uFEFF]/g, '');
         }}
-
         cleanMathElements();
-
         try {{
             renderMathInElement(document.body, {{
                 delimiters: [
@@ -239,7 +207,21 @@ class MarkdownRenderer:
         }}
     }});
 </script>
-{page_count_js}
+"""
+
+        full_html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Markdown Preview — {theme_name}</title>
+    <link rel="stylesheet" href="file://{katex_css}">
+    {print_styles}
+</head>
+<body>
+{header_html}
+{html_content}
+{footer_html}
+{katex_js_code}
 </body>
 </html>"""
 
