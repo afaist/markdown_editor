@@ -15,7 +15,7 @@ from PyQt6.QtWidgets import (
 class HeaderFooterDialog(QDialog):
     """Диалог настроек колонтитулов для PDF-экспорта."""
 
-    def __init__(self, parent=None, current_headers: dict = None):
+    def __init__(self, parent=None, current_headers: dict | None = None):
         super().__init__(parent)
         self.setWindowTitle("Настройки PDF-экспорта")
         self.setModal(True)

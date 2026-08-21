@@ -131,7 +131,7 @@ class MarkdownRenderer:
         self.callout_processor = CalloutProcessor()
         self.prism_processor = PrismJSProcessor()
 
-    def render(self, text: str, theme_name: str = "light", base_dir: str = "", headers: dict = None) -> str:
+    def render(self, text: str, theme_name: str = "light", base_dir: str = "", headers: dict | None = None) -> str:
         """
         Рендерит Markdown в полный HTML-документ.
         """
@@ -178,7 +178,7 @@ class MarkdownRenderer:
             header_html = f'<div class="page-header">{header_text}</div>\n'
             footer_html = f'<div class="page-footer">{footer_text}</div>\n'
 
-        # JavaScript для KaTeX остается, он необходим для рендеринга формул в HTML
+        # JavaScript для KaTeX
         katex_js_code = f"""
 <script src="file://{katex_js}"></script>
 <script src="file://{auto_render_js}"></script>
@@ -209,6 +209,23 @@ class MarkdownRenderer:
 </script>
 """
 
+        # JavaScript для нумерации страниц: если в footer есть {page}, добавляем JS
+        page_numbering_js = ""
+        if show_headers and "{page}" in footer_text:
+            page_numbering_js = """
+<script>
+    document.addEventListener("DOMContentLoaded", function() {{
+        const footerEl = document.querySelector('.page-footer');
+        if (footerEl) {{
+            const bodyHeight = document.body.scrollHeight;
+            const pageHeight = 1123; // A4 height in px at 96dpi
+            const pageCount = Math.ceil(bodyHeight / pageHeight);
+            footerEl.innerHTML = footerEl.innerHTML.replace('{{page}}', pageCount);
+        }}
+    }});
+</script>
+"""
+
         full_html = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -222,6 +239,7 @@ class MarkdownRenderer:
 {html_content}
 {footer_html}
 {katex_js_code}
+{page_numbering_js}
 </body>
 </html>"""
 

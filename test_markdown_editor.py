@@ -345,7 +345,7 @@ class TestFontSettings(unittest.TestCase):
         editor = MarkdownEditorPyQt()
         self.assertIsNotNone(editor.font_combo)
         self.assertGreater(editor.font_combo.count(), 0)
-        self.assertEqual(editor.font_combo.currentText(), "Courier New")
+        self.assertEqual(editor.font_combo.currentText(), "Consolas")
         editor.close()
         del editor
 
@@ -382,9 +382,9 @@ class TestFontSettings(unittest.TestCase):
         editor.theme_manager._font_size = 20
         editor.font_combo.setCurrentText("Arial")
         editor._reset_font()
-        self.assertEqual(editor.theme_manager.font_family, "Courier New")
+        self.assertEqual(editor.theme_manager.font_family, "Consolas")
         self.assertEqual(editor.theme_manager.font_size, 11)
-        self.assertEqual(editor.font_combo.currentText(), "Courier New")
+        self.assertEqual(editor.font_combo.currentText(), "Consolas")
         editor.close()
         del editor
 

@@ -117,7 +117,7 @@ class FileOperations:
         return {
             "show_headers": True,
             "header_text": doc_title,
-                        "footer_text": "markdown_editor",
+            "footer_text": "markdown_editor — {page}",
         }
 
     def export_to_html(self) -> None:
