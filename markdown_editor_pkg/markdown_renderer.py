@@ -15,7 +15,6 @@ class MarkdownRenderer:
     """Конвертирует Markdown-текст в полный HTML-документ с LaTeX и темами."""
 
     # Стили для печати/PDF
-    # Используем явный counter-increment
     PRINT_STYLES_TEMPLATE = """
         <style>
             {theme_css}
@@ -72,10 +71,8 @@ class MarkdownRenderer:
                     print-color-adjust: exact;
                 }}
 
-                /* Явное задание счетчика страницы на уровне страницы */
                 @page {{
                     margin: 2cm;
-                    counter-increment: page;
                 }}
 
                 /* Показываем колонтитулы только при печати */
@@ -108,8 +105,6 @@ class MarkdownRenderer:
                     z-index: 1000;
                 }}
 
-                
-                
                 /* Настройка отступов тела документа */
                 body {{
                     padding-top: 1.5cm;
@@ -131,7 +126,13 @@ class MarkdownRenderer:
         self.callout_processor = CalloutProcessor()
         self.prism_processor = PrismJSProcessor()
 
-    def render(self, text: str, theme_name: str = "light", base_dir: str = "", headers: dict | None = None) -> str:
+    def render(
+        self,
+        text: str,
+        theme_name: str = "light",
+        base_dir: str = "",
+        headers: dict | None = None,
+    ) -> str:
         """
         Рендерит Markdown в полный HTML-документ.
         """
@@ -163,9 +164,15 @@ class MarkdownRenderer:
         theme_css = self.themes.get_preview_css()
         print_styles = self.PRINT_STYLES_TEMPLATE.format(theme_css=theme_css)
 
-        katex_css = os.path.join(base_dir, self.KATEX_CSS) if base_dir else self.KATEX_CSS
+        katex_css = (
+            os.path.join(base_dir, self.KATEX_CSS) if base_dir else self.KATEX_CSS
+        )
         katex_js = os.path.join(base_dir, self.KATEX_JS) if base_dir else self.KATEX_JS
-        auto_render_js = os.path.join(base_dir, self.KATEX_AUTO_RENDER_JS) if base_dir else self.KATEX_AUTO_RENDER_JS
+        auto_render_js = (
+            os.path.join(base_dir, self.KATEX_AUTO_RENDER_JS)
+            if base_dir
+            else self.KATEX_AUTO_RENDER_JS
+        )
 
         # Формируем колонтитулы
         show_headers = headers.get("show_headers", False) if headers else False
@@ -175,10 +182,12 @@ class MarkdownRenderer:
         header_html = ""
         footer_html = ""
         if show_headers:
+            # {PAGE_NUM} — placeholder, который JS заменит на реальный номер страницы
+            resolved_footer = footer_text.replace("{page}", "{PAGE_NUM}")
             header_html = f'<div class="page-header">{header_text}</div>\n'
-            footer_html = f'<div class="page-footer">{footer_text}</div>\n'
+            footer_html = f'<div class="page-footer">{resolved_footer}</div>\n'
 
-        # JavaScript для KaTeX
+        # JavaScript для KaTeX + нумерации страниц
         katex_js_code = f"""
 <script src="file://{katex_js}"></script>
 <script src="file://{auto_render_js}"></script>
@@ -205,23 +214,167 @@ class MarkdownRenderer:
         }} catch (e) {{
             console.error("KaTeX render error:", e);
         }}
-    }});
-</script>
-"""
 
-        # JavaScript для нумерации страниц: если в footer есть {page}, добавляем JS
-        page_numbering_js = ""
-        if show_headers and "{page}" in footer_text:
-            page_numbering_js = """
-<script>
-    document.addEventListener("DOMContentLoaded", function() {{
-        const footerEl = document.querySelector('.page-footer');
-        if (footerEl) {{
-            const bodyHeight = document.body.scrollHeight;
-            const pageHeight = 1123; // A4 height in px at 96dpi
-            const pageCount = Math.ceil(bodyHeight / pageHeight);
-            footerEl.innerHTML = footerEl.innerHTML.replace('{{page}}', pageCount);
+        // === Нумерация страниц для PDF-экорта ===
+        // Разбиваем body на страницы, подставляя номера
+        function addPageNumbers() {{
+            var footers = document.querySelectorAll('.page-footer');
+            if (footers.length === 0) return;
+
+            var originalFooter = footers[0];
+            var footerTemplate = originalFooter.outerHTML;
+
+            // Создаём контейнер-обёртку для контента
+            var content = document.body.innerHTML;
+
+            // Удаляем header/footer из body
+            var cleanContent = content
+                .replace(/<div class="page-header"[^>]*>.*?<\\/div>/gi, '')
+                .replace(/<div class="page-footer"[^>]*>.*?<\\/div>/gi, '');
+
+            // Шаг 1: Вычисляем количество страниц через скрытую превью-раскладку
+            var preview = document.createElement('div');
+            preview.style.cssText = 'position:absolute;visibility:hidden;top:-9999px;left:-9999px;'
+                + 'width:1920px;padding:2cm;';
+            preview.innerHTML = cleanContent;
+            document.body.appendChild(preview);
+
+            // Ждём загрузки шрифтов/KaTeX
+            setTimeout(function() {{
+                var previewHeight = preview.scrollHeight;
+                var pageHeight = preview.clientHeight;
+                document.body.removeChild(preview);
+
+                if (pageHeight <= 0) pageHeight = 1056; // ~29.7cm at 96dpi
+
+                var totalPages = Math.ceil(previewHeight / pageHeight);
+                if (totalPages < 1) totalPages = 1;
+
+                // Шаг 2: Генерируем HTML с разбивкой по страницам
+                var pages = [];
+                var chars = cleanContent;
+                var pagePositions = [];
+
+                // Создаём временный измеритель
+                var measurer = document.createElement('div');
+                measurer.style.cssText = 'position:absolute;visibility:hidden;top:-9999px;left:-9999px;'
+                    + 'width:1920px;padding:2cm;overflow:hidden;';
+                document.body.appendChild(measurer);
+
+                // Используем бинарный поиск по char positions
+                var contentLen = chars.length;
+                var pos = 0;
+
+                for (var p = 0; p < totalPages; p++) {{
+                    var pageContent = '';
+                    var startIdx = pos;
+
+                    // Ищем позицию разрыва страницы
+                    var lo = pos;
+                    var hi = Math.min(contentLen, pos + Math.floor((contentLen - pos) * 0.5) + 100);
+                    if (hi > contentLen) hi = contentLen;
+                    if (lo >= hi) {{
+                        pageContent = chars.substring(pos, hi);
+                        pos = hi;
+                    }} else {{
+                        // Бинарный поиск точки разрыва
+                        while (lo < hi - 1) {{
+                            var mid = Math.floor((lo + hi) / 2);
+                            measurer.innerHTML = chars.substring(startIdx, mid);
+                            if (measurer.scrollHeight > pageHeight) {{
+                                hi = mid;
+                            }} else {{
+                                lo = mid;
+                            }}
+                        }}
+
+                        // Ищем разрыв слова после lo
+                        var breakPos = lo;
+                        var rest = chars.substring(startIdx, lo);
+                        var lastSpace = rest.lastIndexOf(' ');
+                        var lastBreak = rest.lastIndexOf('</p>');
+                        var lastBreak2 = rest.lastIndexOf('</div>');
+                        var lastBreak3 = rest.lastIndexOf('</table>');
+
+                        var bestBreak = lastSpace;
+                        if (lastBreak > bestBreak) bestBreak = lastBreak;
+                        if (lastBreak2 > bestBreak) bestBreak = lastBreak2;
+                        if (lastBreak3 > bestBreak) bestBreak = lastBreak3;
+
+                        if (bestBreak > 0) {{
+                            breakPos = startIdx + bestBreak;
+                        }} else {{
+                            breakPos = startIdx + Math.min(lo, contentLen - startIdx);
+                        }}
+
+                        pageContent = chars.substring(startIdx, breakPos);
+                        pos = breakPos;
+                    }}
+
+                    pages.push(pageContent);
+                }}
+
+                // Если что-то осталось
+                if (pos < contentLen) {{
+                    pages.push(chars.substring(pos));
+                    totalPages = pages.length;
+                }}
+
+                document.body.removeChild(measurer);
+
+                // Шаг 3: Заменяем body на страницы
+                var newBody = document.createElement('div');
+                newBody.style.cssText = 'width:100%;';
+
+                for (var i = 0; i < pages.length; i++) {{
+                    var pageNum = i + 1;
+                    var pageDiv = document.createElement('div');
+                    pageDiv.className = 'print-page';
+                    pageDiv.style.cssText = 'page-break-after: always; position: relative; min-height: 1056px;';
+                    if (i === pages.length - 1) {{
+                        pageDiv.style.pageBreakAfter = 'avoid;';
+                    }}
+
+                    pageDiv.innerHTML = pages[i];
+
+                    // Клонируем footer и подставляем номер
+                    var footerClone = document.createElement('div');
+                    footerClone.className = 'page-footer';
+                    footerClone.style.cssText = originalFooter.style.cssText || '';
+                    // Вставляем номер страницы
+                    var resolved = footerTemplate.replace('{{PAGE_NUM}}', pageNum + '/' + pages.length);
+                    footerClone.outerHTML = resolved;
+
+                    // Вставляем footer через innerHTML после создания pageDiv
+                    var temp = document.createElement('div');
+                    temp.innerHTML = resolved;
+                    var footerEl = temp.firstChild;
+                    pageDiv.appendChild(footerEl);
+
+                    newBody.appendChild(pageDiv);
+                }}
+
+                document.body.innerHTML = '';
+                document.body.appendChild(newBody);
+
+                // Повторный рендер KaTeX (разбивка могла повлиять)
+                try {{
+                    renderMathInElement(document.body, {{
+                        delimiters: [
+                            {{left: "$$", right: "$$", display: true}},
+                            {{left: "$", right: "$", display: false}}
+                        ],
+                        throwOnError: false,
+                        displayMode: true
+                    }});
+                }} catch (e) {{
+                    console.error("KaTeX re-render error:", e);
+                }}
+
+            }}, 800); // Ждём KaTeX
         }}
+
+        addPageNumbers();
     }});
 </script>
 """
@@ -239,7 +392,6 @@ class MarkdownRenderer:
 {html_content}
 {footer_html}
 {katex_js_code}
-{page_numbering_js}
 </body>
 </html>"""
 

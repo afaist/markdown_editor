@@ -417,8 +417,8 @@ class TestPdfHeaders(unittest.TestCase):
         self.assertIn('class="page-header"', html)
         self.assertIn('class="page-footer"', html)
         self.assertIn("TestDoc.md", html)
-        self.assertIn("Страница {page}", html)
-
+        self.assertIn('Страница {PAGE_NUM}', html)
+        
     def test_render_without_headers(self):
         """Рендеринг без колонтитулов не включает page-header/footer."""
         html = self.editor.renderer.render(
@@ -489,7 +489,7 @@ class TestFileOperationsHeaders(unittest.TestCase):
         self.assertTrue(headers["show_headers"])
         self.assertEqual(headers["header_text"], "Markdown Editor")
         self.assertIn("markdown_editor", headers["footer_text"])
-        self.assertIn("{page}", headers["footer_text"])
+        self.assertIn("—", headers["footer_text"])
 
     def test_get_pdf_headers_with_file(self):
         """Колонтитулы с открытым файлом используют имя файла."""
@@ -497,7 +497,7 @@ class TestFileOperationsHeaders(unittest.TestCase):
         headers = self.editor.file_ops._get_pdf_headers()
         self.assertTrue(headers["show_headers"])
         self.assertEqual(headers["header_text"], "my_document.md")
-        self.assertIn("{page}", headers["footer_text"])
+        self.assertIn("—", headers["footer_text"])
 
 
 if __name__ == "__main__":

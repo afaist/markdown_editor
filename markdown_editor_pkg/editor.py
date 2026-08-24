@@ -46,7 +46,9 @@ class MarkdownEditorPyQt(QMainWindow):
         self.theme_manager = ThemesManager()
         self.renderer = MarkdownRenderer(themes=self.theme_manager)
         self.latex_processor = LaTeXProcessor()
-        self.file_ops = FileOperations(editor=self, statusbar=None, renderer=self.renderer)
+        self.file_ops = FileOperations(
+            editor=self, statusbar=None, renderer=self.renderer
+        )
         self.text_insertions = TextInsertions(editor=self)
 
         # Настройка строки состояния (нужна для FileOperations до init_ui)
@@ -145,6 +147,7 @@ class MarkdownEditorPyQt(QMainWindow):
         # -- Панели --
         self.setup_toolbar()
         self.setup_menu()
+        self.setup_markdown_menu()
 
     def setup_toolbar(self) -> None:
         """Настройка панели инструментов."""
@@ -191,28 +194,30 @@ class MarkdownEditorPyQt(QMainWindow):
         self.font_combo = QComboBox()
         available_fonts = self.theme_manager.get_available_fonts()
         self.font_combo.addItems(available_fonts)
-        
+
         # Гарантируем, что текущий шрифт в ThemesManager выбран
         current_family = self.theme_manager.font_family
-        
+
         # Пробуем найти и установить шрифт
         font_idx = self.font_combo.findText(current_family, Qt.MatchFlag.MatchExactly)
-        
+
         if font_idx >= 0:
             self.font_combo.setCurrentIndex(font_idx)
         elif available_fonts:
-            consolas_idx = self.font_combo.findText("Consolas", Qt.MatchFlag.MatchExactly)
+            consolas_idx = self.font_combo.findText(
+                "Consolas", Qt.MatchFlag.MatchExactly
+            )
             if consolas_idx >= 0:
                 self.font_combo.setCurrentIndex(consolas_idx)
             else:
                 self.font_combo.setCurrentIndex(0)
-        
+
         # Связываем изменение шрифта
         self.font_combo.currentTextChanged.connect(self._on_font_changed)
 
         self.font_combo.setMinimumWidth(160)
         toolbar.addWidget(self.font_combo)
-        
+
         # -- Размер шрифта: + --
         self.font_increase_btn = QPushButton("+")
         self.font_increase_btn.setToolTip("Увеличить шрифт")
@@ -366,7 +371,9 @@ class MarkdownEditorPyQt(QMainWindow):
 
             # Темы редактора
             editor_light_action = QAction("Тема редактора: светлая", self)
-            editor_light_action.triggered.connect(lambda: self.set_editor_theme("light"))
+            editor_light_action.triggered.connect(
+                lambda: self.set_editor_theme("light")
+            )
             view_menu.addAction(editor_light_action)
 
             editor_dark_action = QAction("Тема редактора: тёмная", self)
@@ -374,7 +381,9 @@ class MarkdownEditorPyQt(QMainWindow):
             view_menu.addAction(editor_dark_action)
 
             editor_contrast_action = QAction("Тема редактора: контрастная", self)
-            editor_contrast_action.triggered.connect(lambda: self.set_editor_theme("contrast"))
+            editor_contrast_action.triggered.connect(
+                lambda: self.set_editor_theme("contrast")
+            )
             view_menu.addAction(editor_contrast_action)
 
             view_menu.addSeparator()
@@ -402,6 +411,162 @@ class MarkdownEditorPyQt(QMainWindow):
             about_action.triggered.connect(self._show_about)
             help_menu.addAction(about_action)
 
+    # ─── Markdown Menu ───────────────────────────────────────────────────
+
+    def setup_markdown_menu(self) -> None:
+        """Настройка меню Markdown с подпунктами форматирования."""
+        menubar = self.menuBar()
+        if menubar is None:
+            return
+
+        md_menu = menubar.addMenu("Markdown")
+        if md_menu is None:
+            return
+
+        # ── Заголовки ──
+        headings_menu = md_menu.addMenu("Заголовки")
+        if headings_menu is None:
+            return
+        for i in range(1, 8):
+            action = QAction(f"Заголовок {i}", self)
+            action.setShortcut(QKeySequence(f"Ctrl+Shift+{i}"))
+            action.triggered.connect(
+                lambda checked, level=i: self.text_insertions.insert_heading(level)
+            )
+            headings_menu.addAction(action)
+
+        # ── Стили ──
+        styles_menu = md_menu.addMenu("Стили")
+        if styles_menu is None:
+            return
+        bold_action = QAction("Жирный", self)
+        bold_action.setShortcut(QKeySequence("Ctrl+B"))
+        bold_action.triggered.connect(self.text_insertions.insert_bold)
+        styles_menu.addAction(bold_action)
+
+        italic_action = QAction("Курсив", self)
+        italic_action.setShortcut(QKeySequence("Ctrl+I"))
+        italic_action.triggered.connect(self.text_insertions.insert_italic)
+        styles_menu.addAction(italic_action)
+
+        strike_action = QAction("Зачёркнутый", self)
+        strike_action.setShortcut(QKeySequence("Ctrl+Shift+X"))
+        strike_action.triggered.connect(self.text_insertions.insert_strikethrough)
+        styles_menu.addAction(strike_action)
+
+        inline_code_action = QAction("Встроенный код", self)
+        inline_code_action.setShortcut(QKeySequence("Ctrl+`"))
+        inline_code_action.triggered.connect(self.text_insertions.insert_inline_code)
+        styles_menu.addAction(inline_code_action)
+
+        # ── Списки ──
+        lists_menu = md_menu.addMenu("Списки")
+        if lists_menu is None:
+            return
+        ul_action = QAction("Маркированный", self)
+        ul_action.setShortcut(QKeySequence("Ctrl+Shift+U"))
+        ul_action.triggered.connect(self.text_insertions.insert_unordered_list)
+        lists_menu.addAction(ul_action)
+
+        ol_action = QAction("Нумерованный", self)
+        ol_action.setShortcut(QKeySequence("Ctrl+Shift+O"))
+        ol_action.triggered.connect(self.text_insertions.insert_ordered_list)
+        lists_menu.addAction(ol_action)
+
+        task_action = QAction("Список задач", self)
+        task_action.setShortcut(QKeySequence("Ctrl+Shift+T"))
+        task_action.triggered.connect(self.text_insertions.insert_task_list)
+        lists_menu.addAction(task_action)
+
+        # ── Цитата ──
+        bq_action = QAction("Цитата", self)
+        bq_action.setShortcut(QKeySequence("Ctrl+Shift+Q"))
+        bq_action.triggered.connect(self.text_insertions.insert_blockquote)
+        md_menu.addAction(bq_action)
+
+        # ── Код ──
+        code_menu = md_menu.addMenu("Код")
+        if code_menu is None:
+            return
+        for lang, label, shortcut in [
+            ("python", "Python", "Ctrl+Shift+C"),
+            ("bash", "Bash", "Ctrl+Shift+B"),
+            ("markdown", "Markdown", "Ctrl+Shift+M"),
+            ("cpp", "C++", "Ctrl+Shift+P"),
+            ("rust", "Rust", "Ctrl+Shift+R"),
+        ]:
+
+            a = QAction(label, self)
+            a.setShortcut(QKeySequence(shortcut))
+            a.triggered.connect(
+                lambda checked, lang=lang: self.text_insertions.insert_code_block(lang)
+            )
+            code_menu.addAction(a)
+        # ── LaTeX ──
+        latex_menu = md_menu.addMenu("LaTeX")
+        if latex_menu is None:
+            return
+        li_action = QAction("Встроенная ($...$)", self)
+        li_action.setShortcut(QKeySequence("Ctrl+L"))
+        li_action.triggered.connect(self.text_insertions.insert_inline_latex)
+        latex_menu.addAction(li_action)
+
+        lb_action = QAction("Блочная ($...$)", self)
+        lb_action.setShortcut(QKeySequence("Ctrl+Shift+L"))
+        lb_action.triggered.connect(self.text_insertions.insert_block_latex)
+        latex_menu.addAction(lb_action)
+
+        frac_action = QAction("Дробь (\\frac)", self)
+        frac_action.setShortcut(QKeySequence("Ctrl+Shift+F"))
+        frac_action.triggered.connect(self.text_insertions.insert_latex_fraction)
+        latex_menu.addAction(frac_action)
+
+        sqrt_action = QAction("Квадратный корень (\\sqrt)", self)
+        sqrt_action.setShortcut(QKeySequence("Ctrl+Shift+R"))
+        sqrt_action.triggered.connect(self.text_insertions.insert_latex_sqrt)
+        latex_menu.addAction(sqrt_action)
+
+        sup_action = QAction("Надстрочный", self)
+        sup_action.setShortcut(QKeySequence("Ctrl+Shift+S"))
+        sup_action.triggered.connect(self.text_insertions.insert_latex_superscript)
+        latex_menu.addAction(sup_action)
+
+        sub_action = QAction("Подстрочный", self)
+        sub_action.setShortcut(QKeySequence("Ctrl+Shift+N"))
+        sub_action.triggered.connect(self.text_insertions.insert_latex_subscript)
+        latex_menu.addAction(sub_action)
+
+        sum_action = QAction("Сумма (\\sum)", self)
+        sum_action.setShortcut(QKeySequence("Ctrl+Shift+A"))
+        sum_action.triggered.connect(self.text_insertions.insert_latex_sum)
+        latex_menu.addAction(sum_action)
+
+        int_action = QAction("Интеграл (\\int)", self)
+        int_action.setShortcut(QKeySequence("Ctrl+Shift+G"))
+        int_action.triggered.connect(self.text_insertions.insert_latex_integral)
+        latex_menu.addAction(int_action)
+
+        mat_action = QAction("Матрица (\\begin{matrix})", self)
+        mat_action.setShortcut(QKeySequence("Ctrl+Shift+M"))
+        mat_action.triggered.connect(self.text_insertions.insert_latex_matrix)
+        latex_menu.addAction(mat_action)
+
+        # ── Дополнительные вставки ──
+        hr_action = QAction("Разделитель (---)", self)
+        hr_action.setShortcut(QKeySequence("Ctrl+Shift+H"))
+        hr_action.triggered.connect(self.text_insertions.insert_horizontal_rule)
+        md_menu.addAction(hr_action)
+
+        table_action = QAction("Таблица", self)
+        table_action.setShortcut(QKeySequence("Ctrl+Shift+Tab"))
+        table_action.triggered.connect(self.text_insertions.insert_table)
+        md_menu.addAction(table_action)
+
+        comment_action = QAction("HTML-комментарий", self)
+        comment_action.setShortcut(QKeySequence("Ctrl+Shift+/"))
+        comment_action.triggered.connect(self.text_insertions.insert_html_comment)
+        md_menu.addAction(comment_action)
+
     # ─── Обработчики шрифта ──────────────────────────────────────────────
 
     def _on_font_changed(self, family: str) -> None:
@@ -409,7 +574,9 @@ class MarkdownEditorPyQt(QMainWindow):
         self.theme_manager.set_font(family, self.theme_manager.font_size, self.editor)
         self._update_font_size_label()
         if self._statusbar_ref:
-            self._statusbar_ref.showMessage(f"Шрифт: {family}, размер: {self.theme_manager.font_size}")
+            self._statusbar_ref.showMessage(
+                f"Шрифт: {family}, размер: {self.theme_manager.font_size}"
+            )
 
     def _increase_font(self) -> None:
         """Увеличить размер шрифта."""
@@ -437,7 +604,9 @@ class MarkdownEditorPyQt(QMainWindow):
                 # Consolas нет в системе - ищем первый шрифт из DEFAULT_FONTS,
                 # который есть в комбобоксе, либо берём первый доступный
                 for default_font in self.theme_manager.DEFAULT_FONTS:
-                    idx = self.font_combo.findText(default_font, Qt.MatchFlag.MatchExactly)
+                    idx = self.font_combo.findText(
+                        default_font, Qt.MatchFlag.MatchExactly
+                    )
                     if idx >= 0:
                         self.font_combo.setCurrentIndex(idx)
                         break
@@ -450,8 +619,9 @@ class MarkdownEditorPyQt(QMainWindow):
                         self._update_font_size_label()
         if self._statusbar_ref:
             self._statusbar_ref.showMessage(
-                f"Шрифт сброшен: {self.theme_manager.font_family}, размер: {self.theme_manager.font_size}")
-                        
+                f"Шрифт сброшен: {self.theme_manager.font_family}, размер: {self.theme_manager.font_size}"
+            )
+
     def _update_font_size_label(self) -> None:
         """Обновить метку с размером шрифта."""
         if self.font_size_label:
@@ -482,14 +652,18 @@ class MarkdownEditorPyQt(QMainWindow):
                 self.file_name_label.setStyleSheet("color: #cc6600; font-weight: bold;")
             else:
                 self.file_name_label.setText(filename)
-                self.file_name_label.setStyleSheet("color: #333333; font-weight: normal;")
+                self.file_name_label.setStyleSheet(
+                    "color: #333333; font-weight: normal;"
+                )
         else:
             if self.is_dirty:
                 self.file_name_label.setText("Файл не сохранён. Имя не задано.")
                 self.file_name_label.setStyleSheet("color: #cc0000; font-weight: bold;")
             else:
                 self.file_name_label.setText("")
-                self.file_name_label.setStyleSheet("color: #333333; font-weight: normal;")
+                self.file_name_label.setStyleSheet(
+                    "color: #333333; font-weight: normal;"
+                )
 
     def update_preview(self) -> None:
         """Обновить предпросмотр."""
@@ -519,18 +693,23 @@ class MarkdownEditorPyQt(QMainWindow):
 
     # ─── PDF настройки ───────────────────────────────────────────────────
 
-# ... existing code ...
+    # ... existing code ...
     def _show_pdf_settings(self) -> None:
         """Открыть диалог настроек PDF-экспорта."""
-        current_headers = self.file_ops._pdf_headers if self.file_ops._pdf_headers is not None else {}
+        current_headers = (
+            self.file_ops._pdf_headers if self.file_ops._pdf_headers is not None else {}
+        )
         dialog = HeaderFooterDialog(self, current_headers=current_headers)
         if dialog.exec() == HeaderFooterDialog.DialogCode.Accepted:
             headers = dialog.get_headers()
             self.file_ops.set_pdf_headers(headers)
             if self._statusbar_ref:
-                status = "Настройки PDF-экспорта сохранены" if headers["show_headers"] else "Колонтитулы PDF отключены"
+                status = (
+                    "Настройки PDF-экспорта сохранены"
+                    if headers["show_headers"]
+                    else "Колонтитулы PDF отключены"
+                )
                 self._statusbar_ref.showMessage(status)
-
 
     # ─── Обратная совместимость (для старых тестов) ─────────────────────
 
@@ -573,8 +752,11 @@ class MarkdownEditorPyQt(QMainWindow):
 
     def render_markdown(self, text: str, theme_name: str = "light") -> str:
         """Для совместимости: рендеринг Markdown в HTML."""
-        return self.renderer.render(text, theme_name=theme_name,
-                                     base_dir=os.path.dirname(os.path.abspath(__file__)))
+        return self.renderer.render(
+            text,
+            theme_name=theme_name,
+            base_dir=os.path.dirname(os.path.abspath(__file__)),
+        )
 
     def toggle_theme(self) -> None:
         """Для совместимости: переключить тему предпросмотра."""
@@ -611,7 +793,9 @@ class MarkdownEditorPyQt(QMainWindow):
     def _set_editor_theme(self, theme_name: str) -> None:
         self.theme_manager.set_editor_theme(theme_name, self.editor)
         if self._statusbar_ref:
-            self._statusbar_ref.showMessage(f"Тема редактора: {theme_name.capitalize()}")
+            self._statusbar_ref.showMessage(
+                f"Тема редактора: {theme_name.capitalize()}"
+            )
 
     # ─── Поиск ───────────────────────────────────────────────────────────
 
@@ -654,8 +838,8 @@ class MarkdownEditorPyQt(QMainWindow):
 
     # ─── Закрытие ────────────────────────────────────────────────────────
 
-# ... existing code ...
-    def closeEvent(self, event_: QCloseEvent) -> None: # type: ignore
+    # ... existing code ...
+    def closeEvent(self, event_: QCloseEvent) -> None:  # type: ignore
         """Обработка события закрытия окна."""
         if self.is_dirty:
             msg = QMessageBox(self)
