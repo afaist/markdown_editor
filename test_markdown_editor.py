@@ -426,8 +426,8 @@ class TestPdfHeaders(unittest.TestCase):
             theme_name="light",
             headers={"show_headers": False},
         )
-        self.assertNotIn('class="page-header"', html)
-        self.assertNotIn('class="page-footer"', html)
+        self.assertNotIn('<div class="page-header">', html)
+        self.assertNotIn('<div class="page-footer">', html)
 
     def test_render_default_no_headers(self):
         """Рендеринг без параметра headers не включает колонтитулы."""

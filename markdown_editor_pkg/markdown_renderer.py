@@ -182,12 +182,11 @@ class MarkdownRenderer:
         header_html = ""
         footer_html = ""
         if show_headers:
-            # {PAGE_NUM} — placeholder, который JS заменит на реальный номер страницы
             resolved_footer = footer_text.replace("{page}", "{PAGE_NUM}")
             header_html = f'<div class="page-header">{header_text}</div>\n'
             footer_html = f'<div class="page-footer">{resolved_footer}</div>\n'
 
-        # JavaScript для KaTeX + нумерации страниц
+        # JavaScript для KaTeX (всегда)
         katex_js_code = f"""
 <script src="file://{katex_js}"></script>
 <script src="file://{auto_render_js}"></script>
@@ -214,9 +213,17 @@ class MarkdownRenderer:
         }} catch (e) {{
             console.error("KaTeX render error:", e);
         }}
+    }});
+</script>
+"""
 
+        # JavaScript для нумерации страниц (только при show_headers=True)
+        page_numbering_js_code = ""
+        if show_headers:
+            page_numbering_js_code = """
+<script>
+    document.addEventListener("DOMContentLoaded", function() {{
         // === Нумерация страниц для PDF-экорта ===
-        // Разбиваем body на страницы, подставляя номера
         function addPageNumbers() {{
             var footers = document.querySelectorAll('.page-footer');
             if (footers.length === 0) return;
@@ -224,52 +231,42 @@ class MarkdownRenderer:
             var originalFooter = footers[0];
             var footerTemplate = originalFooter.outerHTML;
 
-            // Создаём контейнер-обёртку для контента
             var content = document.body.innerHTML;
 
-            // Удаляем header/footer из body
             var cleanContent = content
                 .replace(/<div class="page-header"[^>]*>.*?<\\/div>/gi, '')
                 .replace(/<div class="page-footer"[^>]*>.*?<\\/div>/gi, '');
 
-            // Шаг 1: Вычисляем количество страниц через скрытую превью-раскладку
             var preview = document.createElement('div');
             preview.style.cssText = 'position:absolute;visibility:hidden;top:-9999px;left:-9999px;'
                 + 'width:1920px;padding:2cm;';
             preview.innerHTML = cleanContent;
             document.body.appendChild(preview);
 
-            // Ждём загрузки шрифтов/KaTeX
             setTimeout(function() {{
                 var previewHeight = preview.scrollHeight;
                 var pageHeight = preview.clientHeight;
                 document.body.removeChild(preview);
 
-                if (pageHeight <= 0) pageHeight = 1056; // ~29.7cm at 96dpi
+                if (pageHeight <= 0) pageHeight = 1056;
 
                 var totalPages = Math.ceil(previewHeight / pageHeight);
                 if (totalPages < 1) totalPages = 1;
 
-                // Шаг 2: Генерируем HTML с разбивкой по страницам
                 var pages = [];
                 var chars = cleanContent;
-                var pagePositions = [];
+                var pos = 0;
 
-                // Создаём временный измеритель
                 var measurer = document.createElement('div');
                 measurer.style.cssText = 'position:absolute;visibility:hidden;top:-9999px;left:-9999px;'
                     + 'width:1920px;padding:2cm;overflow:hidden;';
                 document.body.appendChild(measurer);
 
-                // Используем бинарный поиск по char positions
                 var contentLen = chars.length;
-                var pos = 0;
 
                 for (var p = 0; p < totalPages; p++) {{
                     var pageContent = '';
                     var startIdx = pos;
-
-                    // Ищем позицию разрыва страницы
                     var lo = pos;
                     var hi = Math.min(contentLen, pos + Math.floor((contentLen - pos) * 0.5) + 100);
                     if (hi > contentLen) hi = contentLen;
@@ -277,7 +274,6 @@ class MarkdownRenderer:
                         pageContent = chars.substring(pos, hi);
                         pos = hi;
                     }} else {{
-                        // Бинарный поиск точки разрыва
                         while (lo < hi - 1) {{
                             var mid = Math.floor((lo + hi) / 2);
                             measurer.innerHTML = chars.substring(startIdx, mid);
@@ -288,7 +284,6 @@ class MarkdownRenderer:
                             }}
                         }}
 
-                        // Ищем разрыв слова после lo
                         var breakPos = lo;
                         var rest = chars.substring(startIdx, lo);
                         var lastSpace = rest.lastIndexOf(' ');
@@ -314,7 +309,6 @@ class MarkdownRenderer:
                     pages.push(pageContent);
                 }}
 
-                // Если что-то осталось
                 if (pos < contentLen) {{
                     pages.push(chars.substring(pos));
                     totalPages = pages.length;
@@ -322,7 +316,6 @@ class MarkdownRenderer:
 
                 document.body.removeChild(measurer);
 
-                // Шаг 3: Заменяем body на страницы
                 var newBody = document.createElement('div');
                 newBody.style.cssText = 'width:100%;';
 
@@ -337,15 +330,7 @@ class MarkdownRenderer:
 
                     pageDiv.innerHTML = pages[i];
 
-                    // Клонируем footer и подставляем номер
-                    var footerClone = document.createElement('div');
-                    footerClone.className = 'page-footer';
-                    footerClone.style.cssText = originalFooter.style.cssText || '';
-                    // Вставляем номер страницы
                     var resolved = footerTemplate.replace('{{PAGE_NUM}}', pageNum + '/' + pages.length);
-                    footerClone.outerHTML = resolved;
-
-                    // Вставляем footer через innerHTML после создания pageDiv
                     var temp = document.createElement('div');
                     temp.innerHTML = resolved;
                     var footerEl = temp.firstChild;
@@ -357,7 +342,6 @@ class MarkdownRenderer:
                 document.body.innerHTML = '';
                 document.body.appendChild(newBody);
 
-                // Повторный рендер KaTeX (разбивка могла повлиять)
                 try {{
                     renderMathInElement(document.body, {{
                         delimiters: [
@@ -371,7 +355,7 @@ class MarkdownRenderer:
                     console.error("KaTeX re-render error:", e);
                 }}
 
-            }}, 800); // Ждём KaTeX
+            }}, 800);
         }}
 
         addPageNumbers();
@@ -392,6 +376,7 @@ class MarkdownRenderer:
 {html_content}
 {footer_html}
 {katex_js_code}
+{page_numbering_js_code}
 </body>
 </html>"""
 
