@@ -28,6 +28,11 @@ class TextInsertions:
         """Вставить **выделенный** текст."""
         cursor = self.editor.editor.textCursor()
         selection = cursor.selectedText()
+        full_text = self.editor.editor.toPlainText()
+
+        # Если выделен весь документ, считаем это "отсутствием выделения" для вставки шаблона
+        if selection == full_text and selection:
+            selection = ""
 
         if not selection:
             selection = "текст"
@@ -54,6 +59,11 @@ class TextInsertions:
         """Вставить *выделенный* текст."""
         cursor = self.editor.editor.textCursor()
         selection = cursor.selectedText()
+        full_text = self.editor.editor.toPlainText()
+
+        # Если выделен весь документ, считаем это "отсутствием выделения" для вставки шаблона
+        if selection == full_text and selection:
+            selection = ""
 
         if not selection:
             selection = "текст"
@@ -83,6 +93,11 @@ class TextInsertions:
         """Вставить маркированный список."""
         cursor = self.editor.editor.textCursor()
         selection = cursor.selectedText()
+        full_text = self.editor.editor.toPlainText()
+
+        # Если выделен весь документ, считаем это "отсутствием выделения" для вставки шаблона
+        if selection == full_text and selection:
+            selection = ""
 
         if not selection:
             text_to_insert = "- элемент списка"
@@ -92,7 +107,7 @@ class TextInsertions:
             # Вычисляем позицию начала "элемент списка" (без учёта "- " в начале)
             start_pos = end_pos - len("элемент списка")  # -2 для "- " в начале
 
-            # Устанавливаем курсор в начало выделяемого текста
+            # Устанавливаем курсор в начало выделяемого текс��а
             cursor.setPosition(start_pos)
             # Выделяем "элемент списка", двигаясь вправо на его длину
             cursor.movePosition(
@@ -141,6 +156,11 @@ class TextInsertions:
         """Вставляет $...$ и помещает курсор между ними, сохраняя выделенный текст."""
         cursor = self.editor.editor.textCursor()
         selection = cursor.selectedText()
+        full_text = self.editor.editor.toPlainText()
+
+        # Если выделен весь документ, считаем это "отсутствием выделения" для вставки шаблона
+        if selection == full_text and selection:
+            selection = ""
 
         if not selection:
             # Если нет выделения, просто вставляем пустые $ $ и помещаем курсор между ними
@@ -213,6 +233,11 @@ class TextInsertions:
         """Вставить ~~зачёркнутый~~ текст."""
         cursor = self.editor.editor.textCursor()
         selection = cursor.selectedText()
+        full_text = self.editor.editor.toPlainText()
+
+        # Если выделен весь документ, считаем это "отсутствием выделения" для вставки шаблона
+        if selection == full_text and selection:
+            selection = ""
 
         if not selection:
             selection = "текст"
@@ -242,6 +267,11 @@ class TextInsertions:
         """Вставить `встроенный код`."""
         cursor = self.editor.editor.textCursor()
         selection = cursor.selectedText()
+        full_text = self.editor.editor.toPlainText()
+
+        # Если выделен весь документ, считаем это "отсутствием выделения" для вставки шаблона
+        if selection == full_text and selection:
+            selection = ""
 
         if not selection:
             selection = "код"
@@ -266,13 +296,18 @@ class TextInsertions:
 
         self.editor.editor.setTextCursor(cursor)
         self.editor.update_preview()
-
+        
     # ─── Списки ───────────────────────────────────────────────────────────
 
     def insert_ordered_list(self) -> None:
         """Вставить нумерованный список."""
         cursor = self.editor.editor.textCursor()
         selection = cursor.selectedText()
+        full_text = self.editor.editor.toPlainText()
+
+        # Если выделен весь документ, считаем это "отсутствием выделения" для вставки шаблона
+        if selection == full_text and selection:
+            selection = ""
 
         if not selection:
             text_to_insert = "1. элемент списка"
@@ -302,6 +337,11 @@ class TextInsertions:
         """Вставить элемент списка задач (- [ ])."""
         cursor = self.editor.editor.textCursor()
         selection = cursor.selectedText()
+        full_text = self.editor.editor.toPlainText()
+
+        # Если выделен весь документ, считаем это "отсутствием выделения" для вставки шаблона
+        if selection == full_text and selection:
+            selection = ""
 
         if not selection:
             text_to_insert = "- [ ] задание"

@@ -1,7 +1,7 @@
-"""Pytest configuration for markdown_editor tests"""
+"""Pytest configuration for markdown_editor tests."""
 
-import sys
 import os
+import sys
 
 # Set environment BEFORE importing anything else
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
@@ -11,6 +11,8 @@ from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWidgets import QApplication
 
 # Create a single QApplication instance for all tests
-app = QApplication.instance()
-if app is None:
-    app = QApplication(sys.argv)
+qt_app = QApplication.instance()
+if qt_app is None:
+    qt_app = QApplication(sys.argv)
+
+import pytest

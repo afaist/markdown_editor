@@ -27,13 +27,14 @@ from markdown_editor_pkg.session_manager import SessionManager
 from markdown_editor_pkg.header_footer_dialog import HeaderFooterDialog
 
 from markdown_editor_pkg.latex_processor import LaTeXProcessor
-from PyQt6.QtWebEngineWidgets import QWebEngineView
 
+from PyQt6.QtWebEngineWidgets import QWebEngineView
 
 class MarkdownEditorPyQt(QMainWindow):
     """Основной класс редактора Markdown с предпросмотром на PyQt6."""
 
     def __init__(self):
+        
         super().__init__()
         self.setWindowTitle("Markdown Editor (PyQt6)")
         self.resize(1200, 800)
