@@ -1,0 +1,29 @@
+"""PDF Handler — логика PDF-экспорта и настроек."""
+
+from markdown_editor_pkg.header_footer_dialog import HeaderFooterDialog
+
+
+class PDFHandler:
+    """Обработчик PDF-настроек и экспорта."""
+
+    def __init__(self, editor: "MarkdownEditorPyQt"):
+        self.editor = editor
+
+    def show_pdf_settings(self) -> None:
+        """Открыть диалог настроек PDF-экспорта."""
+        current_headers = (
+            self.editor.file_ops._pdf_headers
+            if self.editor.file_ops._pdf_headers is not None
+            else {}
+        )
+        dialog = HeaderFooterDialog(self.editor, current_headers=current_headers)
+        if dialog.exec() == HeaderFooterDialog.DialogCode.Accepted:
+            headers = dialog.get_headers()
+            self.editor.file_ops.set_pdf_headers(headers)
+            if self.editor._statusbar_ref:
+                status = (
+                    "Настройки PDF-экспорта сохранены"
+                    if headers["show_headers"]
+                    else "Колонтитулы PDF отключены"
+                )
+                self.editor._statusbar_ref.showMessage(status)

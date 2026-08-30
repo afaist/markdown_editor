@@ -1,14 +1,19 @@
 """Темы предпросмотра и редактора Markdown."""
 
+from typing import TYPE_CHECKING
+
 from PyQt6.QtWidgets import QTextEdit
 from PyQt6.QtGui import QFontDatabase
+
+if TYPE_CHECKING:
+    from markdown_editor_pkg.editor import MarkdownEditorPyQt
 
 
 class ThemesManager:
     """Управление темами предпросмотра (CSS для WebView), редактора, шрифтами и размером шрифта."""
 
     # Стандартные шрифты (без системных)
-    DEFAULT_FONTS = ["Consolas", "Courier New", "Monaco", "Fira Code", "JetBrains Mono",
+    DEFAULT_FONTS: list[str] = ["Consolas", "Courier New", "Monaco", "Fira Code", "JetBrains Mono",
                      "Arial", "Times New Roman", "Verdana", "Georgia", "Ubuntu Mono",
                      "DejaVu Sans Mono", "Liberation Mono", "Menlo", "SF Mono"]
 
@@ -17,7 +22,7 @@ class ThemesManager:
     MAX_FONT_SIZE = 72
     DEFAULT_FONT_SIZE = 11
 
-    THEMES_CSS = {
+    THEMES_CSS: dict[str, str] = {
         "light": """
         body {
             background-color: #ffffff;
@@ -125,9 +130,9 @@ class ThemesManager:
         """,
     }
 
-    THEME_ORDER = ["light", "dark", "contrast"]
+    THEME_ORDER: list[str] = ["light", "dark", "contrast"]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.theme_name = "light"
         self.editor_theme = "light"
         # Шрифт и размер шрифта по умолчанию
@@ -165,7 +170,7 @@ class ThemesManager:
         return self.editor_theme
 
     # Стили для редактора — хранятся отдельно
-    EDITOR_STYLES = {
+    EDITOR_STYLES: dict[str, str] = {
         "light": """
             QTextEdit {
                 background-color: #ffffff;
@@ -256,11 +261,11 @@ class ThemesManager:
             self._apply_font_to_edit(text_edit)
         return self._font_size
 
-    def get_available_fonts(self) -> list:
+    def get_available_fonts(self) -> list[str]:
         """Получить список доступных шрифтов: сначала DEFAULT_FONTS, затем системные."""
         db = QFontDatabase.families()
         # Сначала шрифты из списка, которые есть в системе
-        result = [f for f in self.DEFAULT_FONTS if f in db]
+        result: list[str] = [f for f in self.DEFAULT_FONTS if f in db]
         # Затем все остальные системные шрифты (без дубликатов)
         
         for f in sorted(db):

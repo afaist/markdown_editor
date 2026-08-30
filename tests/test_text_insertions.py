@@ -26,6 +26,7 @@ class TestTextInsertions:
     def test_insert_bold_no_selection(self):
         """Вставка жирного без выделения."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -40,6 +41,7 @@ class TestTextInsertions:
     def test_insert_bold_with_selection(self):
         """Вставка жирного с выделением текста."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -56,6 +58,7 @@ class TestTextInsertions:
     def test_insert_italic_no_selection(self):
         """Вставка курсива без выделения."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -70,6 +73,7 @@ class TestTextInsertions:
     def test_insert_italic_with_selection(self):
         """Вставка курсива с выделением текста."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -85,6 +89,7 @@ class TestTextInsertions:
     def test_insert_strikethrough(self):
         """Вставка зачёркнутого текста."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -99,6 +104,7 @@ class TestTextInsertions:
     def test_insert_inline_code(self):
         """Вставка встроенного кода."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -113,6 +119,7 @@ class TestTextInsertions:
     def test_insert_unordered_list_no_selection(self):
         """Вставка маркированного списка без выделения."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -127,6 +134,7 @@ class TestTextInsertions:
     def test_insert_unordered_list_with_selection(self):
         """Вставка маркированного списка с выделением."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -142,6 +150,7 @@ class TestTextInsertions:
     def test_insert_ordered_list(self):
         """Вставка нумерованного списка."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -156,6 +165,7 @@ class TestTextInsertions:
     def test_insert_task_list(self):
         """Вставка элемента списка задач."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -170,6 +180,7 @@ class TestTextInsertions:
     def test_insert_heading_level_1(self):
         """Вставка заголовка H1."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -184,6 +195,7 @@ class TestTextInsertions:
     def test_insert_heading_level_7(self):
         """Вставка заголовка H7."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -198,6 +210,7 @@ class TestTextInsertions:
     def test_insert_heading_invalid_level(self):
         """Невалидный уровень заголовка игнорируется."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -214,6 +227,7 @@ class TestTextInsertions:
     def test_insert_blockquote(self):
         """Вставка цитаты."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -228,6 +242,7 @@ class TestTextInsertions:
     def test_insert_code_block_python(self):
         """Вставка блока кода с языком Python."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -243,6 +258,7 @@ class TestTextInsertions:
     def test_insert_code_block_generic(self):
         """Вставка блока кода без языка."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -257,6 +273,7 @@ class TestTextInsertions:
     def test_insert_latex_fraction(self):
         """Вставка LaTeX дробной функции."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -271,6 +288,7 @@ class TestTextInsertions:
     def test_insert_latex_matrix(self):
         """Вставка LaTeX матрицы."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -286,6 +304,7 @@ class TestTextInsertions:
     def test_insert_horizontal_rule(self):
         """Вставка горизонтального разделителя."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -300,6 +319,7 @@ class TestTextInsertions:
     def test_insert_table(self):
         """Вставка таблицы Markdown."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -315,6 +335,7 @@ class TestTextInsertions:
     def test_insert_html_comment(self):
         """Вставка HTML-комментария."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -330,6 +351,7 @@ class TestTextInsertions:
     def test_insert_inline_latex_no_selection(self):
         """Вставка inline LaTeX без выделения."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -344,6 +366,7 @@ class TestTextInsertions:
     def test_insert_block_latex_no_selection(self):
         """Вставка блочного LaTeX без выделения."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -358,6 +381,7 @@ class TestTextInsertions:
     def test_insert_latex_superscript(self):
         """Вставка LaTeX надстрочного индекса."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -372,6 +396,7 @@ class TestTextInsertions:
     def test_insert_latex_subscript(self):
         """Вставка LaTeX подстрочного индекса."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -386,6 +411,7 @@ class TestTextInsertions:
     def test_insert_latex_sum(self):
         """Вставка LaTeX суммы."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -400,6 +426,7 @@ class TestTextInsertions:
     def test_insert_latex_integral(self):
         """Вставка LaTeX интеграла."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -414,6 +441,7 @@ class TestTextInsertions:
     def test_insert_latex_sqrt(self):
         """Вставка LaTeX квадратного корня."""
         from markdown_editor_pkg.text_insertions import TextInsertions
+
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
@@ -424,3 +452,93 @@ class TestTextInsertions:
         ti.insert_latex_sqrt()
         text = mock.editor.toPlainText()
         assert "\\sqrt{}" in text
+
+    def test_insert_link_with_mock(self):
+        """Вставка ссылки с mock QInputDialog."""
+        from unittest.mock import patch, MagicMock
+        from markdown_editor_pkg.text_insertions import TextInsertions
+
+        mock = self._create_mock_editor()
+        ti = TextInsertions(mock)
+
+        with patch(
+            "markdown_editor_pkg.text_insertions.QInputDialog.getText"
+        ) as mock_input:
+            mock_input.side_effect = [
+                ("https://example.com", True),  # URL
+                ("Пример", True),  # Текст ссылки
+            ]
+            ti.insert_link()
+
+            text = mock.editor.toPlainText()
+            assert "[Пример](https://example.com)" in text
+
+    def test_insert_link_cancel_url(self):
+        """Отмена ввода URL отменяет вставку ссылки."""
+        from unittest.mock import patch
+        from markdown_editor_pkg.text_insertions import TextInsertions
+
+        mock = self._create_mock_editor()
+        mock.editor.setPlainText("Исходный текст")
+        ti = TextInsertions(mock)
+
+        with patch(
+            "markdown_editor_pkg.text_insertions.QInputDialog.getText"
+        ) as mock_input:
+            mock_input.return_value = ("", False)  # Отмена
+            ti.insert_link()
+
+        text = mock.editor.toPlainText()
+        assert text == "Исходный текст"
+
+    def test_insert_image_with_mock(self):
+        """Вставка изображения с mock QFileDialog."""
+        from unittest.mock import patch
+        from markdown_editor_pkg.text_insertions import TextInsertions
+
+        mock = self._create_mock_editor()
+        ti = TextInsertions(mock)
+
+        with patch(
+            "markdown_editor_pkg.text_insertions.QFileDialog.getOpenFileName"
+        ) as mock_file:
+            mock_file.return_value = ("/path/to/image.png", "")
+            ti.insert_image()
+
+        text = mock.editor.toPlainText()
+        assert "![изображение](/path/to/image.png)" in text
+
+    def test_insert_image_cancel(self):
+        """Отмена выбора изображения отменяет вставку."""
+        from unittest.mock import patch
+        from markdown_editor_pkg.text_insertions import TextInsertions
+
+        mock = self._create_mock_editor()
+        mock.editor.setPlainText("Исходный текст")
+        ti = TextInsertions(mock)
+
+        with patch(
+            "markdown_editor_pkg.text_insertions.QFileDialog.getOpenFileName"
+        ) as mock_file:
+            mock_file.return_value = ("", "")  # Отмена
+            ti.insert_image()
+
+        text = mock.editor.toPlainText()
+        assert text == "Исходный текст"
+
+    def test_insert_image_windows_path(self):
+        """Вставка изображения с Windows-путём — экранирование слешей."""
+        from unittest.mock import patch
+        from markdown_editor_pkg.text_insertions import TextInsertions
+
+        mock = self._create_mock_editor()
+        ti = TextInsertions(mock)
+
+        with patch(
+            "markdown_editor_pkg.text_insertions.QFileDialog.getOpenFileName"
+        ) as mock_file:
+            mock_file.return_value = (r"C:\Users\img.png", "")
+            ti.insert_image()
+
+        text = mock.editor.toPlainText()
+        assert "![изображение](C:/Users/img.png)" in text
