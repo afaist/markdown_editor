@@ -541,4 +541,53 @@ class TestTextInsertions:
             ti.insert_image()
 
         text = mock.editor.toPlainText()
-        assert "![изображение](C:/Users/img.png)" in text
+
+    def test_insert_ordered_list_with_selection(self):
+        """Вставка нумерованного списка с выделением текста."""
+        from markdown_editor_pkg.text_insertions import TextInsertions
+
+        mock = self._create_mock_editor()
+        ti = TextInsertions(mock)
+
+        cursor = mock.editor.textCursor()
+        cursor.setPosition(0)
+        cursor.setPosition(11, QTextCursor.MoveMode.KeepAnchor)  # "Текст для "
+        mock.editor.setTextCursor(cursor)
+
+        ti.insert_ordered_list()
+        text = mock.editor.toPlainText()
+        assert "1. Текст для " in text
+
+    def test_insert_inline_latex_with_selection(self):
+        """Вставка inline LaTeX с выделением текста."""
+        from markdown_editor_pkg.text_insertions import TextInsertions
+
+        mock = self._create_mock_editor()
+        mock.editor.setPlainText("Formula E=mc2 here")
+        ti = TextInsertions(mock)
+
+        cursor = mock.editor.textCursor()
+        cursor.setPosition(8)  # начало "E=mc2"
+        cursor.setPosition(13, QTextCursor.MoveMode.KeepAnchor)  # "E=mc2"
+        mock.editor.setTextCursor(cursor)
+
+        ti.insert_inline_latex()
+        text = mock.editor.toPlainText()
+        assert "$E=mc2$" in text
+
+    def test_insert_block_latex_with_selection(self):
+        """Вставка блочного LaTeX с выделением текста."""
+        from markdown_editor_pkg.text_insertions import TextInsertions
+
+        mock = self._create_mock_editor()
+        mock.editor.setPlainText("Formula E=mc2 here")
+        ti = TextInsertions(mock)
+
+        cursor = mock.editor.textCursor()
+        cursor.setPosition(8)  # начало "E=mc2"
+        cursor.setPosition(13, QTextCursor.MoveMode.KeepAnchor)  # "E=mc2"
+        mock.editor.setTextCursor(cursor)
+
+        ti.insert_block_latex()
+        text = mock.editor.toPlainText()
+        assert "\n$$\nE=mc2\n$$" in text

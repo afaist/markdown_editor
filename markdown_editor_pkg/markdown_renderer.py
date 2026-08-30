@@ -1,5 +1,6 @@
-# markdown_editor_pkg/markdown_renderer.py
 """Рендеринг Markdown в HTML с поддержкой LaTeX, тем и GitHub Callouts."""
+
+from __future__ import annotations
 
 import os
 import markdown
@@ -14,7 +15,12 @@ from markdown_editor_pkg.prism_processor import PrismJSProcessor
 class MarkdownRenderer:
     """Конвертирует Markdown-текст в полный HTML-документ с LaTeX и темами."""
 
-    # Стили для печати/PDF
+    # Шаблоны путей к KaTeX
+    KATEX_CSS = "katex/katex.min.css"
+    KATEX_JS = "katex/katex.min.js"
+    KATEX_AUTO_RENDER_JS = "katex/auto-render.min.js"
+
+    # Шаблон стилей для печати/PDF
     PRINT_STYLES_TEMPLATE = """
         <style>
             {theme_css}
@@ -75,7 +81,6 @@ class MarkdownRenderer:
                     margin: 2cm;
                 }}
 
-                /* Показываем колонтитулы только при печати */
                 .page-header {{
                     display: block !important;
                     position: fixed;
@@ -105,7 +110,6 @@ class MarkdownRenderer:
                     z-index: 1000;
                 }}
 
-                /* Настройка отступов тела документа */
                 body {{
                     padding-top: 1.5cm;
                     padding-bottom: 1.5cm;
@@ -114,17 +118,14 @@ class MarkdownRenderer:
         </style>
     """
 
-    # Шаблоны путей к KaTeX
-    KATEX_CSS = "katex/katex.min.css"
-    KATEX_JS = "katex/katex.min.js"
-    KATEX_AUTO_RENDER_JS = "katex/auto-render.min.js"
-
     def __init__(self, themes: ThemesManager):
         self.themes = themes
         self.latex_processor = LaTeXProcessor()
         self.strikethrough_processor = StrikethroughProcessor()
         self.callout_processor = CalloutProcessor()
         self.prism_processor = PrismJSProcessor()
+
+    # ─── Публичный API ─────────────────────────────────────────────────
 
     def render(
         self,
@@ -133,14 +134,52 @@ class MarkdownRenderer:
         base_dir: str = "",
         headers: dict | None = None,
     ) -> str:
-        """
-        Рендерит Markdown в полный HTML-документ.
-        """
-        # 1. Извлекаем LaTeX-формулы
-        self.latex_processor.reset()
-        processed_text = self.latex_processor.process(text)
+        """Рендерит Markdown в полный HTML-документ."""
+        # Pipeline: Markdown → HTML
+        processed_text = self._extract_latex(text)
+        html_content = self._markdown_to_html(processed_text)
+        html_content = self._restore_latex(html_content)
+        html_content = self._apply_strikethrough(html_content)
+        html_content = self._apply_callouts(html_content)
 
-        # 2. Конвертируем Markdown → HTML
+        # Сборка полного HTML-документа
+        theme_css = self.themes.get_preview_css()
+        print_styles = self.PRINT_STYLES_TEMPLATE.format(theme_css=theme_css)
+
+        katex_css = self._resolve_path(base_dir, self.KATEX_CSS)
+        katex_js = self._resolve_path(base_dir, self.KATEX_JS)
+        auto_render_js = self._resolve_path(base_dir, self.KATEX_AUTO_RENDER_JS)
+
+        show_headers, header_text, footer_text = self._parse_headers(headers)
+        header_html, footer_html = self._build_header_footer(show_headers, header_text, footer_text)
+
+        katex_js_code = self._build_katex_js(katex_js, auto_render_js)
+        page_numbering_js = self._build_page_numbering_js(show_headers)
+
+        full_html = self._build_html_document(
+            html_content, theme_name, print_styles,
+            katex_css, header_html, footer_html,
+            katex_js_code, page_numbering_js,
+        )
+
+        # Встраиваем Prism.js
+        full_html = self.prism_processor.inject_prism(full_html, theme_name, base_dir)
+
+        return full_html
+
+    def get_preview_url(self, html: str, base_dir: str) -> QUrl:
+        """Создаёт QUrl для загрузки HTML в QWebEngineView."""
+        return QUrl.fromLocalFile(base_dir)
+
+    # ─── Pipeline stages ────────────────────────────────────────────────
+
+    def _extract_latex(self, text: str) -> str:
+        """Stage 1: Извлекаем LaTeX-формулы, заменяем плейсхолдерами."""
+        self.latex_processor.reset()
+        return self.latex_processor.process(text)
+
+    def _markdown_to_html(self, text: str) -> str:
+        """Stage 2: Конвертируем Markdown → HTML."""
         md = markdown.Markdown(
             extensions=[
                 "markdown.extensions.fenced_code",
@@ -148,46 +187,55 @@ class MarkdownRenderer:
                 "markdown.extensions.toc",
             ]
         )
-        html_content = md.convert(processed_text)
+        return md.convert(text)
 
-        # 3. Восстанавливаем LaTeX-формулы
-        html_content = self.latex_processor.restore_display(html_content)
-        html_content = self.latex_processor.restore_inline(html_content)
+    def _restore_latex(self, html: str) -> str:
+        """Stage 3: Восстанавливаем LaTeX-формулы из плейсхолдеров."""
+        html = self.latex_processor.restore_display(html)
+        return self.latex_processor.restore_inline(html)
 
-        # 4. Зачёркивание
-        html_content = self.strikethrough_processor.apply(html_content)
+    def _apply_strikethrough(self, html: str) -> str:
+        """Stage 4: Применяем зачёркивание."""
+        return self.strikethrough_processor.apply(html)
 
-        # 5. GitHub Callouts
-        html_content = self.callout_processor.process(html_content)
+    def _apply_callouts(self, html: str) -> str:
+        """Stage 5: Применяем GitHub Callouts."""
+        return self.callout_processor.process(html)
 
-        # 6. Собираем полный HTML-документ
-        theme_css = self.themes.get_preview_css()
-        print_styles = self.PRINT_STYLES_TEMPLATE.format(theme_css=theme_css)
+    # ─── Сборка HTML ────────────────────────────────────────────────────
 
-        katex_css = (
-            os.path.join(base_dir, self.KATEX_CSS) if base_dir else self.KATEX_CSS
+    @staticmethod
+    def _resolve_path(base_dir: str, rel_path: str) -> str:
+        """Резолвит относительный путь относительно base_dir."""
+        if base_dir:
+            return os.path.join(base_dir, rel_path)
+        return rel_path
+
+    @staticmethod
+    def _parse_headers(headers: dict | None) -> tuple[bool, str, str]:
+        """Парсит настройки колонтитулов."""
+        if not headers:
+            return False, "", ""
+        return (
+            headers.get("show_headers", False),
+            headers.get("header_text", ""),
+            headers.get("footer_text", ""),
         )
-        katex_js = os.path.join(base_dir, self.KATEX_JS) if base_dir else self.KATEX_JS
-        auto_render_js = (
-            os.path.join(base_dir, self.KATEX_AUTO_RENDER_JS)
-            if base_dir
-            else self.KATEX_AUTO_RENDER_JS
-        )
 
-        # Формируем колонтитулы
-        show_headers = headers.get("show_headers", False) if headers else False
-        header_text = headers.get("header_text", "") if headers else ""
-        footer_text = headers.get("footer_text", "") if headers else ""
+    @staticmethod
+    def _build_header_footer(show: bool, header_text: str, footer_text: str) -> tuple[str, str]:
+        """Создаёт HTML колонтитулов."""
+        if not show:
+            return "", ""
+        resolved_footer = footer_text.replace("{page}", "{PAGE_NUM}")
+        header_html = f'<div class="page-header">{header_text}</div>\n'
+        footer_html = f'<div class="page-footer">{resolved_footer}</div>\n'
+        return header_html, footer_html
 
-        header_html = ""
-        footer_html = ""
-        if show_headers:
-            resolved_footer = footer_text.replace("{page}", "{PAGE_NUM}")
-            header_html = f'<div class="page-header">{header_text}</div>\n'
-            footer_html = f'<div class="page-footer">{resolved_footer}</div>\n'
-
-        # JavaScript для KaTeX (всегда)
-        katex_js_code = f"""
+    @staticmethod
+    def _build_katex_js(katex_js: str, auto_render_js: str) -> str:
+        """Создаёт JavaScript для KaTeX."""
+        return f"""
 <script src="file://{katex_js}"></script>
 <script src="file://{auto_render_js}"></script>
 <script>
@@ -217,20 +265,21 @@ class MarkdownRenderer:
 </script>
 """
 
-        # JavaScript для нумерации страниц (только при show_headers=True)
-        page_numbering_js_code = ""
-        if show_headers:
-            page_numbering_js_code = """
+    @staticmethod
+    def _build_page_numbering_js(enabled: bool) -> str:
+        """Создаёт JavaScript для нумерации страниц (только при включённых колонтитулах)."""
+        if not enabled:
+            return ""
+
+        return """
 <script>
     document.addEventListener("DOMContentLoaded", function() {{
-        // === Нумерация страниц для PDF-экорта ===
         function addPageNumbers() {{
             var footers = document.querySelectorAll('.page-footer');
             if (footers.length === 0) return;
 
             var originalFooter = footers[0];
             var footerTemplate = originalFooter.outerHTML;
-
             var content = document.body.innerHTML;
 
             var cleanContent = content
@@ -238,8 +287,7 @@ class MarkdownRenderer:
                 .replace(/<div class="page-footer"[^>]*>.*?<\\/div>/gi, '');
 
             var preview = document.createElement('div');
-            preview.style.cssText = 'position:absolute;visibility:hidden;top:-9999px;left:-9999px;'
-                + 'width:1920px;padding:2cm;';
+            preview.style.cssText = 'position:absolute;visibility:hidden;top:-9999px;left:-9999px;width:1920px;padding:2cm;';
             preview.innerHTML = cleanContent;
             document.body.appendChild(preview);
 
@@ -258,8 +306,7 @@ class MarkdownRenderer:
                 var pos = 0;
 
                 var measurer = document.createElement('div');
-                measurer.style.cssText = 'position:absolute;visibility:hidden;top:-9999px;left:-9999px;'
-                    + 'width:1920px;padding:2cm;overflow:hidden;';
+                measurer.style.cssText = 'position:absolute;visibility:hidden;top:-9999px;left:-9999px;width:1920px;padding:2cm;overflow:hidden;';
                 document.body.appendChild(measurer);
 
                 var contentLen = chars.length;
@@ -354,7 +401,6 @@ class MarkdownRenderer:
                 }} catch (e) {{
                     console.error("KaTeX re-render error:", e);
                 }}
-
             }}, 800);
         }}
 
@@ -363,7 +409,19 @@ class MarkdownRenderer:
 </script>
 """
 
-        full_html = f"""<!DOCTYPE html>
+    def _build_html_document(
+        self,
+        html_content: str,
+        theme_name: str,
+        print_styles: str,
+        katex_css: str,
+        header_html: str,
+        footer_html: str,
+        katex_js_code: str,
+        page_numbering_js: str,
+    ) -> str:
+        """Собирает полный HTML-документ."""
+        return f"""<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -376,15 +434,6 @@ class MarkdownRenderer:
 {html_content}
 {footer_html}
 {katex_js_code}
-{page_numbering_js_code}
+{page_numbering_js}
 </body>
 </html>"""
-
-        # 7. Встраиваем Prism.js
-        full_html = self.prism_processor.inject_prism(full_html, theme_name, base_dir)
-
-        return full_html
-
-    def get_preview_url(self, html: str, base_dir: str) -> QUrl:
-        """Создаёт QUrl для загрузки HTML в QWebEngineView."""
-        return QUrl.fromLocalFile(base_dir)

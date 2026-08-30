@@ -227,10 +227,6 @@ class ThemesManager:
         """Применить текущие параметры шрифта к QTextEdit."""
         if text_edit is None:
             return
-        # Проверяем, является ли text_edit экземпляром QTextEdit, чтобы избежать ошибок типа
-        if not hasattr(text_edit, 'font'):
-            return
-            
         font = text_edit.font()
         font.setFamily(self._font_family)
         font.setPointSize(self._font_size)
