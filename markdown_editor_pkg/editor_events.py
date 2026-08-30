@@ -17,10 +17,11 @@ class EventHandler:
 
     def on_text_change(self) -> None:
         """Обработка изменения текста."""
-        self.editor.is_dirty = True
+        text = self.editor.editor.toPlainText()
+        self.editor.is_dirty = bool(text.strip())
         self.editor.update_char_count()
 
-        if self.editor.current_file:
+        if self.editor.current_file and self.editor.is_dirty:
             self.editor.auto_save_timer.start(3000)
 
         self.editor.preview_timer.stop()
