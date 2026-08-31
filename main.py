@@ -6,13 +6,13 @@ Markdown Editor - Простой редактор Markdown с предпросм
 import os
 import sys
 
-from PyQt6.QtWidgets import QApplication
-
-from markdown_editor_pkg.editor import MarkdownEditorPyQt
-
 os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = (
     "--disable-gpu --disable-gpu-compositing --disable-software-rasterizer"
 )
+
+from PyQt6.QtWidgets import QApplication
+
+from markdown_editor_pkg.editor import MarkdownEditorPyQt
 
 
 def main():

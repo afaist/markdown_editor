@@ -159,10 +159,13 @@ class ToolbarBuilder:
 
         # -- Файловые действия --
         for text, callback in [
-            ("Открыть", parent.file_ops.open_file),  # type: ignore[attr-defined]
-            ("Сохранить", parent.file_ops.save_file),  # type: ignore[attr-defined]
-            ("Экспорт в PDF", parent.file_ops.export_to_pdf),  # type: ignore[attr-defined]
+            ("Открыть", parent.file_io.open_file),  # type: ignore[attr-defined]
+            ("Сохранить", parent.file_io.save_file),  # type: ignore[attr-defined]
+            ("Экспорт в PDF", parent.file_export.export_to_pdf),  # type: ignore[attr-defined]
         ]:
+            action = QAction(text, parent)
+            action.triggered.connect(callback)
+            toolbar.addAction(action)
             action = QAction(text, parent)
             action.triggered.connect(callback)
             toolbar.addAction(action)
@@ -278,8 +281,8 @@ class MenuBuilder:
             QKeySequence.StandardKey.Close,
         )
         file_menu.addSeparator()
-        self._add_action(file_menu, "Экспорт в HTML", parent.file_ops.export_to_html)
-        self._add_action(file_menu, "Экспорт в PDF", parent.file_ops.export_to_pdf)
+        self._add_action(file_menu, "Экспорт в HTML", parent.file_export.export_to_html)
+        self._add_action(file_menu, "Экспорт в PDF", parent.file_export.export_to_pdf)
         self._add_action(
             file_menu, "Настройки PDF-экспорта...", parent._show_pdf_settings
         )

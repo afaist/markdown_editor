@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import QMainWindow, QMessageBox
 
 from markdown_editor_pkg.themes import ThemesManager
 from markdown_editor_pkg.markdown_renderer import MarkdownRenderer
-from markdown_editor_pkg.file_operations import FileOperations
+from markdown_editor_pkg.file_operations import FileIO, FileExport, EditorState
 from markdown_editor_pkg.text_insertions import TextInsertions
 from markdown_editor_pkg.latex_processor import LaTeXProcessor
 from markdown_editor_pkg.editor_components import UIBuilder, ToolbarBuilder, MenuBuilder
@@ -48,10 +48,6 @@ class MarkdownEditorPyQt(QMainWindow):
         self.setWindowTitle("Markdown Editor (PyQt6)")
         self.resize(1200, 800)
 
-        # Переменные состояния
-        self.current_file: str | None = None
-        self.is_dirty = False
-
         # Виджеты (заполняются UIBuilder)
         self.editor: QTextEdit  # type: ignore[misc]
         self.preview: QWebEngineView  # type: ignore[misc]
@@ -71,9 +67,18 @@ class MarkdownEditorPyQt(QMainWindow):
         self.theme_manager = ThemesManager()
         self.renderer = MarkdownRenderer(themes=self.theme_manager)
         self.latex_processor = LaTeXProcessor()
-        self.file_ops = FileOperations(
-            editor=self, statusbar=None, renderer=self.renderer
+        # EditorState — единый контекст состояния файлов
+        self._file_state = EditorState()
+
+        self.file_io = FileIO(
+            editor=self, statusbar=None, renderer=self.renderer, state=self._file_state
         )
+        self.file_export = FileExport(
+            editor=self, statusbar=None, renderer=self.renderer, state=self._file_state
+        )
+
+        # file_ops для обратной совместимости
+        self.file_ops = self.file_io
         self.text_insertions = TextInsertions(editor=self)
 
         # Таймеры
@@ -84,7 +89,6 @@ class MarkdownEditorPyQt(QMainWindow):
         self.preview_timer = QTimer()
         self.preview_timer.setSingleShot(True)
         self.preview_timer.timeout.connect(self.update_preview)
-
 
         # Компоненты
         self.ui_builder = UIBuilder(self)
@@ -98,13 +102,14 @@ class MarkdownEditorPyQt(QMainWindow):
         self.theme_font_handler = ThemeFontHandler(self)
         self.find_replace_handler = FindReplaceHandler(self)
         self.close_handler = CloseHandler(self)
-        
+
         # Инициализация
         self.init_ui()
-        
+
         # Подменяю ссылку на statusbar в file_ops
-        self.file_ops.statusbar = self._statusbar_ref
-        
+        self.file_io._statusbar = self._statusbar_ref
+        self.file_export._statusbar = self._statusbar_ref
+
         # Загрузка последней сессии
         self.session_handler.load_session()
 
@@ -191,6 +196,22 @@ class MarkdownEditorPyQt(QMainWindow):
         self.close_handler.on_close(event_)
 
     # ─── Обратная совместимость (для старых тестов) ─────────────────────
+
+    @property
+    def current_file(self) -> str | None:
+        return self._file_state.current_file
+
+    @current_file.setter
+    def current_file(self, value: str | None) -> None:
+        self._file_state.current_file = value
+
+    @property
+    def is_dirty(self) -> bool:
+        return self._file_state.is_dirty
+
+    @is_dirty.setter
+    def is_dirty(self, value: bool) -> None:
+        self._file_state.is_dirty = value
 
     @property
     def theme_name(self) -> str:

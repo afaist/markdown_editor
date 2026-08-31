@@ -17,7 +17,7 @@ class TestFileOperationsHeaders:
     def test_get_pdf_headers_no_file(self):
         """Колонтитулы без открытого файла используют default название."""
         self.editor.current_file = None
-        headers = self.editor.file_ops._get_pdf_headers()
+        headers = self.editor.file_export._get_pdf_headers()
         assert headers["show_headers"] is True
         assert headers["header_text"] == "Markdown Editor"
         assert "markdown_editor" in headers["footer_text"]
@@ -26,7 +26,7 @@ class TestFileOperationsHeaders:
     def test_get_pdf_headers_with_file(self):
         """Колонтитулы с открытым файлом используют имя файла."""
         self.editor.current_file = "/home/user/my_document.md"
-        headers = self.editor.file_ops._get_pdf_headers()
+        headers = self.editor.file_export._get_pdf_headers()
         assert headers["show_headers"] is True
         assert headers["header_text"] == "my_document.md"
         assert "—" in headers["footer_text"]
@@ -70,7 +70,6 @@ class TestFileOperationsIO:
 
         assert self.editor.current_file == "/tmp/new_file.md"
         assert self.editor.is_dirty is False
-        
 
     def test_new_file_no_changes(self):
         """new_file без изменений не показывает диалог."""
@@ -169,3 +168,91 @@ class TestFileOperationsIO:
         assert self.editor.current_file == "/tmp/test.md"
         assert self.editor.editor.toPlainText() == "важный текст"
         self.editor.editor.setPlainText("")
+
+
+class TestFileOperationsExport:
+    """Тесты экспорта (FileExport)."""
+
+    def setup_method(self):
+        self.editor = MarkdownEditorPyQt()
+        self.editor.setWindowTitle("Test Editor")
+
+    def teardown_method(self):
+        self.editor.is_dirty = False
+        self.editor.close()
+
+    def test_export_to_html(self):
+        """Экспорт в HTML записывает файл с HTML-контентом."""
+        import tempfile
+        import os
+
+        temp_file = tempfile.NamedTemporaryFile(suffix=".html", delete=False)
+        temp_path = temp_file.name
+        temp_file.close()
+
+        self.editor.editor.setPlainText("# Hello World")
+
+        with mock.patch(
+            "markdown_editor_pkg.file_operations.QFileDialog"
+        ) as mock_qfile_dialog:
+            mock_qfile_dialog.getSaveFileName.return_value = (temp_path, "")
+            self.editor.file_export.export_to_html()
+
+        assert os.path.exists(temp_path)
+        with open(temp_path, "r") as f:
+            content = f.read()
+            assert "<h1" in content
+            assert "Hello World" in content
+            os.unlink(temp_path)
+
+    def test_export_to_html_adds_extension(self):
+        """Экспорт в HTML добавляет .html, если пользователь не указал расширение."""
+        import tempfile
+        import os
+
+        temp_file = tempfile.NamedTemporaryFile(suffix="", delete=False)
+        temp_path = temp_file.name
+        temp_file.close()
+
+        self.editor.editor.setPlainText("# Test")
+
+        with mock.patch(
+            "markdown_editor_pkg.file_operations.QFileDialog"
+        ) as mock_qfile_dialog:
+            mock_qfile_dialog.getSaveFileName.return_value = (temp_path, "")
+            self.editor.file_export.export_to_html()
+
+        # Файл должен быть создан с .html расширением
+        expected_path = temp_path + ".html"
+        assert os.path.exists(expected_path)
+        os.unlink(expected_path)
+        if os.path.exists(temp_path):
+            os.unlink(temp_path)
+
+    def test_set_pdf_headers(self):
+        """set_pdf_headers устанавливает пользовательские колонтитулы."""
+        self.editor.file_export.set_pdf_headers(
+            {
+                "show_headers": False,
+                "header_text": "",
+                "footer_text": "",
+            }
+        )
+        headers = self.editor.file_export._get_pdf_headers()
+        assert headers["show_headers"] is False
+        assert headers["header_text"] == ""
+        assert headers["footer_text"] == ""
+
+    def test_set_pdf_headers_preserves_show_flags(self):
+        """set_pdf_headers с show_headers=True."""
+        self.editor.file_export.set_pdf_headers(
+            {
+                "show_headers": True,
+                "header_text": "My Doc",
+                "footer_text": "Page ",
+            }
+        )
+        headers = self.editor.file_export._get_pdf_headers()
+        assert headers["show_headers"] is True
+        assert headers["header_text"] == "My Doc"
+        assert "Page" in headers["footer_text"]
