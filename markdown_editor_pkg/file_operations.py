@@ -83,10 +83,7 @@ class FileIO:
         )
         if not filepath:
             return
-        
-        if not filepath.lower().endswith(".html"):
-            filepath += ".html"
-            
+
         try:
             self._on_file_opened(filepath)
         except Exception as e:
@@ -201,10 +198,10 @@ class FileExport:
         )
         if not filepath:
             return
-        
+
         if not filepath.lower().endswith(".html"):
             filepath += ".html"
-            
+
         try:
             html = self._renderer.render(
                 self._editor.editor.toPlainText(),
@@ -235,15 +232,15 @@ class FileExport:
 
             def on_load_finished(ok: bool) -> None:
                 if not ok:
-                    self._error_msg(
-                        "Ошибка", "Не удалось загрузить HTML для экспорта."
-                    )
+                    self._error_msg("Ошибка", "Не удалось загрузить HTML для экспорта.")
                     self._status_msg("")
                     self._cleanup_temp_file(tmp_path)
                     return
 
                 try:
-                    self._editor.preview.page().loadFinished.disconnect(on_load_finished)
+                    self._editor.preview.page().loadFinished.disconnect(
+                        on_load_finished
+                    )
                 except TypeError:
                     pass
 
@@ -256,7 +253,9 @@ class FileExport:
                     self._cleanup_temp_file(tmp_path)
                     return
 
-                QTimer.singleShot(500, lambda: self._do_pdf_write(page, filepath, tmp_path))
+                QTimer.singleShot(
+                    500, lambda: self._do_pdf_write(page, filepath, tmp_path)
+                )
 
             self._editor.preview.page().loadFinished.connect(on_load_finished)
 
@@ -288,6 +287,7 @@ class FileExport:
     def _do_pdf_write(self, page, filepath: str, tmp_path: str) -> None:
         """Выполняет запись PDF из страницы."""
         try:
+
             def callback(pdf_data) -> None:
                 try:
                     with open(filepath, "wb") as f:
