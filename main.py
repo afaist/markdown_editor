@@ -3,12 +3,16 @@
 Markdown Editor - Простой редактор Markdown с предпросмотром и поддержкой LaTeX-формул
 """
 
-from markdown_editor_pkg.editor import MarkdownEditorPyQt
+import os
 import sys
 
-
 from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import Qt
+
+from markdown_editor_pkg.editor import MarkdownEditorPyQt
+
+os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = (
+    "--disable-gpu --disable-gpu-compositing --disable-software-rasterizer"
+)
 
 
 def main():
