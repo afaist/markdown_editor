@@ -1,6 +1,13 @@
 """PDF Handler — логика PDF-экспорта и настроек."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from markdown_editor_pkg.header_footer_dialog import HeaderFooterDialog
+
+if TYPE_CHECKING:
+    from markdown_editor_pkg.editor import MarkdownEditorPyQt
 
 
 class PDFHandler:
