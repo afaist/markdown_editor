@@ -256,7 +256,7 @@ class MarkdownRenderer:
                     {{left: "$", right: "$", display: false}}
                 ],
                 throwOnError: false,
-                displayMode: true
+                displayMode: false
             }});
         }} catch (e) {{
             console.error("KaTeX render error:", e);
@@ -396,7 +396,7 @@ class MarkdownRenderer:
                             {{left: "$", right: "$", display: false}}
                         ],
                         throwOnError: false,
-                        displayMode: true
+                        displayMode: false
                     }});
                 }} catch (e) {{
                     console.error("KaTeX re-render error:", e);

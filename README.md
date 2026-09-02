@@ -220,29 +220,38 @@ python main.py
 ```text
 markdown_editor/
 ├── main.py                      # Точка входа
-├── markdown_editor.py           # Обёртка (импорт из пакета)
 ├── markdown_editor_pkg/         # Основной пакет приложения
 │   ├── __init__.py              # Экспорт MarkdownEditorPyQt
-│   ├── editor.py                # Главный класс MarkdownEditorPyQt
-│   ├── themes.py                # CSS-темы предпросмотра и QSS-темы редактора
-│   ├── latex_processor.py       # Извлечение LaTeX и обработка зачёркивания
-│   ├── callout_processor.py     # GitHub Callouts из blockquote
-│   ├── markdown_renderer.py     # Конвертация Markdown → HTML с LaTeX + темами
-│   ├── file_operations.py       # Открытие, сохранение, экспорт HTML/PDF
-│   ├── text_insertions.py       # Вставка форматированного текста
-│   ├── find_replace.py          # Диалог «Найти и заменить»
-│   ├── session_manager.py       # Сохранение/загрузка последней сессии
-│   ├── header_footer_dialog.py  # Диалог настроек PDF-колонтитулов
-│   ├── prism_processor.py       # Интеграция Prism.js для подсветки кода
-│   ├── download_katex.py        # Скрипт для загрузки KaTeX (Python)
+│   ├── editor.py                # Главный класс MarkdownEditorPyQt (обёртка)
+│   ├── editor_components.py     # UIBuilder, ToolbarBuilder, MenuBuilder
+│   ├── editor_events.py         # EventHandler — обработчики событий
+│   ├── editor_find.py           # FindReplaceHandler — поиск и замена
+│   ├── editor_help.py           # HelpHandler — справочная информация
+│   ├── editor_keypress.py       # MarkdownTextEdit — кастомный QTextEdit
+│   ├── editor_markdown_menu.py  # MarkdownMenuBuilder — меню форматирования
+│   ├── editor_pdf.py            # PDFHandler — обработка PDF‑экспорта
+│   ├── editor_session.py        # SessionHandler — сохранение/загрузка сессии
+│   ├── editor_themes.py         # ThemeFontHandler — управление шрифтами
+│   ├── editor_close.py          # CloseHandler — обработка закрытия окна
+│   ├── themes.py                  # CSS‑темы предпросмотра и QSS‑темы редактора
+│   ├── markdown_renderer.py     # MarkdownRenderer — конвертация Markdown → HTML
+│   ├── latex_processor.py       # LaTeXProcessor — обработка LaTeX‑формул
+│   ├── callout_processor.py     # CalloutProcessor — GitHub Callouts
+│   ├── prism_processor.py       # PrismJSProcessor — подсветка синтаксиса
+│   ├── text_insertions.py       # TextInsertions — вставка форматирования
+│   ├── file_operations.py       # FileIO, FileExport, EditorState
+│   ├── find_replace.py          # FindReplaceDialog — диалог поиска
+│   ├── session_manager.py       # SessionManager — менеджмент сессий
+│   ├── header_footer_dialog.py  # HeaderFooterDialog — колонтитулы PDF
+│   ├── download_katex.py        # Скрипт для загрузки KaTeX
 │   ├── download_prism.py        # Скрипт для загрузки Prism.js
 │   ├── katex/                   # Библиотека KaTeX
-│   │   ├── katex.min.css        # Стили KaTeX
-│   │   ├── katex.min.js         # Ядро KaTeX
-│   │   └── auto-render.min.js   # Авто-рендеринг формул
+│   │   ├── katex.min.css
+│   │   ├── katex.min.js
+│   │   └── auto-render.min.js
 │   └── prism/                   # Prism.js для подсветки синтаксиса
-│       ├── prism.min.js         # Ядро Prism
-│       ├── components/          # Локализация языков
+│       ├── prism.min.js
+│       ├── components/          # Локализации языков
 │       │   ├── prism-bash.min.js
 │       │   ├── prism-c.min.js
 │       │   ├── prism-cpp.min.js
@@ -253,34 +262,46 @@ markdown_editor/
 │       │   ├── prism-python.min.js
 │       │   ├── prism-sql.min.js
 │       │   └── prism-typescript.min.js
-│       └── themes/              # CSS-темы Prism
+│       └── themes/              # CSS‑темы Prism
 │           ├── prism-okaidia.min.css
 │           └── prism-tomorrow.min.css
-├── test_markdown_editor.py      # Юнит-тесты (unittest)
-├── test_runner.py               # Быстрый тестовый скрипт
-├── conftest.py                  # Настройка pytest (Qt headless)
+├── tests/                       # Юнит‑тесты (pytest)
+│   ├── conftest.py              # Настройка pytest (Qt headless)
+│   └── test_*.py                # Тесты компонентов
 ├── requirements.txt             # Зависимости Python
+├── pyproject.toml               # Конфигурация pytest и mypy
 ├── README.md                    # Этот файл
 └── venv/                        # Виртуальное окружение
 ```
 
 ### Компоненты
 
-1. **MarkdownEditorPyQt** (`editor.py`) — основной класс, наследник `QMainWindow`, собирает все подмодули
-2. **ThemesManager** (`themes.py`) — управление CSS-темами предпросмотра, QSS-темами редактора, шрифтами и размером шрифта
-3. **MarkdownRenderer** (`markdown_renderer.py`) — конвертирует Markdown → HTML с LaTeX, темами, Callouts и подсветкой кода
-4. **LaTeXProcessor** (`latex_processor.py`) — извлечение LaTeX-формул, замена плейсхолдерами, восстановление
-5. **StrikethroughProcessor** (`latex_processor.py`) — безопасное применение зачёркивания с защитой блоков кода
-6. **CalloutProcessor** (`callout_processor.py`) — обработка GitHub Callouts из blockquote
-7. **FileOperations** (`file_operations.py`) — открытие, сохранение, экспорт HTML/PDF
-8. **TextInsertions** (`text_insertions.py`) — вставка форматированного текста (заголовки, стили, списки, LaTeX, таблицы и т.д.)
-9. **FindReplaceDialog** (`find_replace.py`) — диалог «Найти и заменить»
-10. **SessionManager** (`session_manager.py`) — сохранение/загрузка последней сессии
-11. **HeaderFooterDialog** (`header_footer_dialog.py`) — диалог настроек PDF-колонтитулов
-12. **PrismJSProcessor** (`prism_processor.py`) — интеграция Prism.js для подсветки кода
-13. **Редактор** — `QTextEdit` с подсветкой текущей темы
-14. **Предпросмотр** — `QWebEngineView` для отображения HTML
-15. **Экспорт** — `export_to_pdf()` использует `QWebEngineView.page().printToPdf()` для генерации PDF
+1. **MarkdownEditorPyQt** (`editor.py`) — основной класс, наследник `QMainWindow`, обёртка, собирающая компоненты и делегирующая им работу.
+2. **UIBuilder** (`editor_components.py`) — создание основного UI: сплиттер, редактор, предпросмотр, статусбар.
+3. **ToolbarBuilder** (`editor_components.py`) — создание панели инструментов.
+4. **MenuBuilder** (`editor_components.py`) — создание меню (Файл, Правка, Вид, Справка).
+5. **MarkdownMenuBuilder** (`editor_markdown_menu.py`) — меню форматирования Markdown с горячими клавишами.
+6. **EventHandler** (`editor_events.py`) — обработчики событий: `textChanged`, обновление предпросмотра, статус.
+7. **ThemesManager** (`themes.py`) — управление CSS‑темами предпросмотра, QSS‑темами редактора, шрифтами и размером шрифта.
+8. **ThemeFontHandler** (`editor_themes.py`) — обработчик тем и шрифтов.
+9. **MarkdownRenderer** (`markdown_renderer.py`) — конвертация Markdown → HTML с LaTeX, темами, Callouts и подсветкой кода.
+10. **LaTeXProcessor** (`latex_processor.py`) — извлечение LaTeX‑формул, замена плейсхолдерами, восстановление.
+11. **CalloutProcessor** (`callout_processor.py`) — обработка GitHub Callouts из blockquote.
+12. **PrismJSProcessor** (`prism_processor.py`) — интеграция Prism.js для подсветки кода.
+13. **FileIO / FileExport** (`file_operations.py`) — открытие, сохранение, экспорт HTML/PDF. `EditorState` — единый контекст состояния файлов.
+14. **TextInsertions** (`text_insertions.py`) — вставка форматированного текста (заголовки, стили, списки, LaTeX, таблицы и т. д.).
+15. **FindReplaceHandler** (`editor_find.py`) — диалог «Найти и заменить».
+16. **FindReplaceDialog** (`find_replace.py`) — диалог поиска и замены (для обратной совместимости).
+17. **SessionHandler** (`editor_session.py`) — сохранение/загрузка последней сессии.
+18. **SessionManager** (`session_manager.py`) — менеджмент сессий.
+19. **PDFHandler** (`editor_pdf.py`) — обработка PDF‑экспорта.
+20. **HelpHandler** (`editor_help.py`) — справочная информация (О программе).
+21. **CloseHandler** (`editor_close.py`) — обработка закрытия окна.
+22. **MarkdownTextEdit** (`editor_keypress.py`) — кастомный `QTextEdit` с кастомными клавиатурными обработками.
+23. **HeaderFooterDialog** (`header_footer_dialog.py`) — диалог настроек PDF‑колонтитулов.
+24. **Редактор** — `QTextEdit` (`MarkdownTextEdit`) с подсветкой текущей темы.
+25. **Предпросмотр** — `QWebEngineView` для отображения HTML.
+26. **Экспорт** — `export_to_pdf()` использует `QWebEngineView.page().printToPdf()` для генерации PDF.
 
 ### Используемые расширения Markdown
 

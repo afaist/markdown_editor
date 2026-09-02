@@ -12,14 +12,14 @@ class PDFHandler:
     def show_pdf_settings(self) -> None:
         """Открыть диалог настроек PDF-экспорта."""
         current_headers = (
-            self.editor.file_ops._pdf_headers
-            if self.editor.file_ops._pdf_headers is not None
+            self.editor.file_export._pdf_headers
+            if self.editor.file_export._pdf_headers is not None
             else {}
         )
         dialog = HeaderFooterDialog(self.editor, current_headers=current_headers)
         if dialog.exec() == HeaderFooterDialog.DialogCode.Accepted:
             headers = dialog.get_headers()
-            self.editor.file_ops.set_pdf_headers(headers)
+            self.editor.file_export.set_pdf_headers(headers)
             if self.editor._statusbar_ref:
                 status = (
                     "Настройки PDF-экспорта сохранены"
