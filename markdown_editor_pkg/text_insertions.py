@@ -141,6 +141,9 @@ class TextInsertions:
             selection = ""
 
         if not selection:
+            # Если текст не пустой и не заканчивается пустой строкой, добавляем пустую строку
+            if full.strip() and not full.endswith("\n\n"):
+                cursor.insertText("\n")
             text_to_insert = "- элемент списка"
             cursor.insertText(text_to_insert)
             end_pos = cursor.position()
@@ -168,6 +171,9 @@ class TextInsertions:
             selection = ""
 
         if not selection:
+            # Если текст не пустой и не заканчивается пустой строкой, добавляем пустую строку
+            if full.strip() and not full.endswith("\n\n"):
+                cursor.insertText("\n")
             text_to_insert = "1. элемент списка"
             cursor.insertText(text_to_insert)
             end_pos = cursor.position()
@@ -195,6 +201,9 @@ class TextInsertions:
             selection = ""
 
         if not selection:
+            # Если текст не пустой и не заканчивается пустой строкой, добавляем пустую строку
+            if full.strip() and not full.endswith("\n\n"):
+                cursor.insertText("\n")
             text_to_insert = "- [ ] задание"
             cursor.insertText(text_to_insert)
             end_pos = cursor.position()

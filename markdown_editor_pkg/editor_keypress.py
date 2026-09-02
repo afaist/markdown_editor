@@ -16,6 +16,10 @@ _ORDERED_LIST_RE = re.compile(r"^(\s*)(\d+)\.\s")
 _BLOCKQUOTE_RE = re.compile(r"^(\s*)(>\s*)")
 _HEADING_RE = re.compile(r"^#{1,6}\s+.+")
 
+# Паттерны для проверки, что строка содержит ТОЛЬКО маркер (без текста)
+_UNORDERED_EMPTY_RE = re.compile(r"^(\s*)([-*+])\s*$")
+_ORDERED_EMPTY_RE = re.compile(r"^(\s*)(\d+)\.\s*$")
+
 
 def _get_list_marker(line: str) -> tuple[str, str] | None:
     """Возвращает (indent, marker) для списка или None."""
@@ -25,6 +29,34 @@ def _get_list_marker(line: str) -> tuple[str, str] | None:
     m = _ORDERED_LIST_RE.match(line)
     if m:
         return m.group(1), f"{m.group(2)}. "
+    return None
+
+
+def _is_empty_list_item(line: str) -> tuple[bool, str, str] | None:
+    """Проверяет, содержит ли строка только маркер списка без текста.
+
+    Возвращает (True, indent, marker) если строка — пустой элемент списка,
+    None если это не пустой элемент списка.
+    """
+    m = _UNORDERED_EMPTY_RE.match(line)
+    if m:
+        return True, m.group(1), f"{m.group(2)} "
+    m = _ORDERED_EMPTY_RE.match(line)
+    if m:
+        return True, m.group(1), f"{m.group(2)}. "
+    return None
+
+
+def _is_empty_blockquote(line: str) -> tuple[bool, str] | None:
+    """Проверяет, содержит ли строка только маркер цитаты без текста.
+
+    Возвращает (True, prefix) если строка — пустая цитата,
+    None если это не пустая цитата.
+    """
+    m = _BLOCKQUOTE_RE.match(line)
+    if m:
+        prefix = m.group(2)  # это "> "
+        return True, prefix
     return None
 
 
@@ -59,6 +91,36 @@ class MarkdownTextEdit(QTextEdit):
         cursor = self.textCursor()
         block = cursor.block()
         text = block.text()
+
+        # Проверяем, является ли строка пустым элементом списка
+        empty_list = _is_empty_list_item(text)
+
+        if empty_list is not None:
+            # Пустой элемент списка — завершаем список
+            # Удаляем маркер с текущей строки (оставляем строку пустой)
+            # Удаляем: от начала строки до конца маркера
+            cursor.movePosition(cursor.MoveOperation.StartOfLine)
+            cursor.movePosition(
+                cursor.MoveOperation.EndOfLine, cursor.MoveMode.KeepAnchor
+            )
+            cursor.removeSelectedText()
+            # Вставляем пустую строку и не добавляем маркер
+            cursor.insertText("\n")
+            return True
+
+        # Проверяем, является ли строка пустой цитатой
+        empty_bq = _is_empty_blockquote(text)
+
+        if empty_bq is not None:
+            # Пустая цитата — завершаем цитату
+            # Удаляем маркер цитаты с текущей строки
+            cursor.movePosition(cursor.MoveOperation.StartOfLine)
+            cursor.movePosition(
+                cursor.MoveOperation.EndOfLine, cursor.MoveMode.KeepAnchor
+            )
+            cursor.removeSelectedText()
+            cursor.insertText("\n")
+            return True
 
         # Определяем тип текущей строки
         list_info = _get_list_marker(text)

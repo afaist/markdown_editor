@@ -161,10 +161,18 @@ class ToolbarBuilder:
         lbl_formating.adjustSize()
         toolbar.addWidget(lbl_formating)
 
+        # -- Комбобокс стилей --
+        style_combo = QComboBox()
+        style_combo.addItems(["Жирный", "Курсив", "Зачеркнутый", "Код"])
+        style_combo.setMinimumWidth(120)
+        style_combo.setToolTip("Выберите стиль форматирования")
+        style_combo.activated.connect(self._on_style_combo_activated)  # type: ignore[attr-defined]
+        toolbar.addWidget(style_combo)
+        parent.style_combo = style_combo  # type: ignore[attr-defined]
+        toolbar.addSeparator()
+
         # -- Форматирование --
         actions: list[tuple[str, Callable[[], None]]] = [
-            ("Жирный", parent.text_insertions.insert_bold),  # type: ignore[attr-defined]
-            ("Курсив", parent.text_insertions.insert_italic),  # type: ignore[attr-defined]
             ("Список", parent.text_insertions.insert_unordered_list),  # type: ignore[attr-defined]
             ("Цитата", lambda: parent.text_insertions.insert_text("> ")),  # type: ignore[attr-defined]
             ("Код", lambda: parent.text_insertions.insert_text("```\n```")),  # type: ignore[attr-defined]
@@ -192,9 +200,7 @@ class ToolbarBuilder:
             action = QAction(text, parent)
             action.triggered.connect(callback)
             toolbar.addAction(action)
-            action = QAction(text, parent)
-            action.triggered.connect(callback)
-            toolbar.addAction(action)
+            
 
         self._build_font_controls(toolbar, parent)
 
@@ -210,6 +216,20 @@ class ToolbarBuilder:
         if self._editor.heading_combo is not None:
             level = self._editor.heading_combo.currentIndex() + 1
             self._editor.text_insertions.insert_heading(level)
+
+    def _on_style_combo_activated(self) -> None:
+        """Обработчик выбора стиля в комбобоксе."""
+        parent = self._editor
+        if parent.style_combo is not None:
+            idx = parent.style_combo.currentIndex()
+            if idx == 0:
+                parent.text_insertions.insert_bold()
+            elif idx == 1:
+                parent.text_insertions.insert_italic()
+            elif idx == 2:
+                parent.text_insertions.insert_strikethrough()
+            elif idx == 3:
+                parent.text_insertions.insert_inline_code()
 
     def _build_font_controls(self, toolbar: QToolBar, parent: QMainWindow) -> None:
         """Создать комбобокс и кнопки управления шрифтом."""
