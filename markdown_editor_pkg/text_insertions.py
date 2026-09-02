@@ -112,6 +112,12 @@ class TextInsertions:
             return
         cursor = self.editor.editor.textCursor()
         selection = cursor.selectedText()
+        full_text = self._cursor().full_text()
+        # Если файл не пустой — добавляем пустую строку перед заголовком
+        if full_text.strip():
+            # Проверяем, заканчивается ли текст уже пустой строкой
+            if not full_text.endswith("\n\n"):
+                cursor.insertText("\n")
         hashes = "#" * level
         if selection:
             cursor.insertText(f"{hashes} {selection}")
@@ -119,6 +125,10 @@ class TextInsertions:
             cursor.insertText(f"{hashes} ")
         self.editor.editor.setTextCursor(cursor)
         self._notify()
+
+    def insert_heading_by_level(self, level: int) -> None:
+        """Вставка заголовка уровня level (1–6) — вызывается из комбобокса."""
+        self.insert_heading(level)
 
     # ─── Списки ─────────────────────────────────────────────────────────
 

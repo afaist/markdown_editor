@@ -23,6 +23,7 @@ from markdown_editor_pkg.editor_help import HelpHandler
 from markdown_editor_pkg.editor_themes import ThemeFontHandler
 from markdown_editor_pkg.editor_find import FindReplaceHandler
 from markdown_editor_pkg.editor_close import CloseHandler
+from markdown_editor_pkg.editor_keypress import MarkdownTextEdit
 
 if TYPE_CHECKING:
     from PyQt6.QtWidgets import (
@@ -62,6 +63,7 @@ class MarkdownEditorPyQt(QMainWindow):
         self.font_size_label: QLabel | None = None  # type: ignore[misc]
         self.font_increase_btn: QPushButton | None = None  # type: ignore[misc]
         self.font_decrease_btn: QPushButton | None = None  # type: ignore[misc]
+        self.heading_combo: QComboBox | None = None  # type: ignore[misc]
 
         # Подмодули
         self.theme_manager = ThemesManager()

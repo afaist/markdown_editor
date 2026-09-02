@@ -30,6 +30,8 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 
+from markdown_editor_pkg.editor_keypress import MarkdownTextEdit
+
 if TYPE_CHECKING:
     from markdown_editor_pkg.editor import MarkdownEditorPyQt
 
@@ -66,7 +68,7 @@ class UIBuilder:
         editor_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         editor_layout.addWidget(editor_label)
 
-        text_edit = QTextEdit()
+        text_edit = MarkdownTextEdit()
         text_edit.setFont(QFont("Consolas", 11))
         self._editor.theme_manager.set_editor_theme("light", text_edit)
         editor_layout.addWidget(text_edit)
@@ -129,14 +131,38 @@ class ToolbarBuilder:
 
     def build(self) -> None:
         """Собрать тулбар и добавить его в editor."""
+
+        style_sheet_lbl = "color: white;"
+
         parent = self._editor
         toolbar = QToolBar("Форматирование")
         parent.addToolBar(toolbar)
 
+        lbl_headers = QLabel("Заголовки: ")
+        lbl_headers.setStyleSheet(style_sheet_lbl)
+        lbl_headers.adjustSize()
+        toolbar.addWidget(lbl_headers)
+
+        # -- Выбор уровня заголовка --
+        heading_combo = QComboBox()
+        for lvl in range(1, 7):
+            heading_combo.addItem(f"H{lvl}")
+        heading_combo.setCurrentIndex(0)
+        heading_combo.setToolTip("Уровень заголовка (1–6)")
+        heading_combo.activated.connect(self._on_heading_combo_activated)  # type: ignore[attr-defined]
+
+        heading_combo.setMinimumWidth(80)
+        toolbar.addWidget(heading_combo)
+        parent.heading_combo = heading_combo  # type: ignore[attr-defined]
+        toolbar.addSeparator()
+
+        lbl_formating = QLabel("Стили: ")
+        lbl_formating.setStyleSheet(style_sheet_lbl)
+        lbl_formating.adjustSize()
+        toolbar.addWidget(lbl_formating)
+
         # -- Форматирование --
         actions: list[tuple[str, Callable[[], None]]] = [
-            ("Заголовок 1", lambda: parent.text_insertions.insert_text("# ")),  # type: ignore[attr-defined]
-            ("Заголовок 2", lambda: parent.text_insertions.insert_text("## ")),  # type: ignore[attr-defined]
             ("Жирный", parent.text_insertions.insert_bold),  # type: ignore[attr-defined]
             ("Курсив", parent.text_insertions.insert_italic),  # type: ignore[attr-defined]
             ("Список", parent.text_insertions.insert_unordered_list),  # type: ignore[attr-defined]
@@ -170,9 +196,6 @@ class ToolbarBuilder:
             action.triggered.connect(callback)
             toolbar.addAction(action)
 
-        toolbar.addSeparator()
-
-        # -- Выбор шрифта --
         self._build_font_controls(toolbar, parent)
 
         # -- Сброс шрифта --
@@ -181,6 +204,12 @@ class ToolbarBuilder:
         reset_action.setToolTip("Сбросить шрифт и размер к значениям по умолчанию")
         reset_action.triggered.connect(parent._reset_font)  # type: ignore[attr-defined]
         toolbar.addAction(reset_action)
+
+    def _on_heading_combo_activated(self) -> None:
+        """Обработчик выбора уровня заголовка в комбобоксе."""
+        if self._editor.heading_combo is not None:
+            level = self._editor.heading_combo.currentIndex() + 1
+            self._editor.text_insertions.insert_heading(level)
 
     def _build_font_controls(self, toolbar: QToolBar, parent: QMainWindow) -> None:
         """Создать комбобокс и кнопки управления шрифтом."""
@@ -353,12 +382,8 @@ class MenuBuilder:
         view_menu.addSeparator()
 
         # Темы предпросмотра
-        self._add_action(
-            view_menu, "Тема: светлая", lambda: parent.set_theme("light")
-        )
-        self._add_action(
-            view_menu, "Тема: тёмная", lambda: parent.set_theme("dark")
-        )
+        self._add_action(view_menu, "Тема: светлая", lambda: parent.set_theme("light"))
+        self._add_action(view_menu, "Тема: тёмная", lambda: parent.set_theme("dark"))
         self._add_action(
             view_menu, "Тема: контрастная", lambda: parent.set_theme("contrast")
         )
