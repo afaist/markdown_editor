@@ -1,12 +1,17 @@
 """Event handlers — обработчики событий редактора."""
 
 import os
+from typing import TYPE_CHECKING
+
 from PyQt6.QtCore import QUrl
 
+if TYPE_CHECKING:
+    from markdown_editor_pkg.editor import MarkdownEditorPyQt
 
-class EventHandler:
+
+class EventHandler:    
     """Обработчики событий: textChanged, обновление предпросмотра, статус."""
-
+    
     def __init__(self, editor: "MarkdownEditorPyQt"):
         self.editor = editor
 
@@ -54,8 +59,8 @@ class EventHandler:
         html = self.editor.renderer.render(
             markdown_text,
             theme_name=self.editor.theme_manager.theme_name,
-            base_dir=os.path.dirname(os.path.abspath(self.editor.__file__ if hasattr(self.editor, '__file__') else __file__)),
-        )
+            base_dir=os.path.dirname(os.path.abspath(__file__)),
+            )
         base_dir = os.path.dirname(os.path.abspath(__file__))
         base_url = QUrl.fromLocalFile(base_dir or ".")
         self.editor.preview.setHtml(html, base_url)
@@ -66,8 +71,16 @@ class EventHandler:
         """Обновить счётчики символов и слов."""
         text = self.editor.editor.toPlainText()
         if self.editor._statusbar_ref:
-            self.editor.char_count_label.setText(f"Символов: {len(text)}")
-            self.editor.word_count_label.setText(f"Слов: {len(text.split())}")
+            char_lbl = self.editor.char_count_label
+            word_lbl = self.editor.word_count_label
+            if char_lbl is not None:
+                char_lbl.setText(f"Символов: {len(text)}")
+            if word_lbl is not None:
+                word_lbl.setText(f"Слов: {len(text.split())}")
+
+    def on_cursor_position_changed(self) -> None:
+        """Синхронизация предпросмотра с позицией курсора в редакторе."""
+        self.editor._scroll_preview_to_cursor()
 
     def set_editor_text_without_dirty(self, text: str) -> None:
         """Установка текста без is_dirty."""

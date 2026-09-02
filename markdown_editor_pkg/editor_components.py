@@ -121,6 +121,7 @@ class UIBuilder:
         parent.editor.textChanged.connect(parent.on_text_change)  # type: ignore[attr-defined]
         parent.editor.textChanged.connect(parent.update_char_count)  # type: ignore[attr-defined]
         parent.editor.textChanged.connect(parent.update_file_status)  # type: ignore[attr-defined]
+        parent.editor.cursorPositionChanged.connect(parent.on_cursor_position_changed)  # type: ignore[attr-defined]
 
 
 class ToolbarBuilder:

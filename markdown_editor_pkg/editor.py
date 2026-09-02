@@ -143,6 +143,10 @@ class MarkdownEditorPyQt(QMainWindow):
         """Обновить счётчики (делегирование)."""
         self.event_handler.update_char_count()
 
+    def on_cursor_position_changed(self) -> None:
+        """Синхронизация предпросмотра с позицией курсора (делегирование)."""
+        self.event_handler.on_cursor_position_changed()
+
     def _set_editor_text_without_dirty(self, text: str) -> None:
         """Установка текста без is_dirty (делегирование)."""
         self.event_handler.set_editor_text_without_dirty(text)
@@ -194,6 +198,69 @@ class MarkdownEditorPyQt(QMainWindow):
     # Справка
     def _show_about(self) -> None:
         self.help_handler.show_about()
+
+    # Синхронизация редактора и предпросмотра
+    def _scroll_preview_to_cursor(self) -> None:
+        """Прокручивает предпросмотр к строке, где находится курсор."""
+        try:
+            cursor = self.editor.textCursor()
+            block_number = cursor.blockNumber()  # 0-based
+
+            # Получаем текст текущей строки
+            block = cursor.block()
+            line_text = block.text().strip()
+            if not line_text:
+                return
+
+            # Генерируем якорь из текста строки
+            # Убираем markdown-маркеры для чистоты якоря
+            anchor = line_text
+            # Убираем # для заголовков
+            anchor = anchor.lstrip("#").strip()
+            # Заменяем пробелы и спецсимволы на устойчивую форму
+            anchor = anchor.lower()
+            anchor = "".join(
+                c if c.isalnum() or c in (" ", "-", "_") else "" for c in anchor
+            )
+            anchor = anchor.strip()
+            if not anchor:
+                return
+
+            # Создаём якорь, похожий на то, как markdown генерирует id
+            # markdown генерирует id из текста: lowercase, пробелы -> -, только алфавит+цифры
+            md_anchor = anchor
+            md_anchor = "".join(c if c.isalnum() or c == "-" else "" for c in md_anchor)
+            if not md_anchor:
+                return
+
+            # Выполняем JavaScript для прокрутки к якорю
+            js = f"""
+(function() {{
+    var anchor = '{md_anchor}';
+    // markdown-it генерирует id вида: anchor-N где N — счётчик
+    var el = document.getElementById(anchor);
+    if (!el) {{
+        // Пробуем найти по data-id или просто по тексту
+        var all = document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,td,th');
+        for (var i = 0; i < all.length; i++) {{
+            if (all[i].id === anchor) {{
+                el = all[i];
+                break;
+            }}
+        }}
+    }}
+    if (el) {{
+        el.scrollIntoView({{behavior: 'smooth', block: 'start'}});
+    }}
+}})();
+"""
+            if self.preview is not None:
+                page = self.preview.page()
+                if page is not None:
+                    page.runJavaScript(js)
+
+        except Exception:
+            pass  # Игнорируем ошибки при прокрутке
 
     # Закрытие
     def closeEvent(self, event_: QCloseEvent) -> None:  # type: ignore[override]
