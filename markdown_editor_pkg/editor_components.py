@@ -171,9 +171,23 @@ class ToolbarBuilder:
         parent.style_combo = style_combo  # type: ignore[attr-defined]
         toolbar.addSeparator()
 
+        # -- Список: комбобокс стилей --
+        lbl_list = QLabel("Список: ")
+        lbl_list.setStyleSheet(style_sheet_lbl)
+        lbl_list.adjustSize()
+        toolbar.addWidget(lbl_list)
+
+        list_style_combo = QComboBox()
+        list_style_combo.addItems(["Маркированный", "Нумерованный", "Задач"])
+        list_style_combo.setMinimumWidth(120)
+        list_style_combo.setToolTip("Выберите стиль списка")
+        list_style_combo.activated.connect(self._on_list_style_combo_activated)  # type: ignore[attr-defined]
+        toolbar.addWidget(list_style_combo)
+        parent.list_style_combo = list_style_combo  # type: ignore[attr-defined]
+        toolbar.addSeparator()
+
         # -- Форматирование --
         actions: list[tuple[str, Callable[[], None]]] = [
-            ("Список", parent.text_insertions.insert_unordered_list),  # type: ignore[attr-defined]
             ("Цитата", lambda: parent.text_insertions.insert_text("> ")),  # type: ignore[attr-defined]
             ("Код", lambda: parent.text_insertions.insert_text("```\n```")),  # type: ignore[attr-defined]
             ("LaTeX inline", parent.text_insertions.insert_inline_latex),  # type: ignore[attr-defined]
@@ -230,6 +244,18 @@ class ToolbarBuilder:
                 parent.text_insertions.insert_strikethrough()
             elif idx == 3:
                 parent.text_insertions.insert_inline_code()
+
+    def _on_list_style_combo_activated(self) -> None:
+        """Обработчик выбора стиля списка в комбобоксе."""
+        parent = self._editor
+        if parent.list_style_combo is not None:
+            idx = parent.list_style_combo.currentIndex()
+            if idx == 0:
+                parent.text_insertions.insert_unordered_list()
+            elif idx == 1:
+                parent.text_insertions.insert_ordered_list()
+            elif idx == 2:
+                parent.text_insertions.insert_task_list()
 
     def _build_font_controls(self, toolbar: QToolBar, parent: QMainWindow) -> None:
         """Создать комбобокс и кнопки управления шрифтом."""

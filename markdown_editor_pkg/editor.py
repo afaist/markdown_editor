@@ -65,6 +65,7 @@ class MarkdownEditorPyQt(QMainWindow):
         self.font_decrease_btn: QPushButton | None = None  # type: ignore[misc]
         self.heading_combo: QComboBox | None = None  # type: ignore[misc]
         self.style_combo: QComboBox | None = None  # type: ignore[misc]
+        self.list_style_combo: QComboBox | None = None  # type: ignore[misc]
 
         # Подмодули
         self.theme_manager = ThemesManager()
