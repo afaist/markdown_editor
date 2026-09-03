@@ -3,6 +3,85 @@
 import re
 
 
+# Unicode → LaTeX-команды для математических символов
+UNICODE_TO_LATEX: dict[str, str] = {
+    "\u2260": r"\neq",      # ≠
+    "\u2264": r"\leq",      # ≤
+    "\u2265": r"\geq",      # ≥
+    "\u2248": r"\approx",   # ≈
+    "\u221e": r"\infty",    # ∞
+    "\u00d7": r"\times",    # ×
+    "\u00f7": r"\div",      # ÷
+    "\u2212": r"-",          # − (minus, не дефис)
+    "\u2208": r"\in",        # ∈
+    "\u2209": r"\notin",     # ∉
+    "\u2282": r"\subset",    # ⊂
+    "\u2283": r"\supset",    # ⊃
+    "\u222a": r"\cup",       # ∪
+    "\u222b": r"\int",       # ∫
+    "\u222f": r"\oint",      # ∮
+    "\u2211": r"\sum",       # ∑
+    "\u2210": r"\prod",      # ∏
+    "\u03b1": r"\alpha",     # α
+    "\u03b2": r"\beta",      # β
+    "\u03b3": r"\gamma",     # γ
+    "\u03b4": r"\delta",     # δ
+    "\u03b5": r"\varepsilon",# ε
+    "\u03b8": r"\theta",     # θ
+    "\u03bb": r"\lambda",    # λ
+    "\u03bc": r"\mu",        # μ
+    "\u03c0": r"\pi",        # π
+    "\u03c1": r"\rho",       # ρ
+    "\u03c3": r"\sigma",     # σ
+    "\u03c6": r"\phi",       # φ
+    "\u03c9": r"\omega",     # ω
+    "\u0393": r"\Gamma",     # Γ
+    "\u0394": r"\Delta",     # Δ
+    "\u0398": r"\Theta",     # Θ
+    "\u039b": r"\Lambda",    # Λ
+    "\u03a0": r"\Pi",        # Π
+    "\u03a3": r"\Sigma",     # Σ
+    "\u03a6": r"\Phi",       # Φ
+    "\u03a9": r"\Omega",     # Ω
+    "\u2192": r"\rightarrow",# →
+    "\u2190": r"\leftarrow", # ←
+    "\u21d2": r"\Rightarrow",# ⇒
+    "\u21d0": r"\Leftarrow", # ⇐
+    "\u2261": r"\equiv",     # ≡
+    "\u2267": r"\leqq",      # ≦
+    "\u2268": r"\geqq",      # ≧
+    "\u2245": r"\cong",      # ≅
+    "\u223c": r"\sim",       # ∼
+    "\u2234": r"\therefore", # ∴
+    "\u2200": r"\forall",    # ∀
+    "\u2203": r"\exists",    # ∃
+    "\u2205": r"\emptyset",  # ∅
+    "\u2207": r"\nabla",     # ∇
+    "\u25b3": r"\triangle",   # △
+    "\u25cb": r"\circ",      # ○
+    "\u00b2": r"^2",         # ²
+    "\u00b3": r"^3",         # ³
+    "\u2070": r"^0",         # ⁰
+    "\u2074": r"^4",         # ⁴
+    "\u2075": r"^5",         # ⁵
+    "\u2076": r"^6",         # ⁶
+    "\u2077": r"^7",         # ⁷
+    "\u2078": r"^8",         # ⁸
+    "\u2079": r"^9",         # ⁹
+}
+
+
+def _unicode_to_latex(text: str) -> str:
+    """Преобразует Unicode-математические символы в LaTeX-команды."""
+    result = []
+    for ch in text:
+        if ch in UNICODE_TO_LATEX:
+            result.append(UNICODE_TO_LATEX[ch])
+        else:
+            result.append(ch)
+    return "".join(result)
+
+
 class LaTeXProcessor:
     """Извлекает LaTeX-формулы из текста и заменяет их на плейсхолдеры."""
 
@@ -23,12 +102,16 @@ class LaTeXProcessor:
 
         def store_display(match: re.Match) -> str:
             formula = match.group(1)
+            # Конвертируем Unicode в LaTeX сразу при извлечении
+            formula = _unicode_to_latex(formula)
             placeholder = f"<!-- display-math-{len(self.display_math_cache)} -->"
             self.display_math_cache.append(formula)
             return placeholder
 
         def store_inline(match: re.Match) -> str:
             formula = match.group(1)
+            # Конвертируем Unicode в LaTeX сразу при извлечении
+            formula = _unicode_to_latex(formula)
             placeholder = f"<!-- inline-math-{len(self.inline_math_cache)} -->"
             self.inline_math_cache.append(formula)
             return placeholder

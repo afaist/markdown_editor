@@ -21,6 +21,14 @@ class EditorCursor:
     def edit(self) -> QTextEdit:
         return self._edit
 
+    def text_cursor(self) -> QTextCursor:
+        """Получить текущий QTextCursor."""
+        return self._edit.textCursor()
+
+    def set_text_cursor(self, cursor: QTextCursor) -> None:
+        """Установить QTextCursor."""
+        self._edit.setTextCursor(cursor)
+
     def selected_text(self) -> str:
         return self._edit.textCursor().selectedText()
 
@@ -78,13 +86,14 @@ class TextInsertions:
 
     def insert_text(self, text: str) -> None:
         """Вставка текста в текущую позицию курсора."""
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         selection = cursor.selectedText()
         if "$" in text and text.count("$") == 1:
             cursor.insertText(text)
         else:
             cursor.insertText(text + selection)
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     # ─── Стили (wrap) ───────────────────────────────────────────────────
@@ -110,9 +119,10 @@ class TextInsertions:
     def insert_heading(self, level: int) -> None:
         if not 1 <= level <= 7:
             return
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         selection = cursor.selectedText()
-        full_text = self._cursor().full_text()
+        full_text = c.full_text()
         # Если файл не пустой — добавляем пустую строку перед заголовком
         if full_text.strip():
             # Проверяем, заканчивается ли текст уже пустой строкой
@@ -123,7 +133,7 @@ class TextInsertions:
             cursor.insertText(f"{hashes} {selection}")
         else:
             cursor.insertText(f"{hashes} ")
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     def insert_heading_by_level(self, level: int) -> None:
@@ -133,9 +143,10 @@ class TextInsertions:
     # ─── Списки ─────────────────────────────────────────────────────────
 
     def insert_unordered_list(self) -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         selection = cursor.selectedText()
-        full = self._cursor().full_text()
+        full = c.full_text()
 
         if selection == full and selection:
             selection = ""
@@ -159,13 +170,14 @@ class TextInsertions:
             list_items = "\n".join(f"- {line}" for line in lines if line.strip())
             cursor.insertText(list_items)
 
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     def insert_ordered_list(self) -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         selection = cursor.selectedText()
-        full = self._cursor().full_text()
+        full = c.full_text()
 
         if selection == full and selection:
             selection = ""
@@ -189,13 +201,14 @@ class TextInsertions:
             list_items = "\n".join(f"{i+1}. {line}" for i, line in enumerate(lines))
             cursor.insertText(list_items)
 
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     def insert_task_list(self) -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         selection = cursor.selectedText()
-        full = self._cursor().full_text()
+        full = c.full_text()
 
         if selection == full and selection:
             selection = ""
@@ -219,13 +232,14 @@ class TextInsertions:
             list_items = "\n".join(f"- [ ] {line}" for line in lines)
             cursor.insertText(list_items)
 
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     # ─── Цитата ─────────────────────────────────────────────────────────
 
     def insert_blockquote(self) -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         selection = cursor.selectedText()
         if selection:
             lines = selection.split("\n")
@@ -233,13 +247,14 @@ class TextInsertions:
             cursor.insertText(quoted)
         else:
             cursor.insertText("> ")
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     # ─── Код (block) ────────────────────────────────────────────────────
 
     def insert_code_block(self, language: str = "") -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         lang = language if language else ""
         if lang:
             template = f"```{lang}\n\n```"
@@ -247,15 +262,16 @@ class TextInsertions:
             template = "```\n\n```"
         cursor.insertText(template)
         cursor.movePosition(QTextCursor.MoveOperation.Left, n=4)
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     # ─── LaTeX ──────────────────────────────────────────────────────────
 
     def insert_inline_latex(self) -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         selection = cursor.selectedText()
-        full = self._cursor().full_text()
+        full = c.full_text()
 
         if selection == full and selection:
             selection = ""
@@ -269,11 +285,12 @@ class TextInsertions:
             cursor.insertText(selection)
             cursor.insertText("$")
 
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     def insert_block_latex(self) -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         selection = cursor.selectedText()
 
         if not selection:
@@ -286,57 +303,64 @@ class TextInsertions:
             cursor.insertText("\n$$")
             cursor.movePosition(QTextCursor.MoveOperation.Left, n=2)
 
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     def insert_latex_fraction(self) -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         cursor.insertText("\\frac{}{}")
         cursor.movePosition(QTextCursor.MoveOperation.Left, n=3)
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     def insert_latex_sqrt(self) -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         cursor.insertText("\\sqrt{}")
         cursor.movePosition(QTextCursor.MoveOperation.Left)
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     def insert_latex_superscript(self) -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         cursor.insertText("^{}")
         cursor.movePosition(QTextCursor.MoveOperation.Left)
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     def insert_latex_subscript(self) -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         cursor.insertText("_{}")
         cursor.movePosition(QTextCursor.MoveOperation.Left)
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     def insert_latex_sum(self) -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         cursor.insertText("\\sum_{}^{}")
         cursor.movePosition(QTextCursor.MoveOperation.Left, n=4)
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     def insert_latex_integral(self) -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         cursor.insertText("\\int_{}^{}")
         cursor.movePosition(QTextCursor.MoveOperation.Left, n=4)
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     def insert_latex_matrix(self) -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         cursor.insertText("\\begin{matrix}\n\t& \n\t& \n\\end{matrix}")
         cursor.movePosition(QTextCursor.MoveOperation.StartOfLine, n=2)
         cursor.movePosition(QTextCursor.MoveOperation.Right, n=2)
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     # ─── Ссылки и изображения ───────────────────────────────────────────
@@ -348,9 +372,10 @@ class TextInsertions:
                 self.editor, "Вставить ссылку", "Текст ссылки:"
             )
             if ok2:
-                cursor = self.editor.editor.textCursor()
+                c = self._cursor()
+                cursor = c.text_cursor()
                 cursor.insertText(f"[{text or url}]({url})")
-                self.editor.editor.setTextCursor(cursor)
+                c.set_text_cursor(cursor)
                 self._notify()
 
     def insert_image(self) -> None:
@@ -362,22 +387,25 @@ class TextInsertions:
         )
         if filepath:
             display_path = filepath.replace("\\", "/")
-            cursor = self.editor.editor.textCursor()
+            c = self._cursor()
+            cursor = c.text_cursor()
             cursor.insertText(f"![изображение]({display_path})")
-            self.editor.editor.setTextCursor(cursor)
+            c.set_text_cursor(cursor)
             self._notify()
 
-    # ─── Дополнительные вставки ─────────────────────────────────────────
+    # ─── Дополнительные вставки ─────────────────────���───────────────────
 
     def insert_horizontal_rule(self) -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         cursor.insertText("\n---\n")
         cursor.movePosition(QTextCursor.MoveOperation.PreviousCharacter)
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     def insert_table(self) -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         table = (
             "| Колонка 1 | Колонка 2 | Колонка 3 |\n"
             "|-----------|-----------|----------|\n"
@@ -385,14 +413,15 @@ class TextInsertions:
             "| Данные    | Данные    | Данные   |"
         )
         cursor.insertText(table)
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
 
     def insert_html_comment(self) -> None:
-        cursor = self.editor.editor.textCursor()
+        c = self._cursor()
+        cursor = c.text_cursor()
         selection = cursor.selectedText()
         if not selection:
             selection = "комментарий"
         cursor.insertText(f"<!-- {selection} -->")
-        self.editor.editor.setTextCursor(cursor)
+        c.set_text_cursor(cursor)
         self._notify()
