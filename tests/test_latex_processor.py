@@ -43,7 +43,7 @@ class TestLatexProcessing:
     def test_latex_with_nested_sup_sub(self):
         """Тест: формулы со степенями и индексами."""
         text = "$E = mc^2$ и $x_1 + x_2$"
-        processed = self.processor.process(text)
+        self.processor.process(text)
         assert "E = mc^2" in self.processor.inline_math_cache[0]
         assert "x_1 + x_2" in self.processor.inline_math_cache[1]
 

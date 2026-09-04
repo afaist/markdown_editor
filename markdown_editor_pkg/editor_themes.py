@@ -1,12 +1,19 @@
 """Theme and Font Handler — управление темами и шрифтами."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from PyQt6.QtCore import Qt
+
+if TYPE_CHECKING:
+    from markdown_editor_pkg.editor import MarkdownEditorPyQt
 
 
 class ThemeFontHandler:
     """Обработчик тем предпросмотра/редактора и управления шрифтами."""
 
-    def __init__(self, editor: "MarkdownEditorPyQt"):
+    def __init__(self, editor: MarkdownEditorPyQt):
         self.editor = editor
 
     # ─── Переключение тем ──────────────────────────────────────────────

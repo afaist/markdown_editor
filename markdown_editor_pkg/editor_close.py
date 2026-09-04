@@ -1,13 +1,20 @@
 """Close handler — обработка закрытия окна."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtWidgets import QMessageBox
+
+if TYPE_CHECKING:
+    from markdown_editor_pkg.editor import MarkdownEditorPyQt
 
 
 class CloseHandler:
     """Обработчик события закрытия окна."""
 
-    def __init__(self, editor: "MarkdownEditorPyQt"):
+    def __init__(self, editor: MarkdownEditorPyQt):
         self.editor = editor
 
     def on_close(self, event: QCloseEvent) -> None:

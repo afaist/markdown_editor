@@ -1,14 +1,13 @@
 """Диалог настроек колонтитулов для экспорта в PDF."""
 
 from PyQt6.QtWidgets import (
-    QDialog,
-    QVBoxLayout,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
     QCheckBox,
+    QDialog,
     QDialogButtonBox,
     QFormLayout,
+    QLabel,
+    QLineEdit,
+    QVBoxLayout,
 )
 
 

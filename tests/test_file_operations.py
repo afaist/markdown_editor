@@ -1,6 +1,7 @@
 """Tests for PDF headers in FileOperations."""
 
 from unittest import mock
+
 from markdown_editor_pkg.editor import MarkdownEditorPyQt
 
 
@@ -120,9 +121,8 @@ class TestFileOperationsIO:
         import tempfile
 
         # Создаем временный файл для хранения результатов сохранения
-        temp_file = tempfile.NamedTemporaryFile(suffix=".md", delete=False)
-        temp_path = temp_file.name
-        temp_file.close()
+        with tempfile.NamedTemporaryFile(suffix=".md", delete=False) as temp_file:
+            temp_path = temp_file.name
 
         self.editor.current_file = temp_path
         self.editor.is_dirty = True
@@ -183,12 +183,11 @@ class TestFileOperationsExport:
 
     def test_export_to_html(self):
         """Экспорт в HTML записывает файл с HTML-контентом."""
-        import tempfile
         import os
+        import tempfile
 
-        temp_file = tempfile.NamedTemporaryFile(suffix=".html", delete=False)
-        temp_path = temp_file.name
-        temp_file.close()
+        with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as temp_file:
+            temp_path = temp_file.name
 
         self.editor.editor.setPlainText("# Hello World")
 
@@ -207,12 +206,11 @@ class TestFileOperationsExport:
 
     def test_export_to_html_adds_extension(self):
         """Экспорт в HTML добавляет .html, если пользователь не указал расширение."""
-        import tempfile
         import os
+        import tempfile
 
-        temp_file = tempfile.NamedTemporaryFile(suffix="", delete=False)
-        temp_path = temp_file.name
-        temp_file.close()
+        with tempfile.NamedTemporaryFile(suffix="", delete=False) as temp_file:
+            temp_path = temp_file.name
 
         self.editor.editor.setPlainText("# Test")
 

@@ -1,14 +1,23 @@
 """Session Handler — управление сессиями."""
 
+from __future__ import annotations
+
+import logging
 import os
+from typing import TYPE_CHECKING
+
+logger = logging.getLogger(__name__)
 
 from markdown_editor_pkg.session_manager import SessionManager
+
+if TYPE_CHECKING:
+    from markdown_editor_pkg.editor import MarkdownEditorPyQt
 
 
 class SessionHandler:
     """Обработчик сессий: сохранение/загрузка последнего файла."""
 
-    def __init__(self, editor: "MarkdownEditorPyQt"):
+    def __init__(self, editor: MarkdownEditorPyQt):
         self.editor = editor
 
     def save_session(self, filepath: str) -> None:
@@ -29,5 +38,5 @@ class SessionHandler:
                 self.editor.update_preview()
                 self.editor.update_char_count()
                 self.editor.update_file_status()
-            except Exception:
-                pass
+            except (OSError, UnicodeDecodeError):
+                logger.exception("Ошибка при загрузке сессии")

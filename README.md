@@ -288,8 +288,8 @@ markdown_editor/
 10. **LaTeXProcessor** (`latex_processor.py`) — извлечение LaTeX‑формул, замена плейсхолдерами, восстановление.
 11. **CalloutProcessor** (`callout_processor.py`) — обработка GitHub Callouts из blockquote.
 12. **PrismJSProcessor** (`prism_processor.py`) — интеграция Prism.js для подсветки кода.
-13. **FileIO / FileExport** (`file_operations.py`) — открытие, сохранение, экспорт HTML/PDF. `EditorState` — единый контекст состояния файлов.
-14. **TextInsertions** (`text_insertions.py`) — вставка форматированного текста (заголовки, стили, списки, LaTeX, таблицы и т. д.).
+13. **FileIO / FileExport** (`file_operations.py`) — открытие, сохранение, экспорт HTML/PDF. `EditorState` — единый контекст состояния файлов.
+14. **TextInsertions** (`text_insertions.py`) — вставка форматированного текста (заголовки, стили, списки, LaTeX, таблицы и т. д.).
 15. **FindReplaceHandler** (`editor_find.py`) — диалог «Найти и заменить».
 16. **FindReplaceDialog** (`find_replace.py`) — диалог поиска и замены (для обратной совместимости).
 17. **SessionHandler** (`editor_session.py`) — сохранение/загрузка последней сессии.

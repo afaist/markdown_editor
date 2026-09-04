@@ -1,7 +1,8 @@
 """Tests for editor UI components."""
 
-from PyQt6.QtWidgets import QToolBar
 from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QToolBar
+
 from markdown_editor_pkg.editor import MarkdownEditorPyQt
 
 

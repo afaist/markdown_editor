@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from PyQt6.QtWidgets import QFileDialog, QInputDialog
 from PyQt6.QtGui import QTextCursor
+from PyQt6.QtWidgets import QFileDialog, QInputDialog
 
 if TYPE_CHECKING:
     from PyQt6.QtWidgets import QTextEdit
@@ -124,9 +124,7 @@ class TextInsertions:
         selection = cursor.selectedText()
         full_text = c.full_text()
         # Если файл не пустой — добавляем пустую строку перед заголовком
-        if full_text.strip():
-            # Проверяем, заканчивается ли текст уже пустой строкой
-            if not full_text.endswith("\n\n"):
+        if full_text.strip() and not full_text.endswith("\n\n"):
                 cursor.insertText("\n")
         hashes = "#" * level
         if selection:

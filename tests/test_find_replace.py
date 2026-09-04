@@ -1,8 +1,5 @@
 """Tests for FindReplaceDialog."""
 
-from PyQt6.QtWidgets import QLineEdit, QPushButton, QLabel, QDialog
-from PyQt6.QtTest import QTest
-from PyQt6.QtCore import Qt
 
 from markdown_editor_pkg.find_replace import FindReplaceDialog
 

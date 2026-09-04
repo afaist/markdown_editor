@@ -8,27 +8,25 @@
 
 from __future__ import annotations
 
-import os
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
-from PyQt6.QtCore import QUrl, Qt
-from PyQt6.QtGui import QFont, QAction, QKeySequence
-from PyQt6.QtWidgets import (
-    QMainWindow,
-    QTextEdit,
-    QSplitter,
-    QFrame,
-    QVBoxLayout,
-    QHBoxLayout,
-    QToolBar,
-    QStatusBar,
-    QLabel,
-    QComboBox,
-    QPushButton,
-    QMenuBar,
-    QMenu,
-)
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QAction, QFont, QKeySequence
 from PyQt6.QtWebEngineWidgets import QWebEngineView
+from PyQt6.QtWidgets import (
+    QComboBox,
+    QFrame,
+    QLabel,
+    QMainWindow,
+    QMenu,
+    QMenuBar,
+    QPushButton,
+    QSplitter,
+    QStatusBar,
+    QToolBar,
+    QVBoxLayout,
+)
 
 from markdown_editor_pkg.editor_keypress import MarkdownTextEdit
 

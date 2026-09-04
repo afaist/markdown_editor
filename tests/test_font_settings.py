@@ -1,7 +1,7 @@
 """Tests for font settings via ThemesManager."""
 
-from markdown_editor_pkg.themes import ThemesManager
 from markdown_editor_pkg.editor import MarkdownEditorPyQt
+from markdown_editor_pkg.themes import ThemesManager
 
 
 class TestFontSettings:

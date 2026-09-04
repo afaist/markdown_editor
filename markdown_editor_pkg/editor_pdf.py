@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class PDFHandler:
     """Обработчик PDF-настроек и экспорта."""
 
-    def __init__(self, editor: "MarkdownEditorPyQt"):
+    def __init__(self, editor: MarkdownEditorPyQt):
         self.editor = editor
 
     def show_pdf_settings(self) -> None:

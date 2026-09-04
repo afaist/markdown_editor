@@ -2,40 +2,42 @@
 
 from __future__ import annotations
 
+import logging
 import os
 from typing import TYPE_CHECKING
 
+logger = logging.getLogger(__name__)
+
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QCloseEvent
-from PyQt6.QtWidgets import QMainWindow, QMessageBox
+from PyQt6.QtWidgets import QMainWindow
 
-from markdown_editor_pkg.themes import ThemesManager
-from markdown_editor_pkg.markdown_renderer import MarkdownRenderer
-from markdown_editor_pkg.file_operations import FileIO, FileExport, EditorState
-from markdown_editor_pkg.text_insertions import TextInsertions
-from markdown_editor_pkg.latex_processor import LaTeXProcessor
-from markdown_editor_pkg.editor_components import UIBuilder, ToolbarBuilder, MenuBuilder
-from markdown_editor_pkg.editor_markdown_menu import MarkdownMenuBuilder
+from markdown_editor_pkg.editor_close import CloseHandler
+from markdown_editor_pkg.editor_components import MenuBuilder, ToolbarBuilder, UIBuilder
 from markdown_editor_pkg.editor_events import EventHandler
+from markdown_editor_pkg.editor_find import FindReplaceHandler
+from markdown_editor_pkg.editor_help import HelpHandler
+from markdown_editor_pkg.editor_markdown_menu import MarkdownMenuBuilder
 from markdown_editor_pkg.editor_pdf import PDFHandler
 from markdown_editor_pkg.editor_session import SessionHandler
-from markdown_editor_pkg.editor_help import HelpHandler
 from markdown_editor_pkg.editor_themes import ThemeFontHandler
-from markdown_editor_pkg.editor_find import FindReplaceHandler
-from markdown_editor_pkg.editor_close import CloseHandler
-from markdown_editor_pkg.editor_keypress import MarkdownTextEdit
+from markdown_editor_pkg.file_operations import EditorState, FileExport, FileIO
+from markdown_editor_pkg.latex_processor import LaTeXProcessor
+from markdown_editor_pkg.markdown_renderer import MarkdownRenderer
+from markdown_editor_pkg.text_insertions import TextInsertions
+from markdown_editor_pkg.themes import ThemesManager
 
 if TYPE_CHECKING:
-    from PyQt6.QtWidgets import (
-        QTextEdit,
-        QSplitter,
-        QFrame,
-        QStatusBar,
-        QLabel,
-        QComboBox,
-        QPushButton,
-    )
     from PyQt6.QtWebEngineWidgets import QWebEngineView
+    from PyQt6.QtWidgets import (
+        QComboBox,
+        QFrame,
+        QLabel,
+        QPushButton,
+        QSplitter,
+        QStatusBar,
+        QTextEdit,
+    )
 
 
 class MarkdownEditorPyQt(QMainWindow):
@@ -125,6 +127,8 @@ class MarkdownEditorPyQt(QMainWindow):
         self.toolbar_builder.build()
         self.menu_builder.build()
         self.markdown_menu_builder.build()
+        # Инициализация синхронизации прокрутки
+        self.init_scroll_sync()
 
     # Обработчики событий
     def on_text_change(self) -> None:
@@ -146,6 +150,148 @@ class MarkdownEditorPyQt(QMainWindow):
     def on_cursor_position_changed(self) -> None:
         """Синхронизация предпросмотра с позицией курсора (делегирование)."""
         self.event_handler.on_cursor_position_changed()
+
+    def init_scroll_sync(self) -> None:
+        """Инициализация синхронизации прокрутки между редактором и превью."""
+        # Подключаем скролл редактора
+        vbar = self.editor.verticalScrollBar()
+        if vbar is not None:
+            vbar.valueChanged.connect(
+                self.event_handler.sync_scroll_from_editor
+            )
+        
+        # Инжектим JavaScript для отслеживания скролла в превью
+        self._inject_scroll_tracker_js()
+
+    def _inject_scroll_tracker_js(self) -> None:
+        """Инжектит JavaScript для отслеживания скролла в QWebEngineView."""
+        if self.preview is None:
+            return
+        
+        page = self.preview.page()
+        if page is None:
+            return
+        
+        # Создаём объект-мост для передачи событий из JS в PyQt
+        from PyQt6.QtCore import QObject, pyqtSlot
+        from PyQt6.QtWebChannel import QWebChannel
+        
+        class ScrollBridge(QObject):
+            """Мост между JavaScript и PyQt для событий скролла."""
+            _handler: EventHandler
+            _isScrolling: bool = False  # type: ignore[misc]
+            
+            @pyqtSlot(float)
+            def onPreviewScroll(self, scroll_pct: float) -> None:
+                self._handler.on_preview_scroll(scroll_pct)  # type: ignore[attr-defined]
+            
+            @pyqtSlot()
+            def onScrollFromEditor(self) -> None:
+                """Устанавливает флаг, что скролл инициирован из редактора."""
+                self._handler._scroll_from_editor = True  # type: ignore[attr-defined]
+        
+        self._scroll_bridge = ScrollBridge()
+        self._scroll_bridge._handler = self.event_handler  # type: ignore[attr-defined]
+        
+        # Создаём QWebChannel и регистрируем объект
+        self._scroll_channel = QWebChannel()
+        self._scroll_channel.registerObject("qt_object", self._scroll_bridge)
+        
+        # Запускаем JS-трекер сразу (без ожидания loadFinished)
+        # Это нужно, потому что setHtml не вызывает loadFinished
+        from PyQt6.QtCore import QTimer
+        QTimer.singleShot(500, lambda: self._run_scroll_tracker())
+    
+    def _run_scroll_tracker(self) -> None:
+        """Запускает JS-трекер скролла."""
+        if self.preview is None:
+            return
+        
+        page = self.preview.page()
+        if page is None:
+            return
+        
+        # Регистрируем QWebChannel
+        page.setWebChannel(self._scroll_channel)  # type: ignore[union-attr]
+        
+        # Запускаем JS-трекер (он сам подождёт появления qt_object)
+        from PyQt6.QtCore import QTimer
+        QTimer.singleShot(100, lambda: page.runJavaScript(self._get_scroll_js()))  # type: ignore[union-attr]
+
+    def _register_scroll_channel(self) -> None:
+        """Регистрирует QWebChannel при обновлении превью."""
+        if self.preview is None:
+            return
+        
+        page = self.preview.page()
+        if page is None:
+            return
+        
+        # Регистрируем QWebChannel
+        page.setWebChannel(self._scroll_channel)  # type: ignore[union-attr]
+        
+        # Запускаем JS-трекер (он сам подождёт появления qt_object)
+        from PyQt6.QtCore import QTimer
+        QTimer.singleShot(50, lambda: page.runJavaScript(self._get_scroll_js()))  # type: ignore[union-attr]
+    
+    def _check_and_init_scroll_tracker(self, page) -> None:
+        """Проверяет существование qt_object и инициализирует трекер."""
+        page.runJavaScript(self._get_scroll_js())
+    
+    def _get_scroll_js(self) -> str:
+        """Возвращает JavaScript-код для отслеживания скролла."""
+        return """
+(function() {
+    var lastPct = -1;
+    var bridge = null;
+    var scrollPollingStarted = false;
+    
+    function startPolling() {
+        if (scrollPollingStarted) return;
+        scrollPollingStarted = true;
+        
+        // Опрос скролла каждые 100мс вместо событий scroll
+        setInterval(function() {
+            var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            var scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            var pct = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
+            
+            if (Math.abs(pct - lastPct) > 0.001) {
+                lastPct = pct;
+                // Не отправляем событие, если скролл инициирован из редактора
+                if (bridge && typeof bridge.onPreviewScroll === 'function' && !bridge._isScrolling) {
+                    try {
+                        bridge.onPreviewScroll(pct);
+                    } catch(e) {
+                        // Игнорируем ошибки
+                    }
+                }
+            }
+        }, 100);
+    }
+    
+    // Ждём появления qt_object из QWebChannel
+    function waitForBridge() {
+        try {
+            if (typeof qt_object !== 'undefined' && typeof qt_object.onPreviewScroll === 'function') {
+                bridge = qt_object;
+                startPolling();
+            } else {
+                setTimeout(waitForBridge, 50);
+            }
+        } catch(e) {
+            setTimeout(waitForBridge, 50);
+        }
+    }
+    
+    // Запускаем ожидание
+    waitForBridge();
+})();
+"""
+
+    def on_preview_scroll(self, scroll_pct: float) -> None:
+        """Обработчик скролла превью (для обратной совместимости)."""
+        self.event_handler.on_preview_scroll(scroll_pct)
 
     def _set_editor_text_without_dirty(self, text: str) -> None:
         """Установка текста без is_dirty (делегирование)."""
@@ -201,47 +347,35 @@ class MarkdownEditorPyQt(QMainWindow):
 
     # Синхронизация редактора и предпросмотра
     def _scroll_preview_to_cursor(self) -> None:
-        """Прокручивает предпросмотр к строке, где находится курсор."""
+        """Прокручивает предпросмотр к строке, где находится курсор.
+        
+        Вызывается из update_preview после обновления HTML, чтобы ID заголовков
+        уже были доступны в DOM.
+        """
         try:
             cursor = self.editor.textCursor()
-            block_number = cursor.blockNumber()  # 0-based
-
-            # Получаем текст текущей строки
             block = cursor.block()
             line_text = block.text().strip()
-            if not line_text:
+            if not line_text or not line_text.startswith('#'):
                 return
 
-            # Генерируем якорь из текста строки
-            # Убираем markdown-маркеры для чистоты якоря
-            anchor = line_text
-            # Убираем # для заголовков
-            anchor = anchor.lstrip("#").strip()
-            # Заменяем пробелы и спецсимволы на устойчивую форму
-            anchor = anchor.lower()
-            anchor = "".join(
-                c if c.isalnum() or c in (" ", "-", "_") else "" for c in anchor
-            )
-            anchor = anchor.strip()
-            if not anchor:
-                return
-
-            # Создаём якорь, похожий на то, как markdown генерирует id
-            # markdown генерирует id из текста: lowercase, пробелы -> -, только алфавит+цифры
-            md_anchor = anchor
+            # Генерируем якорь как python-markdown toc extension:
+            # lowercase, пробелы -> -, только алфавит+цифры+дефисы
+            md_anchor = line_text.lstrip("#").strip().lower()
+            md_anchor = md_anchor.replace(" ", "-")
             md_anchor = "".join(c if c.isalnum() or c == "-" else "" for c in md_anchor)
+            while "--" in md_anchor:
+                md_anchor = md_anchor.replace("--", "-")
+            md_anchor = md_anchor.strip("-")
             if not md_anchor:
                 return
 
-            # Выполняем JavaScript для прокрутки к якорю
             js = f"""
 (function() {{
     var anchor = '{md_anchor}';
-    // markdown-it генерирует id вида: anchor-N где N — счётчик
     var el = document.getElementById(anchor);
     if (!el) {{
-        // Пробуем найти по data-id или просто по тексту
-        var all = document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,td,th');
+        var all = document.querySelectorAll('[id]');
         for (var i = 0; i < all.length; i++) {{
             if (all[i].id === anchor) {{
                 el = all[i];
@@ -260,7 +394,7 @@ class MarkdownEditorPyQt(QMainWindow):
                     page.runJavaScript(js)
 
         except Exception:
-            pass  # Игнорируем ошибки при прокрутке
+            logger.exception("Scroll sync error in _scroll_preview_to_cursor")
 
     # Закрытие
     def closeEvent(self, event_: QCloseEvent) -> None:  # type: ignore[override]

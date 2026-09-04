@@ -2,12 +2,12 @@
 
 from PyQt6.QtWidgets import (
     QDialog,
-    QVBoxLayout,
+    QDialogButtonBox,
     QHBoxLayout,
+    QLabel,
     QLineEdit,
     QPushButton,
-    QLabel,
-    QDialogButtonBox,
+    QVBoxLayout,
 )
 
 

@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import tempfile
 from dataclasses import dataclass
-from pathlib import Path
 
+logger = logging.getLogger(__name__)
+
+from PyQt6.QtCore import QTimer, QUrl
 from PyQt6.QtWidgets import QFileDialog, QMessageBox
-from PyQt6.QtCore import QUrl, QTimer
 
 from markdown_editor_pkg.markdown_renderer import MarkdownRenderer
 
@@ -87,7 +89,7 @@ class FileIO:
         try:
             self._on_file_opened(filepath)
         except Exception as e:
-            self._error_msg("Ошибка", f"Не удалось открыть файл:\n{str(e)}")
+            self._error_msg("Ошибка", f"Не удалось открыть файл:\n{e!s}")
 
     def save_file(self) -> None:
         """Сохранить текущий файл (или вызвать save_file_as, если путь не задан)."""
@@ -102,7 +104,7 @@ class FileIO:
             self._editor.update_file_status()
             self._status_msg(f"Файл сохранен: {self._state.current_file}")
         except Exception as e:
-            self._error_msg("Ошибка", f"Не удалось сохранить файл:\n{str(e)}")
+            self._error_msg("Ошибка", f"Не удалось сохранить файл:\n{e!s}")
 
     def save_file_as(self) -> None:
         """Сохранить файл под новым именем."""
@@ -211,7 +213,7 @@ class FileExport:
             self._write_file(filepath, html)
             self._status_msg(f"Экспорт в HTML завершен: {filepath}")
         except Exception as e:
-            self._error_msg("Ошибка", f"Не удалось экспортировать в HTML:\n{str(e)}")
+            self._error_msg("Ошибка", f"Не удалось экспортировать в HTML:\n{e!s}")
 
     def export_to_pdf(self) -> None:
         """Экспортировать Markdown в PDF через QWebEngineView."""
@@ -260,7 +262,7 @@ class FileExport:
             self._editor.preview.page().loadFinished.connect(on_load_finished)
 
         except Exception as e:
-            self._error_msg("Ошибка", f"Не удалось начать экспорт в PDF:\n{str(e)}")
+            self._error_msg("Ошибка", f"Не удалось начать экспорт в PDF:\n{e!s}")
             self._status_msg("")
             if "tmp_path" in locals() and tmp_path and os.path.exists(tmp_path):
                 self._cleanup_temp_file(tmp_path)
@@ -294,14 +296,14 @@ class FileExport:
                         f.write(bytes(pdf_data))
                     self._status_msg(f"Экспорт в PDF завершен: {filepath}")
                 except Exception as e:
-                    self._error_msg("Ошибка", f"Не удалось записать PDF файл: {str(e)}")
+                    self._error_msg("Ошибка", f"Не удалось записать PDF файл: {e!s}")
                     self._status_msg("")
                 finally:
                     self._cleanup_temp_file(tmp_path)
 
             page.printToPdf(callback)
         except Exception as e:
-            self._error_msg("Ошибка", f"Ошибка печати: {str(e)}")
+            self._error_msg("Ошибка", f"Ошибка печати: {e!s}")
             self._status_msg("")
             self._cleanup_temp_file(tmp_path)
 
@@ -311,5 +313,5 @@ class FileExport:
         try:
             if path and os.path.exists(path):
                 os.unlink(path)
-        except Exception:
-            pass
+        except OSError:
+            logger.exception("Failed to cleanup temp file: %s", path)

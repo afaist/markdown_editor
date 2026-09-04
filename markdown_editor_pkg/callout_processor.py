@@ -1,6 +1,9 @@
 """GitHub Callouts — парсинг blockquote с маркировкой [!TYPE]."""
 
+from __future__ import annotations
+
 import re
+from typing import ClassVar
 
 
 class CalloutProcessor:
@@ -10,7 +13,7 @@ class CalloutProcessor:
     """
 
     # Типы callout
-    CALLOUT_TYPES = {"NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION"}
+    CALLOUT_TYPES: ClassVar[set[str]] = {"NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION"}
 
     BLOCKQUOTE_PATTERN = re.compile(
         r'<blockquote>(.*?)</blockquote>',

@@ -14,11 +14,16 @@ class EventHandler:
     
     def __init__(self, editor: "MarkdownEditorPyQt"):
         self.editor = editor
+        # Флаг для предотвращения рекурсии при синхронизации скролла
+        self._syncing_scroll = False
+        # Флаг: True если скролл инициирован из превью (нужно скроллить редактор)
+        self._scroll_from_preview = False
+        # Флаг: True если скролл инициирован из редактора (нужно скроллить превью)
+        self._scroll_from_editor = False
 
     def connect(self) -> None:
         """Подключить обработчики к сигналам (вызывается после init_ui)."""
         # Сигналы уже подключены в UIBuilder, здесь нет нужды
-        pass
 
     def on_text_change(self) -> None:
         """Обработка изменения текста."""
@@ -64,6 +69,10 @@ class EventHandler:
         base_dir = os.path.dirname(os.path.abspath(__file__))
         base_url = QUrl.fromLocalFile(base_dir or ".")
         self.editor.preview.setHtml(html, base_url)
+        # После обновления превью — синхронизируем прокрутку к курсору
+        self.editor._scroll_preview_to_cursor()
+        # Регистрируем QWebChannel для синхронизации скролла
+        self.editor._register_scroll_channel()
         if self.editor._statusbar_ref:
             self.editor._statusbar_ref.showMessage("Предпросмотр обновлён")
 
@@ -79,11 +88,98 @@ class EventHandler:
                 word_lbl.setText(f"Слов: {len(text.split())}")
 
     def on_cursor_position_changed(self) -> None:
-        """Синхронизация предпросмотра с позицией курсора в редакторе."""
-        self.editor._scroll_preview_to_cursor()
+        """Синхронизация предпросмотра с позицией курсора в редакторе.
+        
+        Прокрутка превью выполняется в update_preview после обновления HTML,
+        чтобы ID заголовков уже были доступны в DOM.
+        """
 
     def set_editor_text_without_dirty(self, text: str) -> None:
         """Установка текста без is_dirty."""
         self.editor.editor.blockSignals(True)
         self.editor.editor.setPlainText(text)
         self.editor.editor.blockSignals(False)
+
+    # ─── Синхронизация прокрутки ──────────────────────────────────────────
+
+    def sync_scroll_from_editor(self) -> None:
+        """Синхронизация прокрутки превью при скролле редактора."""
+        if self._syncing_scroll or self._scroll_from_preview:
+            return
+        
+        editor = self.editor.editor
+        preview = self.editor.preview
+        
+        if not editor or not preview:
+            return
+        
+        try:
+            self._syncing_scroll = True
+            self._scroll_from_preview = False
+            self._scroll_from_editor = True
+            
+            vbar = editor.verticalScrollBar()
+            if vbar is None:
+                return
+            
+            slider_pos = vbar.value()
+            slider_max = vbar.maximum()
+            slider_min = vbar.minimum()
+            
+            if slider_max == slider_min:
+                scroll_pct = 0.0
+            else:
+                scroll_pct = slider_pos / (slider_max - slider_min)
+            
+            # Устанавливаем флаг в JS, чтобы предотвратить отправку события обратно
+            js_set = "try { qt_object._isScrolling = true; setTimeout(function(){ qt_object._isScrolling = false; }, 100); } catch(e) {}"
+            preview.page().runJavaScript(js_set)
+            
+            # QWebEngineView не имеет прямого API для скроллбара, используем JS
+            js = f"window.scrollTo(0, {scroll_pct} * (document.documentElement.scrollHeight - window.innerHeight));"
+            preview.page().runJavaScript(js)
+        finally:
+            self._syncing_scroll = False
+            self._scroll_from_editor = False
+
+    def sync_scroll_from_preview(self, scroll_pct: float) -> None:
+        """Синхронизация прокрутки редактора при скролле превью.
+        
+        Args:
+            scroll_pct: Пропорция прокрутки превью (0.0 — верх, 1.0 — низ)
+        """
+        if self._syncing_scroll or not self._scroll_from_preview:
+            return
+        
+        editor = self.editor.editor
+        if not editor:
+            return
+        
+        try:
+            self._syncing_scroll = True
+            
+            vbar = editor.verticalScrollBar()
+            if vbar is None:
+                return
+            
+            slider_max = vbar.maximum()
+            slider_min = vbar.minimum()
+            
+            if slider_max == slider_min:
+                return
+            
+            new_pos = int(scroll_pct * (slider_max - slider_min))
+            new_pos = max(slider_min, min(slider_max, new_pos))
+            vbar.setValue(new_pos)
+        finally:
+            self._syncing_scroll = False
+
+    def on_preview_scroll(self, scroll_pct: float) -> None:
+        """Обработчик скролла превью (вызывается из JavaScript).
+        
+        Args:
+            scroll_pct: Пропорция прокрутки (0.0 — верх, 1.0 — низ)
+        """
+        self._scroll_from_preview = True
+        self.sync_scroll_from_preview(scroll_pct)
+        self._scroll_from_preview = False

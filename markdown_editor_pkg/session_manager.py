@@ -1,8 +1,10 @@
 """Сохранение и загрузка последней сессии (путь к последнему открытому файлу)."""
 
 import json
+import logging
 from pathlib import Path
 
+logger = logging.getLogger(__name__)
 
 SESSION_CONFIG_FILE = Path.home() / ".markdown_editor_config.json"
 
@@ -17,8 +19,8 @@ class SessionManager:
             config = {"last_file": filepath}
             with open(SESSION_CONFIG_FILE, "w", encoding="utf-8") as f:
                 json.dump(config, f)
-        except Exception:
-            pass
+        except (OSError, json.JSONDecodeError):
+            logger.exception("Ошибка при сохранении сессии")
 
     @staticmethod
     def load() -> str | None:
@@ -29,5 +31,5 @@ class SessionManager:
             with open(SESSION_CONFIG_FILE, "r", encoding="utf-8") as f:
                 config = json.load(f)
             return config.get("last_file")
-        except Exception:
+        except (OSError, json.JSONDecodeError):
             return None

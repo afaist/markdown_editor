@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeyEvent
-
 from PyQt6.QtWidgets import QTextEdit
 
 # Паттерны для определения типа текущей строки
@@ -80,9 +78,12 @@ class MarkdownTextEdit(QTextEdit):
         super().__init__(parent)
 
     def keyPressEvent(self, e: QKeyEvent | None) -> None:
-        if e is not None and e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-            if self._try_auto_continue():
-                return  # Обработали — не вызываем суперкласс
+        if (
+            e is not None
+            and e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter)
+            and self._try_auto_continue()
+        ):
+            return  # Обработали — не вызываем суперкласс
 
         super().keyPressEvent(e)
 

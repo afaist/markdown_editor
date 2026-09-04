@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import os
+
 import markdown
 from PyQt6.QtCore import QUrl
 
-from markdown_editor_pkg.latex_processor import LaTeXProcessor, StrikethroughProcessor
 from markdown_editor_pkg.callout_processor import CalloutProcessor
-from markdown_editor_pkg.themes import ThemesManager
+from markdown_editor_pkg.latex_processor import LaTeXProcessor, StrikethroughProcessor
 from markdown_editor_pkg.prism_processor import PrismJSProcessor
+from markdown_editor_pkg.themes import ThemesManager
 
 
 class MarkdownRenderer:

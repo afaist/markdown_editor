@@ -2,7 +2,6 @@
 
 import re
 
-
 # Unicode → LaTeX-команды для математических символов
 UNICODE_TO_LATEX: dict[str, str] = {
     "\u2260": r"\neq",      # ≠

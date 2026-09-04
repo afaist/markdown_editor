@@ -1,28 +1,32 @@
-# download_prism.py
+"""download_prism.py — Загрузка ресурсов Prism.js."""
+
 import os
+import urllib.error
 import urllib.request
 
-def download_file(url, destination):
-    """Скачивает файл по URL в указанное место назначения"""
+
+def download_file(url: str, destination: str) -> None:
+    """Скачивает файл по URL в указанное место назначения."""
     try:
         # Создаем директорию назначения, если её нет
         dir_name = os.path.dirname(destination)
         if dir_name and not os.path.exists(dir_name):
             os.makedirs(dir_name)
-            
+
         print(f"Скачивание: {url} ...")
         urllib.request.urlretrieve(url, destination)
         print(f"✓ Успешно сохранено: {destination}")
-    except Exception as e:
+    except (OSError, urllib.error.URLError) as e:
         print(f"✗ Ошибка при скачивании {url}: {e}")
+
 
 def main():
     version = "1.29.0"
     base_url = f"https://cdnjs.cloudflare.com/ajax/libs/prism/{version}"
-    
+
     script_dir = os.path.dirname(os.path.abspath(__file__))
     prism_dir = os.path.join(script_dir, "prism")
-    
+
     # Создаем папку prism
     if not os.path.exists(prism_dir):
         os.makedirs(prism_dir)
@@ -31,7 +35,7 @@ def main():
     files_to_download = [
         # Основной JS
         ("prism.min.js", f"{base_url}/prism.min.js"),
-        
+
         # Основные языки (Python, Java, C, C++, JS, TS, Bash, SQL, CSS, HTML)
         ("components/prism-python.min.js", f"{base_url}/components/prism-python.min.js"),
         ("components/prism-java.min.js", f"{base_url}/components/prism-java.min.js"),
@@ -43,7 +47,7 @@ def main():
         ("components/prism-sql.min.js", f"{base_url}/components/prism-sql.min.js"),
         ("components/prism-css.min.js", f"{base_url}/components/prism-css.min.js"),
         ("components/prism-markup.min.js", f"{base_url}/components/prism-markup.min.js"),
-        
+
         # CSS Темы Prism.js
         ("themes/prism-okaidia.min.css", f"{base_url}/themes/prism-okaidia.min.css"),
         ("themes/prism-tomorrow.min.css", f"{base_url}/themes/prism-tomorrow.min.css"),
@@ -54,6 +58,7 @@ def main():
         download_file(url, dest_path)
 
     print("\n✅ Загрузка ресурсов Prism завершена.")
+
 
 if __name__ == "__main__":
     main()

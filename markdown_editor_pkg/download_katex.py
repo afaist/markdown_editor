@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-"""download_katex.py ��� Загрузка библиотеки KaTeX в папку markdown_editor_pkg/katex/.
+"""download_katex.py — Загрузка библиотеки KaTeX в папку markdown_editor_pkg/katex/.
 
 Эквивалент bash-скрипта get_katex.sh, но на Python (без зависимости от wget).
 Запускается из корня проекта:
@@ -7,7 +6,7 @@
 """
 
 import os
-import sys
+import urllib.error
 import urllib.request
 
 # Версия KaTeX
@@ -31,7 +30,7 @@ def download_file(url: str, destination: str) -> None:
         print(f"Скачивание: {url} ...")
         urllib.request.urlretrieve(url, destination)
         print(f"✓ Успешно сохранено: {destination}")
-    except Exception as e:
+    except (OSError, urllib.error.URLError) as e:
         print(f"✗ Ошибка при скачивании {url}: {e}")
 
 

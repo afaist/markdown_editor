@@ -1,6 +1,9 @@
 """PrismJSProcessor — управление ресурсами и интеграцией Prism.js для подсветки кода."""
 
+from __future__ import annotations
+
 import os
+from typing import ClassVar
 
 
 class PrismJSProcessor:
@@ -11,7 +14,7 @@ class PrismJSProcessor:
     PRISM_CSS = "prism/themes/prism-okaidia.min.css"
 
     # Список поддерживаемых языков (соответствуют файлам в components/)
-    PRISM_LANGUAGES = [
+    PRISM_LANGUAGES: ClassVar[list[str]] = [
         "python",
         "java",
         "c",
@@ -25,7 +28,7 @@ class PrismJSProcessor:
     ]
 
     # Маппинг тем предпросмотра -> темы Prism.js
-    PRISM_THEME_MAP = {
+    PRISM_THEME_MAP: ClassVar[dict[str, str]] = {
         "light": "prism-okaidia.min.css",
         "dark": "prism-tomorrow.min.css",
         "contrast": "prism-okaidia.min.css",  # fallback для контрастной
@@ -57,14 +60,12 @@ class PrismJSProcessor:
 
         # Генерируем скрипты компонентов
         component_scripts = "\n".join(
-            f"<script src=\"file://{path}\"></script>" for path in components_paths
+            f'<script src="file://{path}"></script>' for path in components_paths
         )
 
         # Вставляем CSS перед закрывающим </head>
         head_css = f'<link rel="stylesheet" href="file://{prism_css_path}">'
-        if "<head>" in html:
-            html = html.replace("<head>", f"<head>\n    {head_css}", 1)
-        elif "<head>" in html:
+        if "<head>" in html or "<head>" in html:
             html = html.replace("<head>", f"<head>\n    {head_css}", 1)
 
         # Вставляем JS перед закрывающим </body>

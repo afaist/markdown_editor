@@ -1,7 +1,7 @@
 """Tests for TextInsertions."""
 
-from PyQt6.QtWidgets import QTextEdit
 from PyQt6.QtGui import QTextCursor
+from PyQt6.QtWidgets import QTextEdit
 
 
 class TestTextInsertions:
@@ -455,7 +455,8 @@ class TestTextInsertions:
 
     def test_insert_link_with_mock(self):
         """Вставка ссылки с mock QInputDialog."""
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import patch
+
         from markdown_editor_pkg.text_insertions import TextInsertions
 
         mock = self._create_mock_editor()
@@ -476,6 +477,7 @@ class TestTextInsertions:
     def test_insert_link_cancel_url(self):
         """Отмена ввода URL отменяет вставку ссылки."""
         from unittest.mock import patch
+
         from markdown_editor_pkg.text_insertions import TextInsertions
 
         mock = self._create_mock_editor()
@@ -494,6 +496,7 @@ class TestTextInsertions:
     def test_insert_image_with_mock(self):
         """Вставка изображения с mock QFileDialog."""
         from unittest.mock import patch
+
         from markdown_editor_pkg.text_insertions import TextInsertions
 
         mock = self._create_mock_editor()
@@ -511,6 +514,7 @@ class TestTextInsertions:
     def test_insert_image_cancel(self):
         """Отмена выбора изображения отменяет вставку."""
         from unittest.mock import patch
+
         from markdown_editor_pkg.text_insertions import TextInsertions
 
         mock = self._create_mock_editor()
@@ -529,6 +533,7 @@ class TestTextInsertions:
     def test_insert_image_windows_path(self):
         """Вставка изображения с Windows-путём — экранирование слешей."""
         from unittest.mock import patch
+
         from markdown_editor_pkg.text_insertions import TextInsertions
 
         mock = self._create_mock_editor()
@@ -539,8 +544,6 @@ class TestTextInsertions:
         ) as mock_file:
             mock_file.return_value = (r"C:\Users\img.png", "")
             ti.insert_image()
-
-        text = mock.editor.toPlainText()
 
     def test_insert_ordered_list_with_selection(self):
         """Вставка нумерованного списка с выделением текста."""
