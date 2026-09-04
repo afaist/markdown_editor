@@ -129,7 +129,7 @@ class LaTeXProcessor:
             idx = int(match.group(1))
             if idx < len(self.display_math_cache):
                 return f"$${self.display_math_cache[idx]}$$"
-            return match.group(0)
+            return str(match.group(0))
 
         html = re.sub(r"<!--\s*display-math-(\d+)\s*-->", restore, html)
         html = re.sub(r"&lt;!--\s*display-math-(\d+)\s*--&gt;", restore, html)
@@ -142,11 +142,11 @@ class LaTeXProcessor:
             idx = int(match.group(1))
             if idx < len(self.inline_math_cache):
                 return f"${self.inline_math_cache[idx]}$"
-            return match.group(0)
+            return str(match.group(0))
 
         html = re.sub(r"<!--\s*inline-math-(\d+)\s*-->", restore, html)
         html = re.sub(r"&lt;!--\s*inline-math-(\d+)\s*--&gt;", restore, html)
-        return html
+        return str(html)
 
 
 class StrikethroughProcessor:

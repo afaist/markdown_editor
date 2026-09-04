@@ -30,6 +30,6 @@ class SessionManager:
         try:
             with open(SESSION_CONFIG_FILE, encoding="utf-8") as f:
                 config = json.load(f)
-            return config.get("last_file")
+            return str(config.get("last_file", "")) or None
         except (OSError, json.JSONDecodeError):
             return None

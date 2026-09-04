@@ -193,7 +193,7 @@ class MarkdownRenderer:
                 "markdown.extensions.toc",
             ]
         )
-        return md.convert(text)
+        return str(md.convert(text))
 
     def _restore_latex(self, html: str) -> str:
         """Stage 3: Восстанавливаем LaTeX-формулы из плейсхолдеров."""

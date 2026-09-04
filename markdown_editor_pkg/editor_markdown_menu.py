@@ -81,7 +81,7 @@ class MarkdownMenuBuilder:
         self._add_action(
             styles_menu,
             "Встроенный код",  # type: ignore[attr-defined]
-            parent.text_insertions.insert_inline_code,
+            parent.text_insertions.insert_inline_code,  # type: ignore[attr-defined]
             "Ctrl+`",
         )  # type: ignore[attr-defined]
 
@@ -146,55 +146,55 @@ class MarkdownMenuBuilder:
         self._add_action(
             latex_menu,
             "Встроенная ($...$)",  # type: ignore[attr-defined]
-            parent.text_insertions.insert_inline_latex,
+            parent.text_insertions.insert_inline_latex,  # type: ignore[attr-defined]
             "Ctrl+L",
         )  # type: ignore[attr-defined]
         self._add_action(
             latex_menu,
             "Блочная ($...$)",  # type: ignore[attr-defined]
-            parent.text_insertions.insert_block_latex,
+            parent.text_insertions.insert_block_latex,  # type: ignore[attr-defined]
             "Ctrl+Shift+L",
         )  # type: ignore[attr-defined]
         self._add_action(
             latex_menu,
             "Дробь (\\frac)",  # type: ignore[attr-defined]
-            parent.text_insertions.insert_latex_fraction,
+            parent.text_insertions.insert_latex_fraction,  # type: ignore[attr-defined]
             "Ctrl+Shift+F",
         )  # type: ignore[attr-defined]
         self._add_action(
             latex_menu,
             "Квадратный корень (\\sqrt)",  # type: ignore[attr-defined]
-            parent.text_insertions.insert_latex_sqrt,
+            parent.text_insertions.insert_latex_sqrt,  # type: ignore[attr-defined]
             "Ctrl+Shift+R",
         )  # type: ignore[attr-defined]
         self._add_action(
             latex_menu,
             "Надстрочный",  # type: ignore[attr-defined]
-            parent.text_insertions.insert_latex_superscript,
+            parent.text_insertions.insert_latex_superscript,  # type: ignore[attr-defined]
             "Ctrl+Shift+S",
         )  # type: ignore[attr-defined]
         self._add_action(
             latex_menu,
             "Подстрочный",  # type: ignore[attr-defined]
-            parent.text_insertions.insert_latex_subscript,
+            parent.text_insertions.insert_latex_subscript,  # type: ignore[attr-defined]
             "Ctrl+Shift+N",
         )  # type: ignore[attr-defined]
         self._add_action(
             latex_menu,
             "Сумма (\\sum)",  # type: ignore[attr-defined]
-            parent.text_insertions.insert_latex_sum,
+            parent.text_insertions.insert_latex_sum,  # type: ignore[attr-defined]
             "Ctrl+Shift+A",
         )  # type: ignore[attr-defined]
         self._add_action(
             latex_menu,
             "Интеграл (\\int)",  # type: ignore[attr-defined]
-            parent.text_insertions.insert_latex_integral,
+            parent.text_insertions.insert_latex_integral,  # type: ignore[attr-defined]
             "Ctrl+Shift+G",
         )  # type: ignore[attr-defined]
         self._add_action(
             latex_menu,
             "Матрица (\\begin{matrix})",  # type: ignore[attr-defined]
-            parent.text_insertions.insert_latex_matrix,
+            parent.text_insertions.insert_latex_matrix,  # type: ignore[attr-defined]
             "Ctrl+Shift+M",
         )  # type: ignore[attr-defined]
 

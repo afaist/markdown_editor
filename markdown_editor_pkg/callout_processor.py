@@ -39,7 +39,7 @@ class CalloutProcessor:
         paragraphs = self.PARAGRAPH_PATTERN.findall(blockquote_content)
 
         if not paragraphs:
-            return match.group(0)
+            return str(match.group(0))
 
         callouts_html: list[str] = []
         current_type: str | None = None
@@ -69,4 +69,4 @@ class CalloutProcessor:
 
         if callouts_html:
             return "\n".join(callouts_html)
-        return match.group(0)
+        return str(match.group(0))

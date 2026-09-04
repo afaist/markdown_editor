@@ -133,11 +133,14 @@ class EventHandler:
 
             # Устанавливаем флаг в JS, чтобы предотвратить отправку события обратно
             js_set = "try { qt_object._isScrolling = true; setTimeout(function(){ qt_object._isScrolling = false; }, 100); } catch(e) {}"
-            preview.page().runJavaScript(js_set)
+            preview_page = preview.page()
+            if preview_page is not None:
+                preview_page.runJavaScript(js_set)
 
             # QWebEngineView не имеет прямого API для скроллбара, используем JS
             js = f"window.scrollTo(0, {scroll_pct} * (document.documentElement.scrollHeight - window.innerHeight));"
-            preview.page().runJavaScript(js)
+            if preview_page is not None:
+                preview_page.runJavaScript(js)
         finally:
             self._syncing_scroll = False
             self._scroll_from_editor = False
