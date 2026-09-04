@@ -1,0 +1,174 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Режим сборки'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - linux
+          - windows
+          - deb
+
+permissions:
+  contents: write
+
+jobs:
+  # ─── Linux сборка ──────────────────────────────────────────────────
+  build-linux:
+    if: github.event.inputs.mode == 'all' || github.event.inputs.mode == 'linux' || github.event.inputs.mode == 'deb' || startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: 'pip'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgl1-mesa-dev \
+            libxkbcommon-x11-0 \
+            libxcb-cursor0 \
+            libegl1-mesa-dev \
+            libwebp-dev \
+            libfontconfig1 \
+            libfreetype6 \
+            libx11-xcb1 \
+            libxcb-icccm4 \
+            libxcb-image0 \
+            libxcb-keysyms1 \
+            libxcb-randr0 \
+            libxcb-render-util0 \
+            libxcb-shape0 \
+            libxcb-xinerama0 \
+            libxcb-xfixes0
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller PyQt6 PyQt6-WebEngine markdown
+
+      - name: Download KaTeX resources
+        run: python markdown_editor_pkg/download_katex.py
+
+      - name: Download Prism.js resources
+        run: python markdown_editor_pkg/download_prism.py
+
+      - name: Build with PyInstaller (onedir)
+        run: |
+          pyinstaller --clean --noconfirm markdown-editor.spec
+          echo "BUILD_MODE=onedir" >> $GITHUB_ENV
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: markdown-editor-linux
+          path: dist/markdown-editor/
+          retention-days: 14
+          if-no-files-found: error
+
+  # ─── Windows сборка ────────────────────────────────────────────────
+  build-windows:
+    if: github.event.inputs.mode == 'all' || github.event.inputs.mode == 'windows' || startsWith(github.ref, 'refs/tags/')
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller PyQt6 PyQt6-WebEngine markdown
+
+      - name: Download KaTeX resources
+        run: python markdown_editor_pkg\download_katex.py
+
+      - name: Download Prism.js resources
+        run: python markdown_editor_pkg\download_prism.py
+
+      - name: Build with PyInstaller (onedir)
+        run: |
+          pyinstaller --clean --noconfirm markdown-editor.spec
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: markdown-editor-windows
+          path: dist/markdown-editor/
+          retention-days: 14
+          if-no-files-found: error
+
+  # ─── Создание релиза ───────────────────────────────────────────────
+  create-release:
+    needs: [build-linux, build-windows]
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: markdown-editor-linux
+          path: release/linux/
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: markdown-editor-windows
+          path: release/windows/
+
+      - name: Create tarball for Linux
+        run: |
+          cd release/linux
+          tar -czf ../markdown-editor-linux-x86_64.tar.gz markdown-editor/
+
+      - name: Create zip for Windows
+        run: |
+          cd release/windows
+          zip -r ../markdown-editor-windows-x86_64.zip markdown-editor/
+
+      - name: Get version from tag
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=dev-$(date +%Y%m%d)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/markdown-editor-linux-x86_64.tar.gz
+            release/markdown-editor-windows-x86_64.zip
+          draft: false
+          prerelease: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          generate_release_notes: true
+          name: "Markdown Editor ${{ steps.version.outputs.VERSION }}"
+          tag_name: ${{ steps.version.outputs.VERSION }}

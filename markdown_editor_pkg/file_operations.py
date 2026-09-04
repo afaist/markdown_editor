@@ -13,6 +13,7 @@ from PyQt6.QtCore import QTimer, QUrl
 from PyQt6.QtWidgets import QFileDialog, QMessageBox
 
 from markdown_editor_pkg.markdown_renderer import MarkdownRenderer
+from markdown_editor_pkg.resource_path import get_base_dir
 
 
 @dataclass
@@ -208,7 +209,7 @@ class FileExport:
             html = self._renderer.render(
                 self._editor.editor.toPlainText(),
                 theme_name=self._editor.theme_manager.theme_name,
-                base_dir=os.path.dirname(__file__),
+                base_dir=get_base_dir(),
             )
             self._write_file(filepath, html)
             self._status_msg(f"Экспорт в HTML завершен: {filepath}")
@@ -267,7 +268,7 @@ class FileExport:
         html_content = self._renderer.render(
             self._editor.editor.toPlainText(),
             theme_name=self._editor.theme_manager.theme_name,
-            base_dir=os.path.dirname(__file__),
+            base_dir=get_base_dir(),
             headers=headers,
         )
 

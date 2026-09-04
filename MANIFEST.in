@@ -1,0 +1,21 @@
+# MANIFEST.in — включение ресурсов в дистрибутив
+
+# Ресурсы KaTeX
+recursive-include markdown_editor_pkg/katex *
+
+# Ресурсы Prism.js
+recursive-include markdown_editor_pkg/prism *
+
+# Иконки
+recursive-include * *.ico *.png
+
+# Тема оформления редактора (если есть)
+recursive-include markdown_editor_pkg/themes_data *
+
+# Исключить временные файлы
+global-exclude __pycache__
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude .pytest_cache
+global-exclude .ruff_cache
+global-exclude *.egg-info

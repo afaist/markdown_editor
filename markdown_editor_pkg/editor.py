@@ -24,6 +24,7 @@ from markdown_editor_pkg.editor_themes import ThemeFontHandler
 from markdown_editor_pkg.file_operations import EditorState, FileExport, FileIO
 from markdown_editor_pkg.latex_processor import LaTeXProcessor
 from markdown_editor_pkg.markdown_renderer import MarkdownRenderer
+from markdown_editor_pkg.resource_path import get_base_dir
 from markdown_editor_pkg.text_insertions import TextInsertions
 from markdown_editor_pkg.themes import ThemesManager
 
@@ -462,7 +463,7 @@ class MarkdownEditorPyQt(QMainWindow):
         return self.renderer.render(
             text,
             theme_name=theme_name,
-            base_dir=os.path.dirname(os.path.abspath(__file__)),
+            base_dir=get_base_dir(),
         )
 
     def toggle_theme(self) -> None:

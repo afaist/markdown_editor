@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import QUrl
 
+from markdown_editor_pkg.resource_path import get_base_dir
+
 if TYPE_CHECKING:
     from markdown_editor_pkg.editor import MarkdownEditorPyQt
 
@@ -61,12 +63,12 @@ class EventHandler:
     def update_preview(self) -> None:
         """Обновить предпросмотр."""
         markdown_text = self.editor.editor.toPlainText()
+        base_dir = get_base_dir()
         html = self.editor.renderer.render(
             markdown_text,
             theme_name=self.editor.theme_manager.theme_name,
-            base_dir=os.path.dirname(os.path.abspath(__file__)),
+            base_dir=base_dir,
         )
-        base_dir = os.path.dirname(os.path.abspath(__file__))
         base_url = QUrl.fromLocalFile(base_dir or ".")
         self.editor.preview.setHtml(html, base_url)
         # После обновления превью — синхронизируем прокрутку к курсору

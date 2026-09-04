@@ -1,0 +1,13 @@
+[Unit]
+Description=Markdown Editor — Простой редактор Markdown с поддержкой LaTeX
+After=graphical.target
+
+[Service]
+Type=application
+ExecStart=/opt/markdown-editor/markdown-editor
+WorkingDirectory=/opt/markdown-editor
+Environment=QTWEBENGINE_CHROMIUM_FLAGS=--disable-gpu --disable-gpu-compositing
+Environment=QTWEBENGINE_SETTINGS={"enable_gpu": "false"}
+
+[Install]
+WantedBy=graphical.target
