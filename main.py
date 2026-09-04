@@ -9,6 +9,7 @@ import sys
 os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = (
     "--disable-gpu --disable-gpu-compositing --disable-software-rasterizer"
 )
+os.environ["QTWEBENGINE_SETTINGS"] = '{"enable_gpu": "false"}'
 
 from PyQt6.QtWidgets import QApplication
 
