@@ -10,3 +10,26 @@ python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "SIM", "RUF", "PIE", "LOG", "BLE", "S110", "EXE001"]
+ignore = [
+    "E402",      # module level import not at top (logger before imports)
+    "E501",      # line too long
+    "S110",      # try-except-pass (already fixed)
+    "RUF001",    # ambiguous Unicode character in string
+    "RUF002",    # ambiguous Unicode character in docstring
+    "RUF003",    # ambiguous Unicode character in comment
+    "N802",      # function name lowercase (PyQt overrides)
+    "N815",      # variable mixedCase in class scope (PyQt slots)
+    "BLE001",    # blind exception (file_operations has user-facing error messages)
+    "SIM105",    # contextlib.suppress (style preference)
+    "SIM108",    # ternary operator (style preference)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]

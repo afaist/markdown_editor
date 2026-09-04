@@ -32,19 +32,18 @@ class TestCalloutProcessor:
         for callout_type in ["NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION"]:
             html = f"<blockquote><p>[!{callout_type}] Тест</p></blockquote>"
             result = cp.process(html)
-            assert f'callout-{callout_type.lower()}' in result
+            assert f"callout-{callout_type.lower()}" in result
 
     def test_multiple_callouts_in_one_blockquote(self):
         """Несколько callouts в одном blockquote."""
         cp = CalloutProcessor()
 
         html = (
-            "<blockquote><p>[!NOTE] Первая заметка</p>"
-            "<p>[!WARNING] Предупреждение</p></blockquote>"
+            "<blockquote><p>[!NOTE] Первая заметка</p><p>[!WARNING] Предупреждение</p></blockquote>"
         )
         result = cp.process(html)
-        assert 'callout-note' in result
-        assert 'callout-warning' in result
+        assert "callout-note" in result
+        assert "callout-warning" in result
 
     def test_callout_with_multiple_paragraphs(self):
         """Callout с несколькими абзацами."""
@@ -55,7 +54,7 @@ class TestCalloutProcessor:
             "<p>Первый абзац</p><p>Второй абзац</p></blockquote>"
         )
         result = cp.process(html)
-        assert 'callout-note' in result
+        assert "callout-note" in result
         assert "Первый абзац" in result
         assert "Второй абзац" in result
 
@@ -66,7 +65,7 @@ class TestCalloutProcessor:
         for variant in ["[!note]", "[!Note]", "[!NOTE]"]:
             html = f"<blockquote><p>{variant} Тест</p></blockquote>"
             result = cp.process(html)
-            assert 'callout-note' in result
+            assert "callout-note" in result
 
     def test_mixed_blockquote_and_callout(self):
         """Смешанные blockquote и callouts."""
@@ -78,6 +77,6 @@ class TestCalloutProcessor:
             "<blockquote><p>Обычная цитата</p></blockquote>"
         )
         result = cp.process(html)
-        assert 'callout-note' in result
+        assert "callout-note" in result
         # Обычный blockquote должен остаться без изменений
         assert "<blockquote>" in result

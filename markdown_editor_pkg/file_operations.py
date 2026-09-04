@@ -54,7 +54,7 @@ class FileIO:
         QMessageBox.critical(self._editor, title, message)
 
     def _read_file(self, path: str) -> str:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return f.read()
 
     def _write_file(self, path: str, content: str) -> None:
@@ -240,24 +240,18 @@ class FileExport:
                     return
 
                 try:
-                    self._editor.preview.page().loadFinished.disconnect(
-                        on_load_finished
-                    )
+                    self._editor.preview.page().loadFinished.disconnect(on_load_finished)
                 except TypeError:
                     pass
 
                 page = self._editor.preview.page()
                 if page is None:
-                    self._error_msg(
-                        "Ошибка", "Страница предпросмотра не инициализирована."
-                    )
+                    self._error_msg("Ошибка", "Страница предпросмотра не инициализирована.")
                     self._status_msg("")
                     self._cleanup_temp_file(tmp_path)
                     return
 
-                QTimer.singleShot(
-                    500, lambda: self._do_pdf_write(page, filepath, tmp_path)
-                )
+                QTimer.singleShot(500, lambda: self._do_pdf_write(page, filepath, tmp_path))
 
             self._editor.preview.page().loadFinished.connect(on_load_finished)
 

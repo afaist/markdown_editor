@@ -43,9 +43,7 @@ class ThemeFontHandler:
         """Установить тему редактора."""
         self.editor.theme_manager.set_editor_theme(theme_name, self.editor.editor)
         if self.editor._statusbar_ref:
-            self.editor._statusbar_ref.showMessage(
-                f"Тема редактора: {theme_name.capitalize()}"
-            )
+            self.editor._statusbar_ref.showMessage(f"Тема редактора: {theme_name.capitalize()}")
 
     # ─── Шрифты ─────────────────────────────────────────────────────────
 
@@ -78,16 +76,12 @@ class ThemeFontHandler:
         """Сбросить шрифт к значениям по умолчанию."""
         self.editor.theme_manager.reset_font_to_default(self.editor.editor)
         if self.editor.font_combo:
-            font_idx = self.editor.font_combo.findText(
-                "Consolas", Qt.MatchFlag.MatchExactly
-            )
+            font_idx = self.editor.font_combo.findText("Consolas", Qt.MatchFlag.MatchExactly)
             if font_idx >= 0:
                 self.editor.font_combo.setCurrentIndex(font_idx)
             else:
                 for default_font in self.editor.theme_manager.DEFAULT_FONTS:
-                    idx = self.editor.font_combo.findText(
-                        default_font, Qt.MatchFlag.MatchExactly
-                    )
+                    idx = self.editor.font_combo.findText(default_font, Qt.MatchFlag.MatchExactly)
                     if idx >= 0:
                         self.editor.font_combo.setCurrentIndex(idx)
                         break
@@ -107,6 +101,4 @@ class ThemeFontHandler:
     def _update_font_size_label(self) -> None:
         """Обновить метку с размером шрифта."""
         if self.editor.font_size_label:
-            self.editor.font_size_label.setText(
-                str(self.editor.theme_manager.font_size)
-            )
+            self.editor.font_size_label.setText(str(self.editor.theme_manager.font_size))

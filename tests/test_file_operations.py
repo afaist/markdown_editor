@@ -49,9 +49,7 @@ class TestFileOperationsIO:
         self.editor.editor.setPlainText("тест")
 
         # Patch QFileDialog in the file_operations module where it is used
-        with mock.patch(
-            "markdown_editor_pkg.file_operations.QFileDialog"
-        ) as mock_qfile_dialog:
+        with mock.patch("markdown_editor_pkg.file_operations.QFileDialog") as mock_qfile_dialog:
             mock_qfile_dialog.getSaveFileName.return_value = ("/tmp/test.md", "")
             self.editor.file_ops.save_file()
 
@@ -63,9 +61,7 @@ class TestFileOperationsIO:
         self.editor.editor.setPlainText("содержимое файла")
 
         # Patch QFileDialog in the file_operations module where it is used
-        with mock.patch(
-            "markdown_editor_pkg.file_operations.QFileDialog"
-        ) as mock_qfile_dialog:
+        with mock.patch("markdown_editor_pkg.file_operations.QFileDialog") as mock_qfile_dialog:
             mock_qfile_dialog.getSaveFileName.return_value = ("/tmp/new_file.md", "")
             self.editor.file_ops.save_file_as()
 
@@ -79,12 +75,10 @@ class TestFileOperationsIO:
         self.editor.editor.setPlainText("")
 
         # Patch QMessageBox and QFileDialog in the file_operations module
-        with mock.patch(
-            "markdown_editor_pkg.file_operations.QMessageBox"
-        ) as mock_qmsg_box, mock.patch(
-            "markdown_editor_pkg.file_operations.QFileDialog"
-        ) as mock_qfile_dialog:
-
+        with (
+            mock.patch("markdown_editor_pkg.file_operations.QMessageBox") as mock_qmsg_box,
+            mock.patch("markdown_editor_pkg.file_operations.QFileDialog") as mock_qfile_dialog,
+        ):
             mock_qfile_dialog.getSaveFileName.return_value = ("/tmp/new.md", "")
 
             self.editor.file_ops.new_file()
@@ -105,9 +99,7 @@ class TestFileOperationsIO:
         self.editor.editor.setPlainText("есть изменения")
 
         # Используем mock.patch для патчинга QMessageBox в модуле file_operations
-        with mock.patch(
-            "markdown_editor_pkg.file_operations.QMessageBox"
-        ) as mock_qmsg_box:
+        with mock.patch("markdown_editor_pkg.file_operations.QMessageBox") as mock_qmsg_box:
             # Устанавливаем возвращаемое значение для метода question
             mock_qmsg_box.question.return_value = mock_qmsg_box.StandardButton.No
             self.editor.file_ops.new_file()
@@ -129,12 +121,10 @@ class TestFileOperationsIO:
         self.editor.editor.setPlainText("важный текст")
 
         # Используем mock.patch для патчинга QMessageBox и QFileDialog в модуле file_operations
-        with mock.patch(
-            "markdown_editor_pkg.file_operations.QMessageBox"
-        ) as mock_qmsg_box, mock.patch(
-            "markdown_editor_pkg.file_operations.QFileDialog"
-        ) as mock_qfile_dialog:
-
+        with (
+            mock.patch("markdown_editor_pkg.file_operations.QMessageBox") as mock_qmsg_box,
+            mock.patch("markdown_editor_pkg.file_operations.QFileDialog") as mock_qfile_dialog,
+        ):
             # Если save_file_as вызывается (например, если current_file был None),
             # нужно вернуть путь. Но в данном тесте current_file есть.
             # Однако, если логика new_file сначала сбрасывает current_file в None,
@@ -157,9 +147,7 @@ class TestFileOperationsIO:
         self.editor.editor.setPlainText("важный текст")
 
         # Используем mock.patch для патчинга QMessageBox в модуле file_operations
-        with mock.patch(
-            "markdown_editor_pkg.file_operations.QMessageBox"
-        ) as mock_qmsg_box:
+        with mock.patch("markdown_editor_pkg.file_operations.QMessageBox") as mock_qmsg_box:
             # Устанавливаем возвращаемое значение для метода question
             mock_qmsg_box.question.return_value = mock_qmsg_box.StandardButton.Cancel
             self.editor.file_ops.new_file()
@@ -191,14 +179,12 @@ class TestFileOperationsExport:
 
         self.editor.editor.setPlainText("# Hello World")
 
-        with mock.patch(
-            "markdown_editor_pkg.file_operations.QFileDialog"
-        ) as mock_qfile_dialog:
+        with mock.patch("markdown_editor_pkg.file_operations.QFileDialog") as mock_qfile_dialog:
             mock_qfile_dialog.getSaveFileName.return_value = (temp_path, "")
             self.editor.file_export.export_to_html()
 
         assert os.path.exists(temp_path)
-        with open(temp_path, "r") as f:
+        with open(temp_path) as f:
             content = f.read()
             assert "<h1" in content
             assert "Hello World" in content
@@ -214,9 +200,7 @@ class TestFileOperationsExport:
 
         self.editor.editor.setPlainText("# Test")
 
-        with mock.patch(
-            "markdown_editor_pkg.file_operations.QFileDialog"
-        ) as mock_qfile_dialog:
+        with mock.patch("markdown_editor_pkg.file_operations.QFileDialog") as mock_qfile_dialog:
             mock_qfile_dialog.getSaveFileName.return_value = (temp_path, "")
             self.editor.file_export.export_to_html()
 

@@ -213,7 +213,6 @@ class ToolbarBuilder:
             action = QAction(text, parent)
             action.triggered.connect(callback)
             toolbar.addAction(action)
-            
 
         self._build_font_controls(toolbar, parent)
 
@@ -357,9 +356,7 @@ class MenuBuilder:
         file_menu.addSeparator()
         self._add_action(file_menu, "Экспорт в HTML", parent.file_export.export_to_html)
         self._add_action(file_menu, "Экспорт в PDF", parent.file_export.export_to_pdf)
-        self._add_action(
-            file_menu, "Настройки PDF-экспорта...", parent._show_pdf_settings
-        )
+        self._add_action(file_menu, "Настройки PDF-экспорта...", parent._show_pdf_settings)
         file_menu.addSeparator()
         self._add_action(
             file_menu,
@@ -429,9 +426,7 @@ class MenuBuilder:
         # Темы предпросмотра
         self._add_action(view_menu, "Тема: светлая", lambda: parent.set_theme("light"))
         self._add_action(view_menu, "Тема: тёмная", lambda: parent.set_theme("dark"))
-        self._add_action(
-            view_menu, "Тема: контрастная", lambda: parent.set_theme("contrast")
-        )
+        self._add_action(view_menu, "Тема: контрастная", lambda: parent.set_theme("contrast"))
         view_menu.addSeparator()
 
         # Темы редактора

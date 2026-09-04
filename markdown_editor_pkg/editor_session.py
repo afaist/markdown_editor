@@ -30,7 +30,7 @@ class SessionHandler:
         if last_file and os.path.exists(last_file):
             self.editor.preview_timer.stop()
             try:
-                with open(last_file, "r", encoding="utf-8") as f:
+                with open(last_file, encoding="utf-8") as f:
                     content = f.read()
                 self.editor._set_editor_text_without_dirty(content)
                 self.editor.current_file = last_file

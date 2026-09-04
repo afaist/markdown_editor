@@ -268,8 +268,12 @@ markdown_editor/
 ├── tests/                       # Юнит‑тесты (pytest)
 │   ├── conftest.py              # Настройка pytest (Qt headless)
 │   └── test_*.py                # Тесты компонентов
+├── .github/                     # CI/CD
+│   └── workflows/
+│       └── ci.yml               # GitHub Actions (pytest + ruff + mypy)
+├── .pre-commit-config.yaml      # Pre-commit hooks (ruff + mypy)
 ├── requirements.txt             # Зависимости Python
-├── pyproject.toml               # Конфигурация pytest и mypy
+├── pyproject.toml               # Конфигурация pytest, mypy, ruff
 ├── README.md                    # Этот файл
 └── venv/                        # Виртуальное окружение
 ```
@@ -340,21 +344,68 @@ markdown_editor/
 ### Запуск тестов
 
 ```bash
-# Через unittest
-python test_markdown_editor.py
+# pytest (все 151 тест)
+python3 -m pytest tests/ -v
 
-# Через pytest
-python3 -m pytest test_markdown_editor.py -v
-
-# Быстрый тестовый скрипт
-python test_runner.py
+# С покрытием
+python3 -m pytest tests/ -v --cov=markdown_editor_pkg --cov-report=term-missing
 ```
 
 > **Примечание:** Для тестирования используется `QT_QPA_PLATFORM=offscreen`, чтобы запускать Qt без графической оболочки.
 
+### Линтинг и статический анализ
+
+```bash
+# ruff — линтинг и форматирование
+ruff check markdown_editor_pkg/ tests/      # проверка
+ruff check --fix markdown_editor_pkg/ tests/ # автоисправление
+ruff format markdown_editor_pkg/ tests/      # форматирование
+
+# mypy — проверка типов
+mypy markdown_editor_pkg/
+```
+
+### Pre-commit хуки
+
+```bash
+# Установка
+pip install pre-commit
+pre-commit install
+
+# Ручной запуск
+pre-commit run --all-files
+```
+
+### CI/CD
+
+GitHub Actions автоматически запускается при push/pull request:
+- **test** — pytest на Python 3.12
+- **lint** — ruff check + ruff format + mypy
+
+Конфигурация: `.github/workflows/ci.yml`
+
 ### Настройка тестов
 
-Конфигурация pytest находится в файле `conftest.py` — создаётся единый экземпляр `QApplication` для всех тестов.
+Конфигурация pytest находится в `pyproject.toml` — создаётся единый экземпляр `QApplication` для всех тестов в `tests/conftest.py`.
+
+### Структура тестов
+
+| Файл | Покрытие |
+|------|----------|
+| `test_latex_processor.py` | LaTeXProcessor |
+| `test_callout_processor.py` | CalloutProcessor |
+| `test_strikethrough.py` | StrikethroughProcessor |
+| `test_themes.py` | ThemesManager |
+| `test_font_settings.py` | Font settings |
+| `test_session_manager.py` | SessionManager |
+| `test_prism_processor.py` | PrismJSProcessor |
+| `test_markdown_render.py` | MarkdownRenderer |
+| `test_text_insertions.py` | TextInsertions |
+| `test_file_operations.py` | FileIO + FileExport |
+| `test_find_replace.py` | FindReplaceHandler |
+| `test_header_footer_dialog.py` | HeaderFooterDialog |
+| `test_pdf_headers.py` | PDF headers |
+| `test_editor_ui.py` | Editor UI |
 
 ## 🛠️ Решение проблем
 

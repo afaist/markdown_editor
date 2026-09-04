@@ -156,10 +156,8 @@ class MarkdownEditorPyQt(QMainWindow):
         # Подключаем скролл редактора
         vbar = self.editor.verticalScrollBar()
         if vbar is not None:
-            vbar.valueChanged.connect(
-                self.event_handler.sync_scroll_from_editor
-            )
-        
+            vbar.valueChanged.connect(self.event_handler.sync_scroll_from_editor)
+
         # Инжектим JavaScript для отслеживания скролла в превью
         self._inject_scroll_tracker_js()
 
@@ -167,77 +165,81 @@ class MarkdownEditorPyQt(QMainWindow):
         """Инжектит JavaScript для отслеживания скролла в QWebEngineView."""
         if self.preview is None:
             return
-        
+
         page = self.preview.page()
         if page is None:
             return
-        
+
         # Создаём объект-мост для передачи событий из JS в PyQt
         from PyQt6.QtCore import QObject, pyqtSlot
         from PyQt6.QtWebChannel import QWebChannel
-        
+
         class ScrollBridge(QObject):
             """Мост между JavaScript и PyQt для событий скролла."""
+
             _handler: EventHandler
             _isScrolling: bool = False  # type: ignore[misc]
-            
+
             @pyqtSlot(float)
             def onPreviewScroll(self, scroll_pct: float) -> None:
                 self._handler.on_preview_scroll(scroll_pct)  # type: ignore[attr-defined]
-            
+
             @pyqtSlot()
             def onScrollFromEditor(self) -> None:
                 """Устанавливает флаг, что скролл инициирован из редактора."""
                 self._handler._scroll_from_editor = True  # type: ignore[attr-defined]
-        
+
         self._scroll_bridge = ScrollBridge()
         self._scroll_bridge._handler = self.event_handler  # type: ignore[attr-defined]
-        
+
         # Создаём QWebChannel и регистрируем объект
         self._scroll_channel = QWebChannel()
         self._scroll_channel.registerObject("qt_object", self._scroll_bridge)
-        
+
         # Запускаем JS-трекер сразу (без ожидания loadFinished)
         # Это нужно, потому что setHtml не вызывает loadFinished
         from PyQt6.QtCore import QTimer
+
         QTimer.singleShot(500, lambda: self._run_scroll_tracker())
-    
+
     def _run_scroll_tracker(self) -> None:
         """Запускает JS-трекер скролла."""
         if self.preview is None:
             return
-        
+
         page = self.preview.page()
         if page is None:
             return
-        
+
         # Регистрируем QWebChannel
         page.setWebChannel(self._scroll_channel)  # type: ignore[union-attr]
-        
+
         # Запускаем JS-трекер (он сам подождёт появления qt_object)
         from PyQt6.QtCore import QTimer
+
         QTimer.singleShot(100, lambda: page.runJavaScript(self._get_scroll_js()))  # type: ignore[union-attr]
 
     def _register_scroll_channel(self) -> None:
         """Регистрирует QWebChannel при обновлении превью."""
         if self.preview is None:
             return
-        
+
         page = self.preview.page()
         if page is None:
             return
-        
+
         # Регистрируем QWebChannel
         page.setWebChannel(self._scroll_channel)  # type: ignore[union-attr]
-        
+
         # Запускаем JS-трекер (он сам подождёт появления qt_object)
         from PyQt6.QtCore import QTimer
+
         QTimer.singleShot(50, lambda: page.runJavaScript(self._get_scroll_js()))  # type: ignore[union-attr]
-    
+
     def _check_and_init_scroll_tracker(self, page) -> None:
         """Проверяет существование qt_object и инициализирует трекер."""
         page.runJavaScript(self._get_scroll_js())
-    
+
     def _get_scroll_js(self) -> str:
         """Возвращает JavaScript-код для отслеживания скролла."""
         return """
@@ -245,17 +247,17 @@ class MarkdownEditorPyQt(QMainWindow):
     var lastPct = -1;
     var bridge = null;
     var scrollPollingStarted = false;
-    
+
     function startPolling() {
         if (scrollPollingStarted) return;
         scrollPollingStarted = true;
-        
+
         // Опрос скролла каждые 100мс вместо событий scroll
         setInterval(function() {
             var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             var scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
             var pct = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
-            
+
             if (Math.abs(pct - lastPct) > 0.001) {
                 lastPct = pct;
                 // Не отправляем событие, если скролл инициирован из редактора
@@ -269,7 +271,7 @@ class MarkdownEditorPyQt(QMainWindow):
             }
         }, 100);
     }
-    
+
     // Ждём появления qt_object из QWebChannel
     function waitForBridge() {
         try {
@@ -283,7 +285,7 @@ class MarkdownEditorPyQt(QMainWindow):
             setTimeout(waitForBridge, 50);
         }
     }
-    
+
     // Запускаем ожидание
     waitForBridge();
 })();
@@ -348,7 +350,7 @@ class MarkdownEditorPyQt(QMainWindow):
     # Синхронизация редактора и предпросмотра
     def _scroll_preview_to_cursor(self) -> None:
         """Прокручивает предпросмотр к строке, где находится курсор.
-        
+
         Вызывается из update_preview после обновления HTML, чтобы ID заголовков
         уже были доступны в DOM.
         """
@@ -356,7 +358,7 @@ class MarkdownEditorPyQt(QMainWindow):
             cursor = self.editor.textCursor()
             block = cursor.block()
             line_text = block.text().strip()
-            if not line_text or not line_text.startswith('#'):
+            if not line_text or not line_text.startswith("#"):
                 return
 
             # Генерируем якорь как python-markdown toc extension:

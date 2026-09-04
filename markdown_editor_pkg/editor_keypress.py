@@ -101,9 +101,7 @@ class MarkdownTextEdit(QTextEdit):
             # Удаляем маркер с текущей строки (оставляем строку пустой)
             # Удаляем: от начала строки до конца маркера
             cursor.movePosition(cursor.MoveOperation.StartOfLine)
-            cursor.movePosition(
-                cursor.MoveOperation.EndOfLine, cursor.MoveMode.KeepAnchor
-            )
+            cursor.movePosition(cursor.MoveOperation.EndOfLine, cursor.MoveMode.KeepAnchor)
             cursor.removeSelectedText()
             # Вставляем пустую строку и не добавляем маркер
             cursor.insertText("\n")
@@ -116,9 +114,7 @@ class MarkdownTextEdit(QTextEdit):
             # Пустая цитата — завершаем цитату
             # Удаляем маркер цитаты с текущей строки
             cursor.movePosition(cursor.MoveOperation.StartOfLine)
-            cursor.movePosition(
-                cursor.MoveOperation.EndOfLine, cursor.MoveMode.KeepAnchor
-            )
+            cursor.movePosition(cursor.MoveOperation.EndOfLine, cursor.MoveMode.KeepAnchor)
             cursor.removeSelectedText()
             cursor.insertText("\n")
             return True

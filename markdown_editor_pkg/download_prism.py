@@ -35,7 +35,6 @@ def main():
     files_to_download = [
         # Основной JS
         ("prism.min.js", f"{base_url}/prism.min.js"),
-
         # Основные языки (Python, Java, C, C++, JS, TS, Bash, SQL, CSS, HTML)
         ("components/prism-python.min.js", f"{base_url}/components/prism-python.min.js"),
         ("components/prism-java.min.js", f"{base_url}/components/prism-java.min.js"),
@@ -47,7 +46,6 @@ def main():
         ("components/prism-sql.min.js", f"{base_url}/components/prism-sql.min.js"),
         ("components/prism-css.min.js", f"{base_url}/components/prism-css.min.js"),
         ("components/prism-markup.min.js", f"{base_url}/components/prism-markup.min.js"),
-
         # CSS Темы Prism.js
         ("themes/prism-okaidia.min.css", f"{base_url}/themes/prism-okaidia.min.css"),
         ("themes/prism-tomorrow.min.css", f"{base_url}/themes/prism-tomorrow.min.css"),

@@ -21,15 +21,9 @@ class HeaderFooterDialog(QDialog):
         self.setMinimumWidth(400)
 
         # Значения по умолчанию
-        self.show_headers = (
-            current_headers.get("show_headers", True) if current_headers else True
-        )
-        self.header_text = (
-            current_headers.get("header_text", "") if current_headers else ""
-        )
-        self.footer_text = (
-            current_headers.get("footer_text", "") if current_headers else ""
-        )
+        self.show_headers = current_headers.get("show_headers", True) if current_headers else True
+        self.header_text = current_headers.get("header_text", "") if current_headers else ""
+        self.footer_text = current_headers.get("footer_text", "") if current_headers else ""
 
         self._build_ui()
 
@@ -46,16 +40,12 @@ class HeaderFooterDialog(QDialog):
 
         self.header_edit = QLineEdit()
         self.header_edit.setText(self.header_text)
-        self.header_edit.setPlaceholderText(
-            "Текст верхнего колонтитула (например, название файла)"
-        )
+        self.header_edit.setPlaceholderText("Текст верхнего колонтитула (например, название файла)")
         form.addRow("Верхний колонтитул:", self.header_edit)
 
         self.footer_edit = QLineEdit()
         self.footer_edit.setText(self.footer_text)
-        self.footer_edit.setPlaceholderText(
-            "Текст нижнего колонтитула (например, markdown_editor)"
-        )
+        self.footer_edit.setPlaceholderText("Текст нижнего колонтитула (например, markdown_editor)")
         form.addRow("Нижний колонтитул:", self.footer_edit)
 
         layout.addLayout(form)

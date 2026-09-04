@@ -131,7 +131,9 @@ class TestEditorUI:
                 shortcuts.append(sc.toString())
 
         # Должно быть много shortcuts (меню + markdown menu)
-        assert len(shortcuts) > 10, f"Ожидается >10 shortcuts, найдено {len(shortcuts)}: {shortcuts}"
+        assert len(shortcuts) > 10, (
+            f"Ожидается >10 shortcuts, найдено {len(shortcuts)}: {shortcuts}"
+        )
 
         # Проверяем наличие конкретных shortcuts (в приложении используются Ctrl+Shift+X для markdown)
         sc_str = " ".join(shortcuts)

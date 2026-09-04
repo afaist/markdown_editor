@@ -60,15 +60,30 @@ class MarkdownMenuBuilder:
         if styles_menu is None:
             return
 
-        self._add_action(styles_menu, "Жирный", parent.text_insertions.insert_bold,  # type: ignore[attr-defined]
-                         "Ctrl+B")
-        self._add_action(styles_menu, "Курсив", parent.text_insertions.insert_italic,  # type: ignore[attr-defined]
-                         "Ctrl+I")
-        self._add_action(styles_menu, "Зачёркнутый",  # type: ignore[attr-defined]
-                         parent.text_insertions.insert_strikethrough,  # type: ignore[attr-defined]
-                         "Ctrl+Shift+X")
-        self._add_action(styles_menu, "Встроенный код",  # type: ignore[attr-defined]
-                         parent.text_insertions.insert_inline_code, "Ctrl+`")  # type: ignore[attr-defined]
+        self._add_action(
+            styles_menu,
+            "Жирный",
+            parent.text_insertions.insert_bold,  # type: ignore[attr-defined]
+            "Ctrl+B",
+        )
+        self._add_action(
+            styles_menu,
+            "Курсив",
+            parent.text_insertions.insert_italic,  # type: ignore[attr-defined]
+            "Ctrl+I",
+        )
+        self._add_action(
+            styles_menu,
+            "Зачёркнутый",  # type: ignore[attr-defined]
+            parent.text_insertions.insert_strikethrough,  # type: ignore[attr-defined]
+            "Ctrl+Shift+X",
+        )
+        self._add_action(
+            styles_menu,
+            "Встроенный код",  # type: ignore[attr-defined]
+            parent.text_insertions.insert_inline_code,
+            "Ctrl+`",
+        )  # type: ignore[attr-defined]
 
     def _build_lists(self, md_menu: QMenu, parent: QMainWindow) -> None:
         """Создать подменю Списки."""
@@ -76,15 +91,24 @@ class MarkdownMenuBuilder:
         if lists_menu is None:
             return
 
-        self._add_action(lists_menu, "Маркированный",  # type: ignore[attr-defined]
-                         parent.text_insertions.insert_unordered_list,  # type: ignore[attr-defined]
-                         "Ctrl+Shift+U")
-        self._add_action(lists_menu, "Нумерованный",  # type: ignore[attr-defined]
-                         parent.text_insertions.insert_ordered_list,  # type: ignore[attr-defined]
-                         "Ctrl+Shift+O")
-        self._add_action(lists_menu, "Список задач",  # type: ignore[attr-defined]
-                         parent.text_insertions.insert_task_list,  # type: ignore[attr-defined]
-                         "Ctrl+Shift+T")
+        self._add_action(
+            lists_menu,
+            "Маркированный",  # type: ignore[attr-defined]
+            parent.text_insertions.insert_unordered_list,  # type: ignore[attr-defined]
+            "Ctrl+Shift+U",
+        )
+        self._add_action(
+            lists_menu,
+            "Нумерованный",  # type: ignore[attr-defined]
+            parent.text_insertions.insert_ordered_list,  # type: ignore[attr-defined]
+            "Ctrl+Shift+O",
+        )
+        self._add_action(
+            lists_menu,
+            "Список задач",  # type: ignore[attr-defined]
+            parent.text_insertions.insert_task_list,  # type: ignore[attr-defined]
+            "Ctrl+Shift+T",
+        )
 
     def _build_blockquote(self, md_menu: QMenu, parent: QMainWindow) -> None:
         """Добавить пункт Цитата."""
@@ -119,24 +143,60 @@ class MarkdownMenuBuilder:
         if latex_menu is None:
             return
 
-        self._add_action(latex_menu, "Встроенная ($...$)",  # type: ignore[attr-defined]
-                         parent.text_insertions.insert_inline_latex, "Ctrl+L")  # type: ignore[attr-defined]
-        self._add_action(latex_menu, "Блочная ($...$)",  # type: ignore[attr-defined]
-                         parent.text_insertions.insert_block_latex, "Ctrl+Shift+L")  # type: ignore[attr-defined]
-        self._add_action(latex_menu, "Дробь (\\frac)",  # type: ignore[attr-defined]
-                         parent.text_insertions.insert_latex_fraction, "Ctrl+Shift+F")  # type: ignore[attr-defined]
-        self._add_action(latex_menu, "Квадратный корень (\\sqrt)",  # type: ignore[attr-defined]
-                         parent.text_insertions.insert_latex_sqrt, "Ctrl+Shift+R")  # type: ignore[attr-defined]
-        self._add_action(latex_menu, "Надстрочный",  # type: ignore[attr-defined]
-                         parent.text_insertions.insert_latex_superscript, "Ctrl+Shift+S")  # type: ignore[attr-defined]
-        self._add_action(latex_menu, "Подстрочный",  # type: ignore[attr-defined]
-                         parent.text_insertions.insert_latex_subscript, "Ctrl+Shift+N")  # type: ignore[attr-defined]
-        self._add_action(latex_menu, "Сумма (\\sum)",  # type: ignore[attr-defined]
-                         parent.text_insertions.insert_latex_sum, "Ctrl+Shift+A")  # type: ignore[attr-defined]
-        self._add_action(latex_menu, "Интеграл (\\int)",  # type: ignore[attr-defined]
-                         parent.text_insertions.insert_latex_integral, "Ctrl+Shift+G")  # type: ignore[attr-defined]
-        self._add_action(latex_menu, "Матрица (\\begin{matrix})",  # type: ignore[attr-defined]
-                         parent.text_insertions.insert_latex_matrix, "Ctrl+Shift+M")  # type: ignore[attr-defined]
+        self._add_action(
+            latex_menu,
+            "Встроенная ($...$)",  # type: ignore[attr-defined]
+            parent.text_insertions.insert_inline_latex,
+            "Ctrl+L",
+        )  # type: ignore[attr-defined]
+        self._add_action(
+            latex_menu,
+            "Блочная ($...$)",  # type: ignore[attr-defined]
+            parent.text_insertions.insert_block_latex,
+            "Ctrl+Shift+L",
+        )  # type: ignore[attr-defined]
+        self._add_action(
+            latex_menu,
+            "Дробь (\\frac)",  # type: ignore[attr-defined]
+            parent.text_insertions.insert_latex_fraction,
+            "Ctrl+Shift+F",
+        )  # type: ignore[attr-defined]
+        self._add_action(
+            latex_menu,
+            "Квадратный корень (\\sqrt)",  # type: ignore[attr-defined]
+            parent.text_insertions.insert_latex_sqrt,
+            "Ctrl+Shift+R",
+        )  # type: ignore[attr-defined]
+        self._add_action(
+            latex_menu,
+            "Надстрочный",  # type: ignore[attr-defined]
+            parent.text_insertions.insert_latex_superscript,
+            "Ctrl+Shift+S",
+        )  # type: ignore[attr-defined]
+        self._add_action(
+            latex_menu,
+            "Подстрочный",  # type: ignore[attr-defined]
+            parent.text_insertions.insert_latex_subscript,
+            "Ctrl+Shift+N",
+        )  # type: ignore[attr-defined]
+        self._add_action(
+            latex_menu,
+            "Сумма (\\sum)",  # type: ignore[attr-defined]
+            parent.text_insertions.insert_latex_sum,
+            "Ctrl+Shift+A",
+        )  # type: ignore[attr-defined]
+        self._add_action(
+            latex_menu,
+            "Интеграл (\\int)",  # type: ignore[attr-defined]
+            parent.text_insertions.insert_latex_integral,
+            "Ctrl+Shift+G",
+        )  # type: ignore[attr-defined]
+        self._add_action(
+            latex_menu,
+            "Матрица (\\begin{matrix})",  # type: ignore[attr-defined]
+            parent.text_insertions.insert_latex_matrix,
+            "Ctrl+Shift+M",
+        )  # type: ignore[attr-defined]
 
     def _build_extra(self, md_menu: QMenu, parent: QMainWindow) -> None:
         """Добавить дополнительные пункты."""
@@ -156,8 +216,12 @@ class MarkdownMenuBuilder:
         md_menu.addAction(comment_action)
 
     @staticmethod
-    def _add_action(menu: QMenu, text: str, callback: Callable[[], None],  # type: ignore[type-arg]
-                    shortcut: str = "") -> None:
+    def _add_action(
+        menu: QMenu,
+        text: str,
+        callback: Callable[[], None],  # type: ignore[type-arg]
+        shortcut: str = "",
+    ) -> None:
         """Добавить QAction в меню."""
         action = QAction(text, menu)  # Используем menu как parent для QAction, если это QMenu
         if shortcut:

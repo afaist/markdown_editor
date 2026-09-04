@@ -36,7 +36,7 @@ class TestThemeSwitching:
         assert "light" in themes
         assert "dark" in themes
         assert "contrast" in themes
-        for theme_name, css in themes.items():
+        for _theme_name, css in themes.items():
             assert isinstance(css, str)
             assert len(css) > 0
 
@@ -66,7 +66,7 @@ class TestEditorTheme:
         assert "light" in styles
         assert "dark" in styles
         assert "contrast" in styles
-        for theme_name, css in styles.items():
+        for _theme_name, css in styles.items():
             assert isinstance(css, str)
             assert len(css) > 0
 

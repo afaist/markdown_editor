@@ -61,9 +61,7 @@ class EditorCursor:
             end_pos = cursor.position()
             start_pos = end_pos - len(placeholder) - len(prefix)
             cursor.setPosition(start_pos)
-            cursor.setPosition(
-                start_pos + len(placeholder), QTextCursor.MoveMode.KeepAnchor
-            )
+            cursor.setPosition(start_pos + len(placeholder), QTextCursor.MoveMode.KeepAnchor)
         else:
             cursor.insertText(f"{prefix}{selection}{suffix}")
 
@@ -125,7 +123,7 @@ class TextInsertions:
         full_text = c.full_text()
         # Если файл не пустой — добавляем пустую строку перед заголовком
         if full_text.strip() and not full_text.endswith("\n\n"):
-                cursor.insertText("\n")
+            cursor.insertText("\n")
         hashes = "#" * level
         if selection:
             cursor.insertText(f"{hashes} {selection}")
@@ -196,7 +194,7 @@ class TextInsertions:
             )
         else:
             lines = [line for line in selection.split("\n") if line.strip()]
-            list_items = "\n".join(f"{i+1}. {line}" for i, line in enumerate(lines))
+            list_items = "\n".join(f"{i + 1}. {line}" for i, line in enumerate(lines))
             cursor.insertText(list_items)
 
         c.set_text_cursor(cursor)
@@ -366,9 +364,7 @@ class TextInsertions:
     def insert_link(self) -> None:
         url, ok1 = QInputDialog.getText(self.editor, "Вставить ссылку", "URL:")
         if ok1 and url:
-            text, ok2 = QInputDialog.getText(
-                self.editor, "Вставить ссылку", "Текст ссылки:"
-            )
+            text, ok2 = QInputDialog.getText(self.editor, "Вставить ссылку", "Текст ссылки:")
             if ok2:
                 c = self._cursor()
                 cursor = c.text_cursor()

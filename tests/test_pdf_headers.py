@@ -28,7 +28,7 @@ class TestPdfHeaders:
         assert 'class="page-header"' in html
         assert 'class="page-footer"' in html
         assert "TestDoc.md" in html
-        assert 'Страница {PAGE_NUM}' in html
+        assert "Страница {PAGE_NUM}" in html
 
     def test_render_without_headers(self):
         """Рендеринг без колонтитулов не включает page-header/footer."""

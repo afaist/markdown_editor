@@ -16,17 +16,17 @@ class CalloutProcessor:
     CALLOUT_TYPES: ClassVar[set[str]] = {"NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION"}
 
     BLOCKQUOTE_PATTERN = re.compile(
-        r'<blockquote>(.*?)</blockquote>',
+        r"<blockquote>(.*?)</blockquote>",
         flags=re.DOTALL | re.IGNORECASE,
     )
 
     PARAGRAPH_PATTERN = re.compile(
-        r'<p>(.*?)</p>',
+        r"<p>(.*?)</p>",
         flags=re.DOTALL | re.IGNORECASE,
     )
 
     TYPE_PATTERN = re.compile(
-        r'\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]',
+        r"\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]",
         flags=re.IGNORECASE,
     )
 

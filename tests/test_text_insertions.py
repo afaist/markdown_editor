@@ -462,9 +462,7 @@ class TestTextInsertions:
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
-        with patch(
-            "markdown_editor_pkg.text_insertions.QInputDialog.getText"
-        ) as mock_input:
+        with patch("markdown_editor_pkg.text_insertions.QInputDialog.getText") as mock_input:
             mock_input.side_effect = [
                 ("https://example.com", True),  # URL
                 ("Пример", True),  # Текст ссылки
@@ -484,9 +482,7 @@ class TestTextInsertions:
         mock.editor.setPlainText("Исходный текст")
         ti = TextInsertions(mock)
 
-        with patch(
-            "markdown_editor_pkg.text_insertions.QInputDialog.getText"
-        ) as mock_input:
+        with patch("markdown_editor_pkg.text_insertions.QInputDialog.getText") as mock_input:
             mock_input.return_value = ("", False)  # Отмена
             ti.insert_link()
 
@@ -502,9 +498,7 @@ class TestTextInsertions:
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
-        with patch(
-            "markdown_editor_pkg.text_insertions.QFileDialog.getOpenFileName"
-        ) as mock_file:
+        with patch("markdown_editor_pkg.text_insertions.QFileDialog.getOpenFileName") as mock_file:
             mock_file.return_value = ("/path/to/image.png", "")
             ti.insert_image()
 
@@ -521,9 +515,7 @@ class TestTextInsertions:
         mock.editor.setPlainText("Исходный текст")
         ti = TextInsertions(mock)
 
-        with patch(
-            "markdown_editor_pkg.text_insertions.QFileDialog.getOpenFileName"
-        ) as mock_file:
+        with patch("markdown_editor_pkg.text_insertions.QFileDialog.getOpenFileName") as mock_file:
             mock_file.return_value = ("", "")  # Отмена
             ti.insert_image()
 
@@ -539,9 +531,7 @@ class TestTextInsertions:
         mock = self._create_mock_editor()
         ti = TextInsertions(mock)
 
-        with patch(
-            "markdown_editor_pkg.text_insertions.QFileDialog.getOpenFileName"
-        ) as mock_file:
+        with patch("markdown_editor_pkg.text_insertions.QFileDialog.getOpenFileName") as mock_file:
             mock_file.return_value = (r"C:\Users\img.png", "")
             ti.insert_image()
 

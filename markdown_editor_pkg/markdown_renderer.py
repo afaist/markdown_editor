@@ -158,9 +158,14 @@ class MarkdownRenderer:
         page_numbering_js = self._build_page_numbering_js(show_headers)
 
         full_html = self._build_html_document(
-            html_content, theme_name, print_styles,
-            katex_css, header_html, footer_html,
-            katex_js_code, page_numbering_js,
+            html_content,
+            theme_name,
+            print_styles,
+            katex_css,
+            header_html,
+            footer_html,
+            katex_js_code,
+            page_numbering_js,
         )
 
         # Встраиваем Prism.js

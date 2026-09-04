@@ -16,4 +16,3 @@ from PyQt6.QtWidgets import QApplication
 qt_app = QApplication.instance()
 if qt_app is None:
     qt_app = QApplication(sys.argv)
-

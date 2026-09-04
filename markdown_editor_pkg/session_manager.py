@@ -28,7 +28,7 @@ class SessionManager:
         if not SESSION_CONFIG_FILE.exists():
             return None
         try:
-            with open(SESSION_CONFIG_FILE, "r", encoding="utf-8") as f:
+            with open(SESSION_CONFIG_FILE, encoding="utf-8") as f:
                 config = json.load(f)
             return config.get("last_file")
         except (OSError, json.JSONDecodeError):
