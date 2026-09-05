@@ -82,13 +82,21 @@ Enter text in the left panel (**Markdown Editor**). The preview in the right pan
 
 #### Toolbar
 
+The toolbar contains dropdowns and buttons grouped by function:
+
+**Dropdowns:**
+
+| Control | Options | Action |
+| ------- | ------- | ------ |
+| Headings | H1–H6 | Inserts heading at selected level |
+| Styles | Bold, Italic, Strikethrough, Code | Applies selected formatting style |
+| List | Bulleted, Numbered, Task List | Inserts selected list type |
+| Font Selection | Consolas, Courier New, Fira Code, etc. | Changes editor font family |
+
+**Buttons:**
+
 | Button | Action |
 | -------- | ---------- |
-| Heading 1 | Inserts `#` (H1 heading) |
-| Heading 2 | Inserts `##` (H2 heading) |
-| Bold | Wraps selection in `**...**` |
-| Italic | Wraps selection in `*...*` |
-| List | Inserts a bulleted list |
 | Quote | Inserts `>` (quote block) |
 | Code | Inserts a code block with triple backticks |
 | LaTeX inline | Inserts `$` for inline formulas |
@@ -100,11 +108,9 @@ Enter text in the left panel (**Markdown Editor**). The preview in the right pan
 | Open | Opens a file selection dialog |
 | Save | Saves the current file |
 | Export to PDF | Exports the document to PDF |
-| Font Selection | Font combobox (Consolas, Courier New, Fira Code, etc.) |
-| Size +/− | Increase/decrease font size |
+| **+** | Increase font size |
+| **−** | Decrease font size |
 | Reset Font | Reset font and size to defaults |
-| Language | Select interface language (English / Русский) |
-| PDF Settings | Open PDF export settings dialog (headers, numbering) |
 
 #### Markdown Menu
 
@@ -253,7 +259,8 @@ markdown_editor/
 │   ├── find_replace.py          # FindReplaceDialog — find dialog
 │   ├── session_manager.py       # SessionManager — session management
 │   ├── header_footer_dialog.py  # HeaderFooterDialog — PDF headers
-│   ├── download_katex.py        # KaTeX download script
+│   ├── download_katex.py        # KaTeX download script (Python)
+│   ├── get_katex.sh             # KaTeX download script (bash)
 │   ├── download_prism.py        # Prism.js download script
 │   ├── i18n.py                  # Internationalization (i18n) — Qt QTranslator
 │   ├── i18n_build.py            # i18n build script (lupdate/lrelease)
