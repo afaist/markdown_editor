@@ -113,10 +113,10 @@ class TestEditorUI:
         heading_action = None
         for action in md_menu.actions():
             sub_menu = action.menu()
-            if sub_menu is not None and "Заголовки" in sub_menu.title():
+            if sub_menu is not None and "Headings" in sub_menu.title():
                 heading_action = sub_menu
                 break
-        assert heading_action is not None, "Подменю Заголовки не найдено"
+        assert heading_action is not None, "Headings submenu not found"
         assert len(heading_action.actions()) > 0
 
     def test_editor_shortcuts_registered(self):

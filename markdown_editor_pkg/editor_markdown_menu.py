@@ -19,19 +19,19 @@ if TYPE_CHECKING:
 
 
 class MarkdownMenuBuilder:
-    """Создаёт меню Markdown с подпунктами."""
+    """Creates Markdown menu with formatting submenus."""
 
     def __init__(self, editor: MarkdownEditorPyQt) -> None:
         self._editor = editor
 
     def build(self) -> None:
-        """Собрать меню Markdown и добавить его в menubar."""
+        """Assemble the Markdown menu and add it to the menubar."""
         parent = self._editor
         menubar = parent.menuBar()
         if menubar is None:
             return
 
-        md_menu = menubar.addMenu("Markdown")
+        md_menu = menubar.addMenu(tr("Markdown"))
         if md_menu is None:
             return
 
@@ -44,12 +44,12 @@ class MarkdownMenuBuilder:
         self._build_extra(md_menu, parent)
 
     def _build_headings(self, md_menu: QMenu, parent: QMainWindow) -> None:
-        """Создать подменю Заголовки."""
-        headings_menu = md_menu.addMenu("Заголовки")
+        """Create Headings submenu."""
+        headings_menu = md_menu.addMenu(tr("Headings"))
         if headings_menu is None:
             return
         for i in range(1, 7):
-            action = QAction(f"Заголовок {i}", parent)
+            action = QAction(tr(f"Heading {i}"), parent)
             action.setShortcut(QKeySequence(f"Ctrl+Shift+{i}"))
             action.triggered.connect(
                 lambda checked, level=i: parent.text_insertions.insert_heading(level)  # type: ignore[attr-defined]
@@ -57,26 +57,26 @@ class MarkdownMenuBuilder:
             headings_menu.addAction(action)
 
     def _build_styles(self, md_menu: QMenu, parent: QMainWindow) -> None:
-        """Создать подменю Стили."""
-        styles_menu = md_menu.addMenu("Стили")
+        """Create Styles submenu."""
+        styles_menu = md_menu.addMenu(tr("Styles"))
         if styles_menu is None:
             return
 
         self._add_action(
             styles_menu,
-            "Жирный",
+            tr("Bold"),
             parent.text_insertions.insert_bold,  # type: ignore[attr-defined]
             "Ctrl+B",
         )
         self._add_action(
             styles_menu,
-            "Курсив",
+            tr("Italic"),
             parent.text_insertions.insert_italic,  # type: ignore[attr-defined]
             "Ctrl+I",
         )
         self._add_action(
             styles_menu,
-            "Зачёркнутый",  # type: ignore[attr-defined]
+            tr("Strikethrough"),  # type: ignore[attr-defined]
             parent.text_insertions.insert_strikethrough,  # type: ignore[attr-defined]
             "Ctrl+Shift+X",
         )
@@ -88,40 +88,40 @@ class MarkdownMenuBuilder:
         )  # type: ignore[attr-defined]
 
     def _build_lists(self, md_menu: QMenu, parent: QMainWindow) -> None:
-        """Создать подменю Списки."""
-        lists_menu = md_menu.addMenu("Списки")
+        """Create Lists submenu."""
+        lists_menu = md_menu.addMenu(tr("Lists"))
         if lists_menu is None:
             return
 
         self._add_action(
             lists_menu,
-            "Маркированный",  # type: ignore[attr-defined]
+            tr("Bulleted"),  # type: ignore[attr-defined]
             parent.text_insertions.insert_unordered_list,  # type: ignore[attr-defined]
             "Ctrl+Shift+U",
         )
         self._add_action(
             lists_menu,
-            "Нумерованный",  # type: ignore[attr-defined]
+            tr("Numbered"),  # type: ignore[attr-defined]
             parent.text_insertions.insert_ordered_list,  # type: ignore[attr-defined]
             "Ctrl+Shift+O",
         )
         self._add_action(
             lists_menu,
-            "Список задач",  # type: ignore[attr-defined]
+            tr("Task List"),  # type: ignore[attr-defined]
             parent.text_insertions.insert_task_list,  # type: ignore[attr-defined]
             "Ctrl+Shift+T",
         )
 
     def _build_blockquote(self, md_menu: QMenu, parent: QMainWindow) -> None:
-        """Добавить пункт Цитата."""
-        bq_action = QAction("Цитата", parent)
+        """Add Quote menu item."""
+        bq_action = QAction(tr("Quote"), parent)
         bq_action.setShortcut(QKeySequence("Ctrl+Shift+Q"))
         bq_action.triggered.connect(parent.text_insertions.insert_blockquote)  # type: ignore[attr-defined]
         md_menu.addAction(bq_action)
 
     def _build_code(self, md_menu: QMenu, parent: QMainWindow) -> None:
-        """Создать подменю Код."""
-        code_menu = md_menu.addMenu("Код")
+        """Create Code submenu."""
+        code_menu = md_menu.addMenu(tr("Code"))
         if code_menu is None:
             return
 
@@ -140,8 +140,8 @@ class MarkdownMenuBuilder:
             code_menu.addAction(a)
 
     def _build_latex(self, md_menu: QMenu, parent: QMainWindow) -> None:
-        """Создать подменю LaTeX."""
-        latex_menu = md_menu.addMenu("LaTeX")
+        """Create LaTeX submenu."""
+        latex_menu = md_menu.addMenu(tr("LaTeX"))
         if latex_menu is None:
             return
 
@@ -153,61 +153,61 @@ class MarkdownMenuBuilder:
         )  # type: ignore[attr-defined]
         self._add_action(
             latex_menu,
-            "Блочная ($...$)",  # type: ignore[attr-defined]
+            tr("Block ($...$)"),  # type: ignore[attr-defined]
             parent.text_insertions.insert_block_latex,  # type: ignore[attr-defined]
             "Ctrl+Shift+L",
         )  # type: ignore[attr-defined]
         self._add_action(
             latex_menu,
-            "Дробь (\\frac)",  # type: ignore[attr-defined]
+            tr("Fraction (\\frac)"),  # type: ignore[attr-defined]
             parent.text_insertions.insert_latex_fraction,  # type: ignore[attr-defined]
             "Ctrl+Shift+F",
         )  # type: ignore[attr-defined]
         self._add_action(
             latex_menu,
-            "Квадратный корень (\\sqrt)",  # type: ignore[attr-defined]
+            tr("Square Root (\\sqrt)"),  # type: ignore[attr-defined]
             parent.text_insertions.insert_latex_sqrt,  # type: ignore[attr-defined]
             "Ctrl+Shift+R",
         )  # type: ignore[attr-defined]
         self._add_action(
             latex_menu,
-            "Надстрочный",  # type: ignore[attr-defined]
+            tr("Superscript"),  # type: ignore[attr-defined]
             parent.text_insertions.insert_latex_superscript,  # type: ignore[attr-defined]
             "Ctrl+Shift+S",
         )  # type: ignore[attr-defined]
         self._add_action(
             latex_menu,
-            "Подстрочный",  # type: ignore[attr-defined]
+            tr("Subscript"),  # type: ignore[attr-defined]
             parent.text_insertions.insert_latex_subscript,  # type: ignore[attr-defined]
             "Ctrl+Shift+N",
         )  # type: ignore[attr-defined]
         self._add_action(
             latex_menu,
-            "Сумма (\\sum)",  # type: ignore[attr-defined]
+            tr("Sum (\\sum)"),  # type: ignore[attr-defined]
             parent.text_insertions.insert_latex_sum,  # type: ignore[attr-defined]
             "Ctrl+Shift+A",
         )  # type: ignore[attr-defined]
         self._add_action(
             latex_menu,
-            "Интеграл (\\int)",  # type: ignore[attr-defined]
+            tr("Integral (\\int)"),  # type: ignore[attr-defined]
             parent.text_insertions.insert_latex_integral,  # type: ignore[attr-defined]
             "Ctrl+Shift+G",
         )  # type: ignore[attr-defined]
         self._add_action(
             latex_menu,
-            "Матрица (\\begin{matrix})",  # type: ignore[attr-defined]
+            tr("Matrix (\\begin{matrix})"),  # type: ignore[attr-defined]
             parent.text_insertions.insert_latex_matrix,  # type: ignore[attr-defined]
             "Ctrl+Shift+M",
         )  # type: ignore[attr-defined]
 
     def _build_extra(self, md_menu: QMenu, parent: QMainWindow) -> None:
-        """Добавить дополнительные пункты."""
-        hr_action = QAction("Разделитель (---)", parent)
+        """Add extra menu items."""
+        hr_action = QAction(tr("Horizontal Rule (---)"), parent)
         hr_action.setShortcut(QKeySequence("Ctrl+Shift+H"))
         hr_action.triggered.connect(parent.text_insertions.insert_horizontal_rule)  # type: ignore[attr-defined]
         md_menu.addAction(hr_action)
 
-        table_action = QAction("Таблица", parent)
+        table_action = QAction(tr("Table"), parent)
         table_action.setShortcut(QKeySequence("Ctrl+Shift+Tab"))
         table_action.triggered.connect(parent.text_insertions.insert_table)  # type: ignore[attr-defined]
         md_menu.addAction(table_action)
@@ -224,8 +224,8 @@ class MarkdownMenuBuilder:
         callback: Callable[[], None],  # type: ignore[type-arg]
         shortcut: str = "",
     ) -> None:
-        """Добавить QAction в меню."""
-        action = QAction(text, menu)  # Используем menu как parent для QAction, если это QMenu
+        """Add a QAction to the menu."""
+        action = QAction(text, menu)
         if shortcut:
             action.setShortcut(QKeySequence(shortcut))
         action.triggered.connect(callback)
