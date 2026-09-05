@@ -436,12 +436,16 @@ class TextInsertions:
         if full.strip() and not full.endswith("\n"):
             cursor.insertText("\n")
 
-        template = f"> [!{callout_type}]\n> {tr('text')}\n"
+        # Вставляем шаблон без завершающего \n, чтобы cursor.position()
+        # указывал ровно в конце placeholder
+        template = f"> [!{callout_type}]\n> "
         cursor.insertText(template)
+        placeholder = tr("text")
+        cursor.insertText(placeholder)
+        cursor.insertText("\n")
 
         # Выделяем placeholder для быстрого редактирования
-        placeholder = tr("text")
-        end_pos = cursor.position()
+        end_pos = cursor.position() - 1  # перед \n
         start_pos = end_pos - len(placeholder)
         cursor.setPosition(start_pos)
         cursor.setPosition(start_pos + len(placeholder), QTextCursor.MoveMode.KeepAnchor)
