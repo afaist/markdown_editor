@@ -60,7 +60,9 @@ class CalloutProcessor:
             if type_match:
                 flush()
                 current_type = type_match.group(1).lower()
-                current_paragraphs.append(p)
+                body_text = p[type_match.end():].strip()
+                if body_text:
+                    current_paragraphs.append(body_text)
             else:
                 if current_type:
                     current_paragraphs.append(p)

@@ -225,8 +225,7 @@ class ThemesManager:
     @font_family.setter
     def font_family(self, value: str) -> None:
         """Установить семейство шрифта."""
-        if value in self.DEFAULT_FONTS:
-            self._font_family = value
+        self._font_family = value
 
     def get_available_fonts(self) -> list[str]:
         """Получить список доступных шрифтов."""
@@ -270,7 +269,7 @@ class ThemesManager:
 
     def reset_font_to_default(self, text_edit: QTextEdit | None) -> None:
         """Сбросить шрифт и размер к значениям по умолчанию."""
-        self._font_family = "Consolas"
+        self._font_family = self.DEFAULT_FONTS[0]
         self._font_size = self.DEFAULT_FONT_SIZE
         if text_edit is not None:
             font = QFont(self._font_family, self._font_size)

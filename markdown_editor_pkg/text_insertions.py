@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING
 from PyQt6.QtGui import QTextCursor
 from PyQt6.QtWidgets import QFileDialog, QInputDialog
 
+from markdown_editor_pkg.i18n import tr
+
 if TYPE_CHECKING:
     from PyQt6.QtWidgets import QTextEdit
 
@@ -56,7 +58,7 @@ class EditorCursor:
 
         if not selection:
             if not placeholder:
-                placeholder = "текст"
+                placeholder = tr("text")
             cursor.insertText(f"{prefix}{placeholder}{suffix}")
             end_pos = cursor.position()
             start_pos = end_pos - len(placeholder) - len(prefix)
@@ -213,15 +215,15 @@ class TextInsertions:
             # Если текст не пустой и не заканчивается пустой строкой, добавляем пустую строку
             if full.strip() and not full.endswith("\n\n"):
                 cursor.insertText("\n")
-            text_to_insert = "- [ ] задание"
+            text_to_insert = tr("- [ ] task")
             cursor.insertText(text_to_insert)
             end_pos = cursor.position()
-            start_pos = end_pos - len("задание")
+            start_pos = end_pos - len(tr("task"))
             cursor.setPosition(start_pos)
             cursor.movePosition(
                 QTextCursor.MoveOperation.Right,
                 QTextCursor.MoveMode.KeepAnchor,
-                len("задание"),
+                len(tr("task")),
             )
         else:
             lines = [line for line in selection.split("\n") if line.strip()]
@@ -418,4 +420,3 @@ class TextInsertions:
             selection = "комментарий"
         cursor.insertText(f"<!-- {selection} -->")
         c.set_text_cursor(cursor)
-        self._notify()

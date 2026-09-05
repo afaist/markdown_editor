@@ -175,7 +175,7 @@ class TestTextInsertions:
 
         ti.insert_task_list()
         text = mock.editor.toPlainText()
-        assert "- [ ] задание" in text
+        assert "- [ ] task" in text
 
     def test_insert_heading_level_1(self):
         """Вставка заголовка H1."""

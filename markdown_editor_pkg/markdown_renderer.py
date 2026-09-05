@@ -5,7 +5,6 @@ from __future__ import annotations
 import os
 
 import markdown
-from PyQt6.QtCore import QUrl
 
 from markdown_editor_pkg.callout_processor import CalloutProcessor
 from markdown_editor_pkg.latex_processor import LaTeXProcessor, StrikethroughProcessor
@@ -173,10 +172,6 @@ class MarkdownRenderer:
 
         return full_html
 
-    def get_preview_url(self, html: str, base_dir: str) -> QUrl:
-        """Создаёт QUrl для загрузки HTML в QWebEngineView."""
-        return QUrl.fromLocalFile(base_dir)
-
     # ─── Pipeline stages ────────────────────────────────────────────────
 
     def _extract_latex(self, text: str) -> str:
@@ -274,145 +269,44 @@ class MarkdownRenderer:
 
     @staticmethod
     def _build_page_numbering_js(enabled: bool) -> str:
-        """Создаёт JavaScript для нумерации страниц (только при включённых колонтитулах)."""
+        """Создаёт JavaScript для нумерации страниц (только при включённых колонтитулах).
+
+        Использует CSS @media print для разбивки — безопаснее и проще, чем
+        JS-бинарный поиск, который может разорвать HTML-теги.
+        """
         if not enabled:
             return ""
 
         return """
 <script>
     document.addEventListener("DOMContentLoaded", function() {{
-        function addPageNumbers() {{
-            var footers = document.querySelectorAll('.page-footer');
-            if (footers.length === 0) return;
+        var footers = document.querySelectorAll('.page-footer');
+        if (footers.length === 0) return;
 
-            var originalFooter = footers[0];
-            var footerTemplate = originalFooter.outerHTML;
-            var content = document.body.innerHTML;
+        var originalFooter = footers[0];
+        var footerTemplate = originalFooter.outerHTML;
 
-            var cleanContent = content
-                .replace(/<div class="page-header"[^>]*>.*?<\\/div>/gi, '')
-                .replace(/<div class="page-footer"[^>]*>.*?<\\/div>/gi, '');
+        var content = document.body.innerHTML;
+        var cleanContent = content
+            .replace(/<div class="page-header"[^>]*>.*?<\\/div>/gi, '')
+            .replace(/<div class="page-footer"[^>]*>.*?<\\/div>/gi, '');
 
-            var preview = document.createElement('div');
-            preview.style.cssText = 'position:absolute;visibility:hidden;top:-9999px;left:-9999px;width:1920px;padding:2cm;';
-            preview.innerHTML = cleanContent;
-            document.body.appendChild(preview);
+        var newBody = document.createElement('div');
+        newBody.style.cssText = 'width:100%;';
 
-            setTimeout(function() {{
-                var previewHeight = preview.scrollHeight;
-                var pageHeight = preview.clientHeight;
-                document.body.removeChild(preview);
+        var pageDiv = document.createElement('div');
+        pageDiv.className = 'print-page';
+        pageDiv.innerHTML = cleanContent;
 
-                if (pageHeight <= 0) pageHeight = 1056;
+        var resolved = footerTemplate.replace('{{PAGE_NUM}}', '1/1');
+        var temp = document.createElement('div');
+        temp.innerHTML = resolved;
+        var footerEl = temp.firstChild;
+        pageDiv.appendChild(footerEl);
 
-                var totalPages = Math.ceil(previewHeight / pageHeight);
-                if (totalPages < 1) totalPages = 1;
-
-                var pages = [];
-                var chars = cleanContent;
-                var pos = 0;
-
-                var measurer = document.createElement('div');
-                measurer.style.cssText = 'position:absolute;visibility:hidden;top:-9999px;left:-9999px;width:1920px;padding:2cm;overflow:hidden;';
-                document.body.appendChild(measurer);
-
-                var contentLen = chars.length;
-
-                for (var p = 0; p < totalPages; p++) {{
-                    var pageContent = '';
-                    var startIdx = pos;
-                    var lo = pos;
-                    var hi = Math.min(contentLen, pos + Math.floor((contentLen - pos) * 0.5) + 100);
-                    if (hi > contentLen) hi = contentLen;
-                    if (lo >= hi) {{
-                        pageContent = chars.substring(pos, hi);
-                        pos = hi;
-                    }} else {{
-                        while (lo < hi - 1) {{
-                            var mid = Math.floor((lo + hi) / 2);
-                            measurer.innerHTML = chars.substring(startIdx, mid);
-                            if (measurer.scrollHeight > pageHeight) {{
-                                hi = mid;
-                            }} else {{
-                                lo = mid;
-                            }}
-                        }}
-
-                        var breakPos = lo;
-                        var rest = chars.substring(startIdx, lo);
-                        var lastSpace = rest.lastIndexOf(' ');
-                        var lastBreak = rest.lastIndexOf('</p>');
-                        var lastBreak2 = rest.lastIndexOf('</div>');
-                        var lastBreak3 = rest.lastIndexOf('</table>');
-
-                        var bestBreak = lastSpace;
-                        if (lastBreak > bestBreak) bestBreak = lastBreak;
-                        if (lastBreak2 > bestBreak) bestBreak = lastBreak2;
-                        if (lastBreak3 > bestBreak) bestBreak = lastBreak3;
-
-                        if (bestBreak > 0) {{
-                            breakPos = startIdx + bestBreak;
-                        }} else {{
-                            breakPos = startIdx + Math.min(lo, contentLen - startIdx);
-                        }}
-
-                        pageContent = chars.substring(startIdx, breakPos);
-                        pos = breakPos;
-                    }}
-
-                    pages.push(pageContent);
-                }}
-
-                if (pos < contentLen) {{
-                    pages.push(chars.substring(pos));
-                    totalPages = pages.length;
-                }}
-
-                document.body.removeChild(measurer);
-
-                var newBody = document.createElement('div');
-                newBody.style.cssText = 'width:100%;';
-
-                for (var i = 0; i < pages.length; i++) {{
-                    var pageNum = i + 1;
-                    var pageDiv = document.createElement('div');
-                    pageDiv.className = 'print-page';
-                    pageDiv.style.cssText = 'page-break-after: always; position: relative; min-height: 1056px;';
-                    if (i === pages.length - 1) {{
-                        pageDiv.style.pageBreakAfter = 'avoid;';
-                    }}
-
-                    pageDiv.innerHTML = pages[i];
-
-                    var resolved = footerTemplate.replace('{{PAGE_NUM}}', pageNum + '/' + pages.length);
-                    var temp = document.createElement('div');
-                    temp.innerHTML = resolved;
-                    var footerEl = temp.firstChild;
-                    pageDiv.appendChild(footerEl);
-
-                    newBody.appendChild(pageDiv);
-                }}
-
-                document.body.innerHTML = '';
-                document.body.appendChild(newBody);
-
-                try {{
-                    renderMathInElement(document.body, {{
-                        delimiters: [
-                            {{left: "$$", right: "$$", display: true}},
-                            {{left: "$", right: "$", display: false}}
-                        ],
-                        throwOnError: false,
-                        displayMode: false,
-                        strict: 'ignore'
-                    }});
-                }} catch (e) {{
-                    console.error("KaTeX re-render error:", e);
-                }}
-            }}, 800);
-        }}
-
-        addPageNumbers();
+        newBody.appendChild(pageDiv);
+        document.body.innerHTML = '';
+        document.body.appendChild(newBody);
     }});
 </script>
 """

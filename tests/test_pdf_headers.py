@@ -75,6 +75,6 @@ class TestPdfHeaders:
             theme_name="light",
             headers=headers,
         )
-        assert "scrollHeight" in html
-        assert "totalPages" in html
+        assert "page-footer" in html
+        assert "print-page" in html
         assert "page-footer" in html

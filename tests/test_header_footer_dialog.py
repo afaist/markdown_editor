@@ -9,7 +9,7 @@ class TestHeaderFooterDialog:
     def test_dialog_creates(self):
         """Диалог создаётся без ошибок."""
         dialog = HeaderFooterDialog()
-        assert dialog.windowTitle() == "Настройки PDF-экспорта"
+        assert dialog.windowTitle() == "PDF Export Settings"
         assert dialog.show_cb is not None
         assert dialog.header_edit is not None
         assert dialog.footer_edit is not None

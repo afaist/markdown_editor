@@ -34,9 +34,6 @@ class PrismJSProcessor:
         "contrast": "prism-okaidia.min.css",  # fallback для контрастной
     }
 
-    def __init__(self):
-        pass
-
     def get_prism_css_path(self, theme_name: str) -> str:
         """Получить путь к CSS Prism.js в зависимости от темы."""
         filename = self.PRISM_THEME_MAP.get(theme_name, self.PRISM_THEME_MAP["light"])
@@ -65,7 +62,7 @@ class PrismJSProcessor:
 
         # Вставляем CSS перед закрывающим </head>
         head_css = f'<link rel="stylesheet" href="file://{prism_css_path}">'
-        if "<head>" in html or "<head>" in html:
+        if "<head>" in html:
             html = html.replace("<head>", f"<head>\n    {head_css}", 1)
 
         # Вставляем JS перед закрывающим </body>

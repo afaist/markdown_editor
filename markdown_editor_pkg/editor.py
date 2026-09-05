@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
+import json
 import logging
-import os
 from typing import TYPE_CHECKING
 
 logger = logging.getLogger(__name__)
-
-from markdown_editor_pkg.i18n import tr
 
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QCloseEvent
@@ -24,6 +22,7 @@ from markdown_editor_pkg.editor_pdf import PDFHandler
 from markdown_editor_pkg.editor_session import SessionHandler
 from markdown_editor_pkg.editor_themes import ThemeFontHandler
 from markdown_editor_pkg.file_operations import EditorState, FileExport, FileIO
+from markdown_editor_pkg.i18n import tr
 from markdown_editor_pkg.latex_processor import LaTeXProcessor
 from markdown_editor_pkg.markdown_renderer import MarkdownRenderer
 from markdown_editor_pkg.resource_path import get_base_dir
@@ -203,10 +202,14 @@ class MarkdownEditorPyQt(QMainWindow):
         # Это нужно, потому что setHtml не вызывает loadFinished
         from PyQt6.QtCore import QTimer
 
-        QTimer.singleShot(500, lambda: self._run_scroll_tracker())
+        QTimer.singleShot(500, lambda: self._init_scroll_tracker(delay=500))
 
-    def _run_scroll_tracker(self) -> None:
-        """Запускает JS-трекер скролла."""
+    def _init_scroll_tracker(self, delay: int = 100) -> None:
+        """Запускает JS-трекер скролла с задленной задержкой.
+
+        Args:
+            delay: Задержка в мс перед запуском трекера.
+        """
         if self.preview is None:
             return
 
@@ -220,28 +223,7 @@ class MarkdownEditorPyQt(QMainWindow):
         # Запускаем JS-трекер (он сам подождёт появления qt_object)
         from PyQt6.QtCore import QTimer
 
-        QTimer.singleShot(100, lambda: page.runJavaScript(self._get_scroll_js()))  # type: ignore[union-attr]
-
-    def _register_scroll_channel(self) -> None:
-        """Регистрирует QWebChannel при обновлении превью."""
-        if self.preview is None:
-            return
-
-        page = self.preview.page()
-        if page is None:
-            return
-
-        # Регистрируем QWebChannel
-        page.setWebChannel(self._scroll_channel)  # type: ignore[union-attr]
-
-        # Запускаем JS-трекер (он сам подождёт появления qt_object)
-        from PyQt6.QtCore import QTimer
-
-        QTimer.singleShot(50, lambda: page.runJavaScript(self._get_scroll_js()))  # type: ignore[union-attr]
-
-    def _check_and_init_scroll_tracker(self, page) -> None:
-        """Проверяет существование qt_object и инициализирует трекер."""
-        page.runJavaScript(self._get_scroll_js())
+        QTimer.singleShot(delay, lambda: page.runJavaScript(self._get_scroll_js()))  # type: ignore[union-attr]
 
     def _get_scroll_js(self) -> str:
         """Возвращает JavaScript-код для отслеживания скролла."""
@@ -388,7 +370,7 @@ class MarkdownEditorPyQt(QMainWindow):
 
             js = f"""
 (function() {{
-    var anchor = '{md_anchor}';
+    var anchor = {json.dumps(md_anchor)};
     var el = document.getElementById(anchor);
     if (!el) {{
         var all = document.querySelectorAll('[id]');

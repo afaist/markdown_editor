@@ -75,7 +75,7 @@ class EventHandler:
         # После обновления превью — синхронизируем прокрутку к курсору
         self.editor._scroll_preview_to_cursor()
         # Регистрируем QWebChannel для синхронизации скролла
-        self.editor._register_scroll_channel()
+        self.editor._init_scroll_tracker(delay=50)
         if self.editor._statusbar_ref:
             self.editor._statusbar_ref.showMessage(tr("Preview updated"))
 

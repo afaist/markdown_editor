@@ -12,6 +12,8 @@ from typing import TYPE_CHECKING
 from PyQt6.QtGui import QAction, QKeySequence
 from PyQt6.QtWidgets import QMainWindow, QMenu
 
+from markdown_editor_pkg.i18n import tr
+
 if TYPE_CHECKING:
     from markdown_editor_pkg.editor import MarkdownEditorPyQt
 
@@ -46,7 +48,7 @@ class MarkdownMenuBuilder:
         headings_menu = md_menu.addMenu("Заголовки")
         if headings_menu is None:
             return
-        for i in range(1, 8):
+        for i in range(1, 7):
             action = QAction(f"Заголовок {i}", parent)
             action.setShortcut(QKeySequence(f"Ctrl+Shift+{i}"))
             action.triggered.connect(
@@ -80,7 +82,7 @@ class MarkdownMenuBuilder:
         )
         self._add_action(
             styles_menu,
-            "Встроенный код",  # type: ignore[attr-defined]
+            tr("Inline Code"),  # type: ignore[attr-defined]
             parent.text_insertions.insert_inline_code,  # type: ignore[attr-defined]
             "Ctrl+`",
         )  # type: ignore[attr-defined]
@@ -145,7 +147,7 @@ class MarkdownMenuBuilder:
 
         self._add_action(
             latex_menu,
-            "Встроенная ($...$)",  # type: ignore[attr-defined]
+            tr("Inline ($...$)"),  # type: ignore[attr-defined]
             parent.text_insertions.insert_inline_latex,  # type: ignore[attr-defined]
             "Ctrl+L",
         )  # type: ignore[attr-defined]
@@ -210,7 +212,7 @@ class MarkdownMenuBuilder:
         table_action.triggered.connect(parent.text_insertions.insert_table)  # type: ignore[attr-defined]
         md_menu.addAction(table_action)
 
-        comment_action = QAction("HTML-комментарий", parent)
+        comment_action = QAction(tr("HTML Comment"), parent)
         comment_action.setShortcut(QKeySequence("Ctrl+Shift+/"))
         comment_action.triggered.connect(parent.text_insertions.insert_html_comment)  # type: ignore[attr-defined]
         md_menu.addAction(comment_action)

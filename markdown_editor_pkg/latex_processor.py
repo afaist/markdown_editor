@@ -84,7 +84,7 @@ def _unicode_to_latex(text: str) -> str:
 class LaTeXProcessor:
     """Извлекает LaTeX-формулы из текста и заменяет их на плейсхолдеры."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.display_math_cache: list[str] = []
         self.inline_math_cache: list[str] = []
 
@@ -152,7 +152,7 @@ class LaTeXProcessor:
 class StrikethroughProcessor:
     """Безопасно заменяет ~~text~~ на <del>text</del>, не затрагивая блоки кода."""
 
-    CODE_PATTERN = re.compile(r"(<pre>.*?</pre>|<code>.*?</code>)", re.DOTALL)
+    CODE_PATTERN = re.compile(r"(<pre>[\s\S]*?</pre>|<code>[\s\S]*?</code>)", re.DOTALL)
     STRIKE_PATTERN = re.compile(r"~~(.+?)~~")
 
     def apply(self, html: str) -> str:
