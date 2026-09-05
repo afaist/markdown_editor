@@ -394,6 +394,36 @@ LaTeX and Markdown support.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="52"/>
+        <source>Heading 1</source>
+        <translation>Heading 1</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="52"/>
+        <source>Heading 2</source>
+        <translation>Heading 2</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="52"/>
+        <source>Heading 3</source>
+        <translation>Heading 3</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="52"/>
+        <source>Heading 4</source>
+        <translation>Heading 4</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="52"/>
+        <source>Heading 5</source>
+        <translation>Heading 5</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="52"/>
+        <source>Heading 6</source>
+        <translation>Heading 6</translation>
+    </message>
+    <message>
         <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="61"/>
         <source>Styles</source>
         <translation type="unfinished"></translation>

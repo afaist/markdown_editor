@@ -48,8 +48,16 @@ class MarkdownMenuBuilder:
         headings_menu = md_menu.addMenu(tr("Headings"))
         if headings_menu is None:
             return
-        for i in range(1, 7):
-            action = QAction(tr(f"Heading {i}"), parent)
+        heading_labels: list[str] = [
+            tr("Heading 1"),
+            tr("Heading 2"),
+            tr("Heading 3"),
+            tr("Heading 4"),
+            tr("Heading 5"),
+            tr("Heading 6"),
+        ]
+        for i, label in enumerate(heading_labels, start=1):
+            action = QAction(label, parent)
             action.setShortcut(QKeySequence(f"Ctrl+Shift+{i}"))
             action.triggered.connect(
                 lambda checked, level=i: parent.text_insertions.insert_heading(level)  # type: ignore[attr-defined]

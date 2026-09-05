@@ -398,6 +398,36 @@ LaTeX and Markdown support.</source>
         <translation>Заголовок {num}</translation>
     </message>
     <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="52"/>
+        <source>Heading 1</source>
+        <translation>Заголовок 1</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="52"/>
+        <source>Heading 2</source>
+        <translation>Заголовок 2</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="52"/>
+        <source>Heading 3</source>
+        <translation>Заголовок 3</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="52"/>
+        <source>Heading 4</source>
+        <translation>Заголовок 4</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="52"/>
+        <source>Heading 5</source>
+        <translation>Заголовок 5</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="52"/>
+        <source>Heading 6</source>
+        <translation>Заголовок 6</translation>
+    </message>
+    <message>
         <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="61"/>
         <source>Styles</source>
         <translation>Стили</translation>
