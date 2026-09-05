@@ -39,6 +39,7 @@ class MarkdownMenuBuilder:
         self._build_styles(md_menu, parent)
         self._build_lists(md_menu, parent)
         self._build_blockquote(md_menu, parent)
+        self._build_callouts(md_menu, parent)
         self._build_code(md_menu, parent)
         self._build_latex(md_menu, parent)
         self._build_extra(md_menu, parent)
@@ -126,6 +127,25 @@ class MarkdownMenuBuilder:
         bq_action.setShortcut(QKeySequence("Ctrl+Shift+Q"))
         bq_action.triggered.connect(parent.text_insertions.insert_blockquote)  # type: ignore[attr-defined]
         md_menu.addAction(bq_action)
+
+    def _build_callouts(self, md_menu: QMenu, parent: QMainWindow) -> None:
+        """Create Callouts submenu."""
+        callouts_menu = md_menu.addMenu(tr("Callouts"))
+        if callouts_menu is None:
+            return
+
+        for callout_type, label, shortcut in [
+            ("NOTE", tr("Note"), "Ctrl+Shift+1"),
+            ("TIP", tr("Tip"), "Ctrl+Shift+2"),
+            ("IMPORTANT", tr("Important"), "Ctrl+Shift+3"),
+            ("WARNING", tr("Warning"), "Ctrl+Shift+4"),
+        ]:
+            action = QAction(label, parent)
+            action.setShortcut(QKeySequence(shortcut))
+            action.triggered.connect(
+                lambda checked, ct=callout_type: parent.text_insertions.insert_callout(ct)  # type: ignore[attr-defined]
+            )
+            callouts_menu.addAction(action)
 
     def _build_code(self, md_menu: QMenu, parent: QMainWindow) -> None:
         """Create Code submenu."""

@@ -443,6 +443,31 @@ LaTeX and Markdown support.</source>
         <translation>Списки</translation>
     </message>
     <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="133"/>
+        <source>Callouts</source>
+        <translation>Выноски</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="138"/>
+        <source>Note</source>
+        <translation>Замечание</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="139"/>
+        <source>Tip</source>
+        <translation>Совет</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="140"/>
+        <source>Important</source>
+        <translation>Важно</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="141"/>
+        <source>Warning</source>
+        <translation>Предупреждение</translation>
+    </message>
+    <message>
         <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="150"/>
         <source>Inline ($...$)</source>
         <translation>Встроенная ($...$)</translation>
@@ -605,6 +630,21 @@ LaTeX and Markdown support.</source>
         <location filename="../markdown_editor_pkg/header_footer_dialog.py" line="55"/>
         <source>Footer:</source>
         <translation>Подвал:</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/text_insertions.py" line="59"/>
+        <source>text</source>
+        <translation>текст</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/text_insertions.py" line="216"/>
+        <source>- [ ] task</source>
+        <translation>- [ ] задание</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/text_insertions.py" line="219"/>
+        <source>task</source>
+        <translation>задание</translation>
     </message>
 </context>
 </TS>

@@ -420,3 +420,29 @@ class TextInsertions:
             selection = "комментарий"
         cursor.insertText(f"<!-- {selection} -->")
         c.set_text_cursor(cursor)
+        self._notify()
+
+    def insert_callout(self, callout_type: str) -> None:
+        """Вставляет GitHub-выноску указанного типа.
+
+        Args:
+            callout_type: Тип callout — "NOTE", "TIP", "IMPORTANT", "WARNING".
+        """
+        c = self._cursor()
+        cursor = c.text_cursor()
+        full = c.full_text()
+
+        if full.strip() and not full.endswith("\n"):
+            cursor.insertText("\n")
+
+        template = f"> [!{callout_type}]\n> {tr('text')}\n"
+        cursor.insertText(template)
+
+        # Выделяем placeholder для быстрого редактирования
+        placeholder = tr("text")
+        end_pos = cursor.position()
+        start_pos = end_pos - len(placeholder)
+        cursor.setPosition(start_pos)
+        cursor.setPosition(start_pos + len(placeholder), QTextCursor.MoveMode.KeepAnchor)
+        c.set_text_cursor(cursor)
+        self._notify()

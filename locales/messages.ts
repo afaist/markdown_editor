@@ -72,26 +72,26 @@
     </message>
     <message>
         <location filename="../markdown_editor_pkg/editor_components.py" line="166"/>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="75"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="76"/>
         <source>Bold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../markdown_editor_pkg/editor_components.py" line="166"/>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="81"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="82"/>
         <source>Italic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../markdown_editor_pkg/editor_components.py" line="166"/>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="87"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="88"/>
         <source>Strikethrough</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../markdown_editor_pkg/editor_components.py" line="166"/>
         <location filename="../markdown_editor_pkg/editor_components.py" line="192"/>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="132"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="152"/>
         <source>Code</source>
         <translation type="unfinished"></translation>
     </message>
@@ -107,19 +107,19 @@
     </message>
     <message>
         <location filename="../markdown_editor_pkg/editor_components.py" line="181"/>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="106"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="107"/>
         <source>Bulleted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../markdown_editor_pkg/editor_components.py" line="181"/>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="112"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="113"/>
         <source>Numbered</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../markdown_editor_pkg/editor_components.py" line="181"/>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="118"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="119"/>
         <source>Task List</source>
         <translation type="unfinished"></translation>
     </message>
@@ -130,7 +130,7 @@
     </message>
     <message>
         <location filename="../markdown_editor_pkg/editor_components.py" line="191"/>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="125"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="126"/>
         <source>Quote</source>
         <translation type="unfinished"></translation>
     </message>
@@ -384,117 +384,142 @@ LaTeX and Markdown support.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="48"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="49"/>
         <source>Headings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="52"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="53"/>
         <source>Heading 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="53"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="54"/>
         <source>Heading 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="54"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="55"/>
         <source>Heading 3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="55"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="56"/>
         <source>Heading 4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="56"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="57"/>
         <source>Heading 5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="57"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="58"/>
         <source>Heading 6</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="69"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="70"/>
         <source>Styles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="93"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="94"/>
         <source>Inline Code</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="100"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="101"/>
         <source>Lists</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="152"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="133"/>
+        <source>Callouts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="138"/>
+        <source>Note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="139"/>
+        <source>Tip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="140"/>
+        <source>Important</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="141"/>
+        <source>Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="172"/>
         <source>LaTeX</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="158"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="178"/>
         <source>Inline ($...$)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="164"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="184"/>
         <source>Block ($...$)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="170"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="190"/>
         <source>Fraction (\frac)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="176"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="196"/>
         <source>Square Root (\sqrt)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="182"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="202"/>
         <source>Superscript</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="188"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="208"/>
         <source>Subscript</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="194"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="214"/>
         <source>Sum (\sum)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="200"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="220"/>
         <source>Integral (\int)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="206"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="226"/>
         <source>Matrix (\begin{matrix})</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="213"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="233"/>
         <source>Horizontal Rule (---)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="218"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="238"/>
         <source>Table</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="223"/>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="243"/>
         <source>HTML Comment</source>
         <translation type="unfinished"></translation>
     </message>
@@ -565,6 +590,7 @@ LaTeX and Markdown support.</source>
     </message>
     <message>
         <location filename="../markdown_editor_pkg/text_insertions.py" line="61"/>
+        <location filename="../markdown_editor_pkg/text_insertions.py" line="442"/>
         <source>text</source>
         <translation type="unfinished"></translation>
     </message>
