@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Markdown Editor
-Comment=Простой редактор Markdown с предпросмотром и поддержкой LaTeX
+Name[ru]=Редактор Markdown
+Comment=A simple Markdown editor with preview and LaTeX support
+Comment[ru]=Простой редактор Markdown с предпросмотром и поддержкой LaTeX
 Exec=/opt/markdown-editor/markdown-editor
 Icon=markdown-editor
 Terminal=false

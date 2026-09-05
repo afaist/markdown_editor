@@ -1,4 +1,4 @@
-"""Главный класс MarkdownEditorPyQt — тонкая обёртка, собирающая компоненты."""
+"""Main MarkdownEditorPyQt class — thin wrapper assembling components."""
 
 from __future__ import annotations
 
@@ -7,6 +7,8 @@ import os
 from typing import TYPE_CHECKING
 
 logger = logging.getLogger(__name__)
+
+from markdown_editor_pkg.i18n import tr
 
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QCloseEvent
@@ -49,7 +51,7 @@ class MarkdownEditorPyQt(QMainWindow):
 
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("Markdown Editor (PyQt6)")
+        self.setWindowTitle(tr("Markdown Editor (PyQt6)"))
         self.resize(1200, 800)
 
         # Виджеты (заполняются UIBuilder)
@@ -347,6 +349,17 @@ class MarkdownEditorPyQt(QMainWindow):
     # Справка
     def _show_about(self) -> None:
         self.help_handler.show_about()
+
+    def _show_restart_notification(self) -> None:
+        """Show a notification that UI text will update on next restart."""
+        from PyQt6.QtWidgets import QMessageBox
+
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Icon.Information)
+        msg.setWindowTitle(tr("Language Changed"))
+        msg.setText(tr("Language changed. Some UI elements will update after restart."))
+        msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+        msg.exec()
 
     # Синхронизация редактора и предпросмотра
     def _scroll_preview_to_cursor(self) -> None:

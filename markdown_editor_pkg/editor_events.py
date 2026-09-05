@@ -1,10 +1,11 @@
-"""Event handlers — обработчики событий редактора."""
+"""Event handlers — editor event processing."""
 
 import os
 from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import QUrl
 
+from markdown_editor_pkg.i18n import tr
 from markdown_editor_pkg.resource_path import get_base_dir
 
 if TYPE_CHECKING:
@@ -47,14 +48,14 @@ class EventHandler:
         if self.editor.current_file:
             filename = os.path.basename(self.editor.current_file)
             if self.editor.is_dirty:
-                self.editor.file_name_label.setText(f"Файл не сохранён. {filename}")
+                self.editor.file_name_label.setText(tr("Unsaved file. {filename}").format(filename=filename))
                 self.editor.file_name_label.setStyleSheet("color: #cc6600; font-weight: bold;")
             else:
                 self.editor.file_name_label.setText(filename)
                 self.editor.file_name_label.setStyleSheet("color: #333333; font-weight: normal;")
         else:
             if self.editor.is_dirty:
-                self.editor.file_name_label.setText("Файл не сохранён. Имя не задано.")
+                self.editor.file_name_label.setText(tr("Unsaved file. Name not set."))
                 self.editor.file_name_label.setStyleSheet("color: #cc0000; font-weight: bold;")
             else:
                 self.editor.file_name_label.setText("")
@@ -76,7 +77,7 @@ class EventHandler:
         # Регистрируем QWebChannel для синхронизации скролла
         self.editor._register_scroll_channel()
         if self.editor._statusbar_ref:
-            self.editor._statusbar_ref.showMessage("Предпросмотр обновлён")
+            self.editor._statusbar_ref.showMessage(tr("Preview updated"))
 
     def update_char_count(self) -> None:
         """Обновить счётчики символов и слов."""
@@ -85,9 +86,13 @@ class EventHandler:
             char_lbl = self.editor.char_count_label
             word_lbl = self.editor.word_count_label
             if char_lbl is not None:
-                char_lbl.setText(f"Символов: {len(text)}")
+                char_lbl.setText(
+                    tr("Characters: {count}").format(count=len(text))
+                )
             if word_lbl is not None:
-                word_lbl.setText(f"Слов: {len(text.split())}")
+                word_lbl.setText(
+                    tr("Words: {count}").format(count=len(text.split()))
+                )
 
     def on_cursor_position_changed(self) -> None:
         """Синхронизация предпросмотра с позицией курсора в редакторе.

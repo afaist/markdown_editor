@@ -1,9 +1,9 @@
-"""UI комбинаторы для MarkdownEditorPyQt — сборка интерфейса из компонентов.
+"""UI combiners for MarkdownEditorPyQt — building the interface from components.
 
-Содержит:
-- UIBuilder — создание основного UI (сплиттер, редактор, превью, статусбар)
-- ToolbarBuilder — создание панели инструментов
-- MenuBuilder — создание меню (File, Edit, View, Help)
+Contains:
+- UIBuilder — creates main UI (splitter, editor, preview, statusbar)
+- ToolbarBuilder — creates the toolbar
+- MenuBuilder — creates menus (File, Edit, View, Help)
 """
 
 from __future__ import annotations
@@ -29,6 +29,7 @@ from PyQt6.QtWidgets import (
 )
 
 from markdown_editor_pkg.editor_keypress import MarkdownTextEdit
+from markdown_editor_pkg.i18n import tr
 
 if TYPE_CHECKING:
     from markdown_editor_pkg.editor import MarkdownEditorPyQt
@@ -59,7 +60,7 @@ class UIBuilder:
         editor_layout.setContentsMargins(0, 0, 0, 0)
         editor_frame.setLayout(editor_layout)
 
-        editor_label = QLabel("Редактор Markdown")
+        editor_label = QLabel(tr("Editor Markdown"))
         editor_label.setStyleSheet("background-color: #f0f0f0; color: #333333;")
         editor_label.setMinimumHeight(25)
         editor_label.setMaximumHeight(25)
@@ -81,7 +82,7 @@ class UIBuilder:
         preview_layout.setContentsMargins(0, 0, 0, 0)
         preview_frame.setLayout(preview_layout)
 
-        preview_label = QLabel("Предпросмотр")
+        preview_label = QLabel(tr("Preview"))
         preview_label.setStyleSheet("background-color: #f0f0f0; color: #333333;")
         preview_label.setMinimumHeight(25)
         preview_label.setMaximumHeight(25)
@@ -101,8 +102,8 @@ class UIBuilder:
         parent.setStatusBar(statusbar)
         self._editor._statusbar_ref = statusbar  # type: ignore[attr-defined]
 
-        char_count_label = QLabel("Символов: 0")
-        word_count_label = QLabel("Слов: 0")
+        char_count_label = QLabel(tr("Characters: 0"))
+        word_count_label = QLabel(tr("Words: 0"))
         file_name_label = QLabel("")
         file_name_label.setMinimumWidth(250)
 
@@ -135,10 +136,10 @@ class ToolbarBuilder:
         style_sheet_lbl = ""
 
         parent = self._editor
-        toolbar = QToolBar("Форматирование")
+        toolbar = QToolBar(tr("Formatting"))
         parent.addToolBar(toolbar)
 
-        lbl_headers = QLabel("Заголовки: ")
+        lbl_headers = QLabel(tr("Headings: "))
         lbl_headers.setStyleSheet(style_sheet_lbl)
         lbl_headers.adjustSize()
         toolbar.addWidget(lbl_headers)
@@ -148,7 +149,7 @@ class ToolbarBuilder:
         for lvl in range(1, 7):
             heading_combo.addItem(f"H{lvl}")
         heading_combo.setCurrentIndex(0)
-        heading_combo.setToolTip("Уровень заголовка (1–6)")
+        heading_combo.setToolTip(tr("Heading level (1–6)"))
         heading_combo.activated.connect(self._on_heading_combo_activated)  # type: ignore[attr-defined]
 
         heading_combo.setMinimumWidth(80)
@@ -156,31 +157,31 @@ class ToolbarBuilder:
         parent.heading_combo = heading_combo  # type: ignore[attr-defined]
         toolbar.addSeparator()
 
-        lbl_formating = QLabel("Стили: ")
+        lbl_formating = QLabel(tr("Styles: "))
         lbl_formating.setStyleSheet(style_sheet_lbl)
         lbl_formating.adjustSize()
         toolbar.addWidget(lbl_formating)
 
         # -- Комбобокс стилей --
         style_combo = QComboBox()
-        style_combo.addItems(["Жирный", "Курсив", "Зачеркнутый", "Код"])
+        style_combo.addItems([tr("Bold"), tr("Italic"), tr("Strikethrough"), tr("Code")])
         style_combo.setMinimumWidth(120)
-        style_combo.setToolTip("Выберите стиль форматирования")
+        style_combo.setToolTip(tr("Select formatting style"))
         style_combo.activated.connect(self._on_style_combo_activated)  # type: ignore[attr-defined]
         toolbar.addWidget(style_combo)
         parent.style_combo = style_combo  # type: ignore[attr-defined]
         toolbar.addSeparator()
 
         # -- Список: комбобокс стилей --
-        lbl_list = QLabel("Список: ")
+        lbl_list = QLabel(tr("List: "))
         lbl_list.setStyleSheet(style_sheet_lbl)
         lbl_list.adjustSize()
         toolbar.addWidget(lbl_list)
 
         list_style_combo = QComboBox()
-        list_style_combo.addItems(["Маркированный", "Нумерованный", "Задач"])
+        list_style_combo.addItems([tr("Bulleted"), tr("Numbered"), tr("Task List")])
         list_style_combo.setMinimumWidth(120)
-        list_style_combo.setToolTip("Выберите стиль списка")
+        list_style_combo.setToolTip(tr("Select list style"))
         list_style_combo.activated.connect(self._on_list_style_combo_activated)  # type: ignore[attr-defined]
         toolbar.addWidget(list_style_combo)
         parent.list_style_combo = list_style_combo  # type: ignore[attr-defined]
@@ -188,14 +189,14 @@ class ToolbarBuilder:
 
         # -- Форматирование --
         actions: list[tuple[str, Callable[[], None]]] = [
-            ("Цитата", lambda: parent.text_insertions.insert_text("> ")),  # type: ignore[attr-defined]
-            ("Код", lambda: parent.text_insertions.insert_text("```\n```")),  # type: ignore[attr-defined]
-            ("LaTeX inline", parent.text_insertions.insert_inline_latex),  # type: ignore[attr-defined]
-            ("LaTeX block", parent.text_insertions.insert_block_latex),  # type: ignore[attr-defined]
-            ("Ссылка", parent.text_insertions.insert_link),  # type: ignore[attr-defined]
-            ("Изображение", parent.text_insertions.insert_image),  # type: ignore[attr-defined]
-            ("Тема", parent._toggle_theme),  # type: ignore[attr-defined]
-            ("Тема редактора", parent._toggle_editor_theme),  # type: ignore[attr-defined]
+            (tr("Quote"), lambda: parent.text_insertions.insert_text("> ")),  # type: ignore[attr-defined]
+            (tr("Code"), lambda: parent.text_insertions.insert_text("```\n```")),  # type: ignore[attr-defined]
+            (tr("LaTeX inline"), parent.text_insertions.insert_inline_latex),  # type: ignore[attr-defined]
+            (tr("LaTeX block"), parent.text_insertions.insert_block_latex),  # type: ignore[attr-defined]
+            (tr("Link"), parent.text_insertions.insert_link),  # type: ignore[attr-defined]
+            (tr("Image"), parent.text_insertions.insert_image),  # type: ignore[attr-defined]
+            (tr("Theme"), parent._toggle_theme),  # type: ignore[attr-defined]
+            (tr("Editor Theme"), parent._toggle_editor_theme),  # type: ignore[attr-defined]
         ]
 
         for text, callback in actions:
@@ -207,9 +208,9 @@ class ToolbarBuilder:
 
         # -- Файловые действия --
         for text, callback in [
-            ("Открыть", parent.file_io.open_file),  # type: ignore[attr-defined]
-            ("Сохранить", parent.file_io.save_file),  # type: ignore[attr-defined]
-            ("Экспорт в PDF", parent.file_export.export_to_pdf),  # type: ignore[attr-defined]
+            (tr("Open"), parent.file_io.open_file),  # type: ignore[attr-defined]
+            (tr("Save"), parent.file_io.save_file),  # type: ignore[attr-defined]
+            (tr("Export to PDF"), parent.file_export.export_to_pdf),
         ]:
             action = QAction(text, parent)
             action.triggered.connect(callback)
@@ -219,8 +220,8 @@ class ToolbarBuilder:
 
         # -- Сброс шрифта --
         toolbar.addSeparator()
-        reset_action = QAction("Сбросить шрифт", parent)
-        reset_action.setToolTip("Сбросить шрифт и размер к значениям по умолчанию")
+        reset_action = QAction(tr("Reset Font"), parent)
+        reset_action.setToolTip(tr("Reset font and size to defaults"))
         reset_action.triggered.connect(parent._reset_font)  # type: ignore[attr-defined]
         toolbar.addAction(reset_action)
 
@@ -283,7 +284,7 @@ class ToolbarBuilder:
 
         # -- Размер шрифта: + --
         font_increase_btn = QPushButton("+")
-        font_increase_btn.setToolTip("Увеличить шрифт")
+        font_increase_btn.setToolTip(tr("Increase font size"))
         font_increase_btn.setFixedWidth(32)
         font_increase_btn.clicked.connect(parent._increase_font)  # type: ignore[attr-defined]
         toolbar.addWidget(font_increase_btn)
@@ -291,7 +292,7 @@ class ToolbarBuilder:
 
         # -- Отображение размера шрифта --
         font_size_label = QLabel("11")
-        font_size_label.setToolTip("Размер шрифта")
+        font_size_label.setToolTip(tr("Font size"))
         font_size_label.setFixedWidth(30)
         font_size_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         toolbar.addWidget(font_size_label)
@@ -299,7 +300,7 @@ class ToolbarBuilder:
 
         # -- Размер шрифта: - --
         font_decrease_btn = QPushButton("-")
-        font_decrease_btn.setToolTip("Уменьшить шрифт")
+        font_decrease_btn.setToolTip(tr("Decrease font size"))
         font_decrease_btn.setFixedWidth(32)
         font_decrease_btn.clicked.connect(parent._decrease_font)  # type: ignore[attr-defined]
         toolbar.addWidget(font_decrease_btn)
@@ -324,154 +325,179 @@ class MenuBuilder:
         self._build_help_menu(menubar, parent)
 
     def _build_file_menu(self, menubar: QMenuBar, parent: MarkdownEditorPyQt) -> None:
-        """Создать меню Файл."""
-        file_menu = menubar.addMenu("Файл")
+        """Create File menu."""
+        file_menu = menubar.addMenu(tr("File"))
         assert file_menu is not None
 
         self._add_action(
             file_menu,
-            "Новый",
+            tr("New"),
             parent.file_ops.new_file,
             QKeySequence.StandardKey.New,
         )
         self._add_action(
             file_menu,
-            "Открыть",
+            tr("Open"),
             parent.file_ops.open_file,
             QKeySequence.StandardKey.Open,
         )
         self._add_action(
             file_menu,
-            "Сохранить",
+            tr("Save"),
             parent.file_ops.save_file,
             QKeySequence.StandardKey.Save,
         )
-        self._add_action(file_menu, "Сохранить как...", parent.file_ops.save_file_as)
+        self._add_action(file_menu, tr("Save As..."), parent.file_ops.save_file_as)
         file_menu.addSeparator()
         self._add_action(
             file_menu,
-            "Закрыть",
+            tr("Close"),
             parent.close,
             QKeySequence.StandardKey.Close,
         )
         file_menu.addSeparator()
-        self._add_action(file_menu, "Экспорт в HTML", parent.file_export.export_to_html)
-        self._add_action(file_menu, "Экспорт в PDF", parent.file_export.export_to_pdf)
-        self._add_action(file_menu, "Настройки PDF-экспорта...", parent._show_pdf_settings)
+        self._add_action(file_menu, tr("Export to HTML"), parent.file_export.export_to_html)
+        self._add_action(file_menu, tr("Export to PDF"), parent.file_export.export_to_pdf)
+        self._add_action(file_menu, tr("PDF Export Settings..."), parent._show_pdf_settings)
         file_menu.addSeparator()
         self._add_action(
             file_menu,
-            "Выход",
+            tr("Exit"),
             parent.close,
             QKeySequence.StandardKey.Quit,
         )
 
     def _build_edit_menu(self, menubar: QMenuBar, parent: MarkdownEditorPyQt) -> None:
-        """Создать меню Правка."""
-        edit_menu = menubar.addMenu("Правка")
+        """Create Edit menu."""
+        edit_menu = menubar.addMenu(tr("Edit"))
         assert edit_menu is not None
 
         self._add_action(
             edit_menu,
-            "Отменить",
+            tr("Undo"),
             parent.editor.undo,
             QKeySequence.StandardKey.Undo,
         )
         self._add_action(
             edit_menu,
-            "Повторить",
+            tr("Redo"),
             parent.editor.redo,
             QKeySequence.StandardKey.Redo,
         )
         edit_menu.addSeparator()
         self._add_action(
             edit_menu,
-            "Вырезать",
+            tr("Cut"),
             parent.editor.cut,
             QKeySequence.StandardKey.Cut,
         )
         self._add_action(
             edit_menu,
-            "Копировать",
+            tr("Copy"),
             parent.editor.copy,
             QKeySequence.StandardKey.Copy,
         )
         self._add_action(
             edit_menu,
-            "Вставить",
+            tr("Paste"),
             parent.editor.paste,
             QKeySequence.StandardKey.Paste,
         )
         edit_menu.addSeparator()
         self._add_action(
             edit_menu,
-            "Найти и заменить",
+            tr("Find and Replace"),
             parent._find_replace,
             QKeySequence.StandardKey.Find,
         )
         edit_menu.addSeparator()
         self._add_action(
             edit_menu,
-            "Вставить изображение...",
+            tr("Insert Image..."),
             parent.text_insertions.insert_image,
         )
 
     def _build_view_menu(self, menubar: QMenuBar, parent: MarkdownEditorPyQt) -> None:
         """Создать меню Вид."""
-        view_menu = menubar.addMenu("Вид")
+        view_menu = menubar.addMenu(tr("View"))
         assert view_menu is not None
 
-        self._add_action(view_menu, "Обновить предпросмотр", parent.update_preview)
+        self._add_action(view_menu, tr("Refresh Preview"), parent.update_preview)
         view_menu.addSeparator()
 
-        # Темы предпросмотра
-        self._add_action(view_menu, "Тема: светлая", lambda: parent.set_theme("light"))
-        self._add_action(view_menu, "Тема: тёмная", lambda: parent.set_theme("dark"))
-        self._add_action(view_menu, "Тема: контрастная", lambda: parent.set_theme("contrast"))
+        # Preview themes
+        self._add_action(view_menu, tr("Theme: Light"), lambda: parent.set_theme("light"))
+        self._add_action(view_menu, tr("Theme: Dark"), lambda: parent.set_theme("dark"))
+        self._add_action(view_menu, tr("Theme: Contrast"), lambda: parent.set_theme("contrast"))
         view_menu.addSeparator()
 
-        # Темы редактора
+        # Editor themes
         self._add_action(
             view_menu,
-            "Тема редактора: светлая",
+            tr("Editor Theme: Light"),
             lambda: parent.set_editor_theme("light"),
         )
         self._add_action(
-            view_menu, "Тема редактора: тёмная", lambda: parent.set_editor_theme("dark")
+            view_menu, tr("Editor Theme: Dark"), lambda: parent.set_editor_theme("dark")
         )
         self._add_action(
             view_menu,
-            "Тема редактора: контрастная",
+            tr("Editor Theme: Contrast"),
             lambda: parent.set_editor_theme("contrast"),
         )
         view_menu.addSeparator()
 
-        # Шрифт
+        # Font
         self._add_action(
             view_menu,
-            "Увеличить шрифт",
+            tr("Increase Font"),
             parent._increase_font,
             QKeySequence.StandardKey.ZoomIn,
         )
         self._add_action(
             view_menu,
-            "Уменьшить шрифт",
+            tr("Decrease Font"),
             parent._decrease_font,
             QKeySequence.StandardKey.ZoomOut,
         )
         self._add_action(
             view_menu,
-            "Сбросить шрифт",
+            tr("Reset Font"),
             parent._reset_font,
             QKeySequence("Ctrl+0"),
         )
+        view_menu.addSeparator()
+
+        # Language selector
+        from markdown_editor_pkg.i18n import get_available_languages, load_language
+        from markdown_editor_pkg.settings import Settings
+
+        lang_settings = Settings()
+        lang_menu = view_menu.addMenu(tr("Language"))
+        for lang in get_available_languages():
+            lang_action = QAction(lang["name"], parent)
+            lang_action.setCheckable(True)
+            current_lang = lang_settings.get("language", "en")
+            if lang["code"] == current_lang:
+                lang_action.setChecked(True)
+
+            def _make_lang_callback(code: str) -> Callable[[], None]:
+                def _callback() -> None:
+                    lang_settings.set("language", code)
+                    load_language(code)
+                    parent._show_restart_notification()
+
+                return _callback
+
+            lang_action.triggered.connect(_make_lang_callback(lang["code"]))
+            lang_menu.addAction(lang_action)
 
     def _build_help_menu(self, menubar: QMenuBar, parent: MarkdownEditorPyQt) -> None:
         """Создать меню Справка."""
-        help_menu = menubar.addMenu("Справка")
+        help_menu = menubar.addMenu(tr("Help"))
         assert help_menu is not None
 
-        self._add_action(help_menu, "О программе", parent._show_about)
+        self._add_action(help_menu, tr("About"), parent._show_about)
 
     @staticmethod
     def _add_action(

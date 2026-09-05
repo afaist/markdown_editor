@@ -1,4 +1,4 @@
-"""Диалог «Найти и заменить» для QTextEdit."""
+"""Find and Replace dialog for QTextEdit."""
 
 from PyQt6.QtWidgets import (
     QDialog,
@@ -10,22 +10,24 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
 )
 
+from markdown_editor_pkg.i18n import tr
+
 
 class FindReplaceDialog:
-    """Модальный диалог поиска и замены текста."""
+    """Modal dialog for finding and replacing text."""
 
     def __init__(self, editor):
         self.editor = editor  # MarkdownEditorPyQt
 
     def exec_dialog(self) -> int:
-        """Показать диалог и выполнить поиск/замену."""
+        """Show the dialog and perform find/replace."""
         dialog = QDialog(self.editor)
-        dialog.setWindowTitle("Найти и заменить")
+        dialog.setWindowTitle(tr("Find and Replace"))
         layout = QVBoxLayout()
 
-        find_label = QLabel("Найти:")
+        find_label = QLabel(tr("Find:"))
         find_input = QLineEdit()
-        replace_label = QLabel("Заменить на:")
+        replace_label = QLabel(tr("Replace with:"))
         replace_input = QLineEdit()
 
         layout.addWidget(find_label)
@@ -37,8 +39,8 @@ class FindReplaceDialog:
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         )
 
-        find_button = QPushButton("Найти следующее")
-        replace_button = QPushButton("Заменить")
+        find_button = QPushButton(tr("Find Next"))
+        replace_button = QPushButton(tr("Replace"))
 
         def find_next() -> None:
             text = find_input.text()

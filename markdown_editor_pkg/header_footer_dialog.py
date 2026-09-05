@@ -1,4 +1,4 @@
-"""Диалог настроек колонтитулов для экспорта в PDF."""
+"""Header/footer settings dialog for PDF export."""
 
 from PyQt6.QtWidgets import (
     QCheckBox,
@@ -10,13 +10,15 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
 )
 
+from markdown_editor_pkg.i18n import tr
+
 
 class HeaderFooterDialog(QDialog):
-    """Диалог настроек колонтитулов для PDF-экспорта."""
+    """Dialog for PDF export header/footer settings."""
 
     def __init__(self, parent=None, current_headers: dict | None = None):
         super().__init__(parent)
-        self.setWindowTitle("Настройки PDF-экспорта")
+        self.setWindowTitle(tr("PDF Export Settings"))
         self.setModal(True)
         self.setMinimumWidth(400)
 
@@ -31,7 +33,7 @@ class HeaderFooterDialog(QDialog):
         layout = QVBoxLayout(self)
 
         # Чекбокс включения колонтитулов
-        self.show_cb = QCheckBox("Включить колонтитулы")
+        self.show_cb = QCheckBox(tr("Enable headers"))
         self.show_cb.setChecked(self.show_headers)
         layout.addWidget(self.show_cb)
 
@@ -40,22 +42,26 @@ class HeaderFooterDialog(QDialog):
 
         self.header_edit = QLineEdit()
         self.header_edit.setText(self.header_text)
-        self.header_edit.setPlaceholderText("Текст верхнего колонтитула (например, название файла)")
-        form.addRow("Верхний колонтитул:", self.header_edit)
+        self.header_edit.setPlaceholderText(
+            tr("Header text (e.g., file name)")
+        )
+        form.addRow(tr("Header:"), self.header_edit)
 
         self.footer_edit = QLineEdit()
         self.footer_edit.setText(self.footer_text)
-        self.footer_edit.setPlaceholderText("Текст нижнего колонтитула (например, markdown_editor)")
-        form.addRow("Нижний колонтитул:", self.footer_edit)
+        self.footer_edit.setPlaceholderText(
+            tr("Footer text (e.g., markdown_editor)")
+        )
+        form.addRow(tr("Footer:"), self.footer_edit)
 
         layout.addLayout(form)
 
         # Подсказка
         hint = QLabel(
-            "💡 Подсказки:<br>"
-            "• Используйте название файла для верхнего колонтитула<br>"
-            "• Нижний колонтитул виден на каждой странице PDF<br>"
-            "• Нумерация страниц добавляется автоматически (страница/всего)"
+            f"💡 {tr('Tips')}:<br>"
+            f"• {tr('Use the file name for the header')}<br>"
+            f"• {tr('Footer is visible on every PDF page')}<br>"
+            f"• {tr('Page numbering is added automatically (page/total)')}"
         )
         hint.setWordWrap(True)
         hint.setStyleSheet("color: #666; font-size: 11px;")
