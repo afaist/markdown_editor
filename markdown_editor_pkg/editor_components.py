@@ -131,7 +131,8 @@ class ToolbarBuilder:
     def build(self) -> None:
         """Собрать тулбар и добавить его в editor."""
 
-        style_sheet_lbl = "color: white;"
+        # style_sheet_lbl = "color: white;"
+        style_sheet_lbl = ""
 
         parent = self._editor
         toolbar = QToolBar("Форматирование")
