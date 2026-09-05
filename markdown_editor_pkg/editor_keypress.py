@@ -54,7 +54,10 @@ def _is_empty_blockquote(line: str) -> tuple[bool, str] | None:
     m = _BLOCKQUOTE_RE.match(line)
     if m:
         prefix = m.group(2)  # это "> "
-        return True, prefix
+        # Проверяем, что после префикса нет значимого текста
+        remaining = line[m.end():]
+        if remaining.strip() == "":
+            return True, prefix
     return None
 
 
