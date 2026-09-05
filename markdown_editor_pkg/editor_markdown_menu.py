@@ -139,6 +139,7 @@ class MarkdownMenuBuilder:
             ("TIP", tr("Tip"), "Ctrl+Shift+2"),
             ("IMPORTANT", tr("Important"), "Ctrl+Shift+3"),
             ("WARNING", tr("Warning"), "Ctrl+Shift+4"),
+            ("CAUTION", tr("Caution"), "Ctrl+Shift+5"),
         ]:
             action = QAction(label, parent)
             action.setShortcut(QKeySequence(shortcut))

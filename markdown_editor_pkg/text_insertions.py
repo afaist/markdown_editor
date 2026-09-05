@@ -426,7 +426,8 @@ class TextInsertions:
         """Вставляет GitHub-выноску указанного типа.
 
         Args:
-            callout_type: Тип callout — "NOTE", "TIP", "IMPORTANT", "WARNING".
+            callout_type: Тип callout — "NOTE", "TIP", "IMPORTANT",
+                "WARNING", "CAUTION".
         """
         c = self._cursor()
         cursor = c.text_cursor()

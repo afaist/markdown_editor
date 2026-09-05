@@ -468,6 +468,11 @@ LaTeX and Markdown support.</source>
         <translation>Предупреждение</translation>
     </message>
     <message>
+        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="142"/>
+        <source>Caution</source>
+        <translation>Осторожно</translation>
+    </message>
+    <message>
         <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="150"/>
         <source>Inline ($...$)</source>
         <translation>Встроенная ($...$)</translation>
