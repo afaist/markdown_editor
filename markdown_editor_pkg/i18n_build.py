@@ -27,8 +27,10 @@ def lupdate() -> int:
 
     cmd = [
         "/usr/lib/qt6/bin/lupdate",
-        *([str(f) for f in py_files]),
-    ] + ["-ts", str(LOCALES_DIR / "messages.ts")]
+        *map(str, py_files),
+        "-ts",
+        str(LOCALES_DIR / "messages.ts"),
+    ]
 
     print(f"Running: {' '.join(cmd)}")
     result = subprocess.run(cmd)
