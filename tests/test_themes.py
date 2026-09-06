@@ -21,7 +21,7 @@ class TestThemeSwitching:
 
         self.tm.toggle_preview_theme()
         self.tm.toggle_preview_theme()
-        assert self.tm.theme_name == "light"
+        assert self.tm.theme_name == "monokai"
 
     def test_set_theme(self):
         """set_preview_theme устанавливает нужную тему."""
@@ -33,9 +33,17 @@ class TestThemeSwitching:
     def test_themes_dict_exists(self):
         """Словарь THEMES_CSS содержит все темы."""
         themes = self.tm.THEMES_CSS
-        assert "light" in themes
-        assert "dark" in themes
-        assert "contrast" in themes
+        for theme in (
+            "light",
+            "dark",
+            "contrast",
+            "monokai",
+            "dracula",
+            "one-dark",
+            "github-dark",
+            "solarized-dark",
+        ):
+            assert theme in themes
         for _theme_name, css in themes.items():
             assert isinstance(css, str)
             assert len(css) > 0
@@ -58,14 +66,22 @@ class TestEditorTheme:
         self.tm.toggle_editor_theme()
         assert self.tm.editor_theme == "contrast"
         self.tm.toggle_editor_theme()
-        assert self.tm.editor_theme == "light"
+        assert self.tm.editor_theme == "monokai"
 
     def test_editor_themes_dict_exists(self):
         """Словарь EDITOR_STYLES содержит все темы."""
         styles = self.tm.EDITOR_STYLES
-        assert "light" in styles
-        assert "dark" in styles
-        assert "contrast" in styles
+        for theme in (
+            "light",
+            "dark",
+            "contrast",
+            "monokai",
+            "dracula",
+            "one-dark",
+            "github-dark",
+            "solarized-dark",
+        ):
+            assert theme in styles
         for _theme_name, css in styles.items():
             assert isinstance(css, str)
             assert len(css) > 0
@@ -97,6 +113,41 @@ class TestPreviewCSS:
         assert "#000000" in css
         assert "body" in css
 
+    def test_get_preview_css_monokai(self):
+        """CSS monokai темы содержит body, background-color: #272822."""
+        self.tm.set_preview_theme("monokai")
+        css = self.tm.get_preview_css()
+        assert "#272822" in css
+        assert "body" in css
+
+    def test_get_preview_css_dracula(self):
+        """CSS dracula темы содержит body, background-color: #282A36."""
+        self.tm.set_preview_theme("dracula")
+        css = self.tm.get_preview_css()
+        assert "#282A36" in css
+        assert "body" in css
+
+    def test_get_preview_css_one_dark(self):
+        """CSS one-dark темы содержит body, background-color: #282C34."""
+        self.tm.set_preview_theme("one-dark")
+        css = self.tm.get_preview_css()
+        assert "#282C34" in css
+        assert "body" in css
+
+    def test_get_preview_css_github_dark(self):
+        """CSS github-dark темы содержит body, background-color: #0D1117."""
+        self.tm.set_preview_theme("github-dark")
+        css = self.tm.get_preview_css()
+        assert "#0D1117" in css
+        assert "body" in css
+
+    def test_get_preview_css_solarized_dark(self):
+        """CSS solarized-dark темы содержит body, background-color: #002B36."""
+        self.tm.set_preview_theme("solarized-dark")
+        css = self.tm.get_preview_css()
+        assert "#002B36" in css
+        assert "body" in css
+
 
 class TestEditorStyle:
     """Тесты QSS-стилей редактора."""
@@ -118,6 +169,41 @@ class TestEditorStyle:
         assert "QTextEdit" in style
         assert "#1e1e1e" in style
 
+    def test_get_editor_style_monokai(self):
+        """Тема Monokai редактора содержит QTextEdit, background-color: #272822."""
+        self.tm.editor_theme = "monokai"
+        style = self.tm.get_editor_style()
+        assert "QTextEdit" in style
+        assert "#272822" in style
+
+    def test_get_editor_style_dracula(self):
+        """Тема Dracula редактора содержит QTextEdit, background-color: #282A36."""
+        self.tm.editor_theme = "dracula"
+        style = self.tm.get_editor_style()
+        assert "QTextEdit" in style
+        assert "#282A36" in style
+
+    def test_get_editor_style_one_dark(self):
+        """Тема One Dark редактора содержит QTextEdit, background-color: #282C34."""
+        self.tm.editor_theme = "one-dark"
+        style = self.tm.get_editor_style()
+        assert "QTextEdit" in style
+        assert "#282C34" in style
+
+    def test_get_editor_style_github_dark(self):
+        """Тема GitHub Dark редактора содержит QTextEdit, background-color: #0D1117."""
+        self.tm.editor_theme = "github-dark"
+        style = self.tm.get_editor_style()
+        assert "QTextEdit" in style
+        assert "#0D1117" in style
+
+    def test_get_editor_style_solarized_dark(self):
+        """Тема Solarized Dark редактора содержит QTextEdit, background-color: #002B36."""
+        self.tm.editor_theme = "solarized-dark"
+        style = self.tm.get_editor_style()
+        assert "QTextEdit" in style
+        assert "#002B36" in style
+
 
 class TestThemeCycles:
     """Тесты циклического переключения тем."""
@@ -126,22 +212,42 @@ class TestThemeCycles:
         self.tm = ThemesManager()
 
     def test_toggle_preview_theme_cycles(self):
-        """Переключение темы предпросмотра: light→dark→contrast→light."""
+        """Переключение темы предпросмотра: light→dark→contrast→monokai→…→light."""
         assert self.tm.theme_name == "light"
         self.tm.toggle_preview_theme()
         assert self.tm.theme_name == "dark"
         self.tm.toggle_preview_theme()
         assert self.tm.theme_name == "contrast"
         self.tm.toggle_preview_theme()
+        assert self.tm.theme_name == "monokai"
+        self.tm.toggle_preview_theme()
+        assert self.tm.theme_name == "dracula"
+        self.tm.toggle_preview_theme()
+        assert self.tm.theme_name == "one-dark"
+        self.tm.toggle_preview_theme()
+        assert self.tm.theme_name == "github-dark"
+        self.tm.toggle_preview_theme()
+        assert self.tm.theme_name == "solarized-dark"
+        self.tm.toggle_preview_theme()
         assert self.tm.theme_name == "light"
 
     def test_toggle_editor_theme_cycles(self):
-        """Переключение темы редактора: light→dark→contrast→light."""
+        """Переключение темы редактора: light→dark→contrast→monokai→…→light."""
         assert self.tm.editor_theme == "light"
         self.tm.toggle_editor_theme()
         assert self.tm.editor_theme == "dark"
         self.tm.toggle_editor_theme()
         assert self.tm.editor_theme == "contrast"
+        self.tm.toggle_editor_theme()
+        assert self.tm.editor_theme == "monokai"
+        self.tm.toggle_editor_theme()
+        assert self.tm.editor_theme == "dracula"
+        self.tm.toggle_editor_theme()
+        assert self.tm.editor_theme == "one-dark"
+        self.tm.toggle_editor_theme()
+        assert self.tm.editor_theme == "github-dark"
+        self.tm.toggle_editor_theme()
+        assert self.tm.editor_theme == "solarized-dark"
         self.tm.toggle_editor_theme()
         assert self.tm.editor_theme == "light"
 

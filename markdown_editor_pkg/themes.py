@@ -140,9 +140,193 @@ class ThemesManager:
         th, td { border: 1px solid #666666; padding: 6px; }
         th { background-color: #2a2a2a; }
         """,
+        "monokai": """
+        body {
+            background-color: #272822;
+            color: #F8F8F2;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2, h3, h4, h5, h6 { color: #F92672; }
+        pre {
+            background-color: #1e1e1e;
+            border: 1px solid #49483e;
+            padding: 10px;
+            color: #F8F8F2;
+            overflow-x: auto;
+        }
+        code {
+            background-color: #1e1e1e;
+            color: #F8F8F2;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        blockquote {
+            border-left: 4px solid #75715e;
+            margin: 0;
+            padding-left: 16px;
+            color: #75715e;
+        }
+        a { color: #68C1D8; }
+        hr { border: none; border-top: 1px solid #49483e; }
+        table { border-collapse: collapse; }
+        th, td { border: 1px solid #49483e; padding: 6px; }
+        th { background-color: #3e3d32; }
+        """,
+        "dracula": """
+        body {
+            background-color: #282A36;
+            color: #F8F8F2;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2, h3, h4, h5, h6 { color: #FF79C6; }
+        pre {
+            background-color: #1e1f29;
+            border: 1px solid #6272a4;
+            padding: 10px;
+            color: #F8F8F2;
+            overflow-x: auto;
+        }
+        code {
+            background-color: #1e1f29;
+            color: #F8F8F2;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        blockquote {
+            border-left: 4px solid #6272a4;
+            margin: 0;
+            padding-left: 16px;
+            color: #6272a4;
+        }
+        a { color: #8BE9FD; }
+        hr { border: none; border-top: 1px solid #6272a4; }
+        table { border-collapse: collapse; }
+        th, td { border: 1px solid #6272a4; padding: 6px; }
+        th { background-color: #44475a; }
+        """,
+        "one-dark": """
+        body {
+            background-color: #282C34;
+            color: #ABB2BF;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2, h3, h4, h5, h6 { color: #E06C75; }
+        pre {
+            background-color: #1e2127;
+            border: 1px solid #3E4451;
+            padding: 10px;
+            color: #ABB2BF;
+            overflow-x: auto;
+        }
+        code {
+            background-color: #1e2127;
+            color: #E6C584;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        blockquote {
+            border-left: 4px solid #5C6370;
+            margin: 0;
+            padding-left: 16px;
+            color: #5C6370;
+        }
+        a { color: #61AFEF; }
+        hr { border: none; border-top: 1px solid #3E4451; }
+        table { border-collapse: collapse; }
+        th, td { border: 1px solid #3E4451; padding: 6px; }
+        th { background-color: #333842; }
+        """,
+        "github-dark": """
+        body {
+            background-color: #0D1117;
+            color: #C9D1D9;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2, h3, h4, h5, h6 { color: #54AEFF; }
+        pre {
+            background-color: #161B22;
+            border: 1px solid #30363D;
+            padding: 10px;
+            color: #C9D1D9;
+            overflow-x: auto;
+        }
+        code {
+            background-color: #161B22;
+            color: #FFA00A;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        blockquote {
+            border-left: 4px solid #30363D;
+            margin: 0;
+            padding-left: 16px;
+            color: #8B949E;
+        }
+        a { color: #58A6FF; }
+        hr { border: none; border-top: 1px solid #30363D; }
+        table { border-collapse: collapse; }
+        th, td { border: 1px solid #30363D; padding: 6px; }
+        th { background-color: #161B22; }
+        """,
+        "solarized-dark": """
+        body {
+            background-color: #002B36;
+            color: #839496;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2, h3, h4, h5, h6 { color: #B58900; }
+        pre {
+            background-color: #073642;
+            border: 1px solid #586e75;
+            padding: 10px;
+            color: #839496;
+            overflow-x: auto;
+        }
+        code {
+            background-color: #073642;
+            color: #2AA198;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        blockquote {
+            border-left: 4px solid #586e75;
+            margin: 0;
+            padding-left: 16px;
+            color: #586e75;
+        }
+        a { color: #2AA198; }
+        hr { border: none; border-top: 1px solid #586e75; }
+        table { border-collapse: collapse; }
+        th, td { border: 1px solid #586e75; padding: 6px; }
+        th { background-color: #073642; }
+        """,
     }
 
-    THEME_ORDER: ClassVar[list[str]] = ["light", "dark", "contrast"]
+    THEME_ORDER: ClassVar[list[str]] = [
+        "light",
+        "dark",
+        "contrast",
+        "monokai",
+        "dracula",
+        "one-dark",
+        "github-dark",
+        "solarized-dark",
+    ]
 
     def __init__(self) -> None:
         """Инициализация менеджера тем с настройками по умолчанию."""
@@ -199,6 +383,46 @@ class ThemesManager:
                 color: #ffffff;
                 selection-background-color: #666666;
                 selection-color: #ffffff;
+            }
+        """,
+        "monokai": """
+            QTextEdit {
+                background-color: #272822;
+                color: #F8F8F2;
+                selection-background-color: #49483e;
+                selection-color: #F8F8F2;
+            }
+        """,
+        "dracula": """
+            QTextEdit {
+                background-color: #282A36;
+                color: #F8F8F2;
+                selection-background-color: #44475a;
+                selection-color: #F8F8F2;
+            }
+        """,
+        "one-dark": """
+            QTextEdit {
+                background-color: #282C34;
+                color: #ABB2BF;
+                selection-background-color: #3E4451;
+                selection-color: #ABB2BF;
+            }
+        """,
+        "github-dark": """
+            QTextEdit {
+                background-color: #0D1117;
+                color: #C9D1D9;
+                selection-background-color: #30363D;
+                selection-color: #C9D1D9;
+            }
+        """,
+        "solarized-dark": """
+            QTextEdit {
+                background-color: #002B36;
+                color: #839496;
+                selection-background-color: #073642;
+                selection-color: #839496;
             }
         """,
     }

@@ -457,6 +457,16 @@ class MenuBuilder:
         self._add_action(view_menu, tr("Theme: Dark"), lambda: parent.set_theme("dark"))
         self._add_action(view_menu, tr("Theme: Contrast"), lambda: parent.set_theme("contrast"))
         view_menu.addSeparator()
+        self._add_action(view_menu, tr("Theme: Monokai"), lambda: parent.set_theme("monokai"))
+        self._add_action(view_menu, tr("Theme: Dracula"), lambda: parent.set_theme("dracula"))
+        self._add_action(view_menu, tr("Theme: One Dark"), lambda: parent.set_theme("one-dark"))
+        self._add_action(
+            view_menu, tr("Theme: GitHub Dark"), lambda: parent.set_theme("github-dark")
+        )
+        self._add_action(
+            view_menu, tr("Theme: Solarized Dark"), lambda: parent.set_theme("solarized-dark")
+        )
+        view_menu.addSeparator()
 
         # Editor themes
         self._add_action(
@@ -471,6 +481,32 @@ class MenuBuilder:
             view_menu,
             tr("Editor Theme: Contrast"),
             lambda: parent.set_editor_theme("contrast"),
+        )
+        view_menu.addSeparator()
+        self._add_action(
+            view_menu,
+            tr("Editor Theme: Monokai"),
+            lambda: parent.set_editor_theme("monokai"),
+        )
+        self._add_action(
+            view_menu,
+            tr("Editor Theme: Dracula"),
+            lambda: parent.set_editor_theme("dracula"),
+        )
+        self._add_action(
+            view_menu,
+            tr("Editor Theme: One Dark"),
+            lambda: parent.set_editor_theme("one-dark"),
+        )
+        self._add_action(
+            view_menu,
+            tr("Editor Theme: GitHub Dark"),
+            lambda: parent.set_editor_theme("github-dark"),
+        )
+        self._add_action(
+            view_menu,
+            tr("Editor Theme: Solarized Dark"),
+            lambda: parent.set_editor_theme("solarized-dark"),
         )
         view_menu.addSeparator()
 
