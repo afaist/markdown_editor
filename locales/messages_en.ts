@@ -319,6 +319,56 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="460"/>
+        <source>Theme: Monokai</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="461"/>
+        <source>Theme: Dracula</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="462"/>
+        <source>Theme: One Dark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="464"/>
+        <source>Theme: GitHub Dark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="467"/>
+        <source>Theme: Solarized Dark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="488"/>
+        <source>Editor Theme: Monokai</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="493"/>
+        <source>Editor Theme: Dracula</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="498"/>
+        <source>Editor Theme: One Dark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="503"/>
+        <source>Editor Theme: GitHub Dark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="508"/>
+        <source>Editor Theme: Solarized Dark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../markdown_editor_pkg/editor_components.py" line="453"/>
         <source>Increase Font</source>
         <translation type="unfinished"></translation>

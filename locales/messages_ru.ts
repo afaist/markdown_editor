@@ -319,6 +319,56 @@
         <translation>Тема редактора: Контрастная</translation>
     </message>
     <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="460"/>
+        <source>Theme: Monokai</source>
+        <translation>Тема: Monokai</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="461"/>
+        <source>Theme: Dracula</source>
+        <translation>Тема: Dracula</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="462"/>
+        <source>Theme: One Dark</source>
+        <translation>Тема: One Dark</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="464"/>
+        <source>Theme: GitHub Dark</source>
+        <translation>Тема: GitHub Dark</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="467"/>
+        <source>Theme: Solarized Dark</source>
+        <translation>Тема: Solarized Dark</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="488"/>
+        <source>Editor Theme: Monokai</source>
+        <translation>Тема редактора: Monokai</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="493"/>
+        <source>Editor Theme: Dracula</source>
+        <translation>Тема редактора: Dracula</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="498"/>
+        <source>Editor Theme: One Dark</source>
+        <translation>Тема редактора: One Dark</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="503"/>
+        <source>Editor Theme: GitHub Dark</source>
+        <translation>Тема редактора: GitHub Dark</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="508"/>
+        <source>Editor Theme: Solarized Dark</source>
+        <translation>Тема редактора: Solarized Dark</translation>
+    </message>
+    <message>
         <location filename="../markdown_editor_pkg/editor_components.py" line="453"/>
         <source>Increase Font</source>
         <translation>Увеличить шрифт</translation>
