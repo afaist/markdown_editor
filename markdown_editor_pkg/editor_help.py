@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from markdown_editor_pkg.editor import MarkdownEditorPyQt
 
 _GIGACODE_URL = "https://gigacode.ai"
+_MARKDOWN_GUIDE_URL = "https://www.markdownguide.org"
 
 
 class HelpHandler:
@@ -200,6 +201,134 @@ class HelpHandler:
         scroll_layout.addStretch()
         scroll.setWidget(scroll_content)
         layout.addWidget(scroll)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
+        buttons.accepted.connect(dialog.accept)
+        layout.addWidget(buttons)
+
+        dialog.exec()
+
+    def show_markdown_help(self) -> None:
+        """Show a Markdown syntax cheat-sheet dialog with a link to a detailed guide."""
+        dialog = QDialog(self.editor)
+        dialog.setWindowTitle(tr("Markdown Help"))
+        dialog.setMinimumWidth(560)
+        # Dark background with white text for readability in any theme
+        dialog.setStyleSheet(
+            "QDialog { background-color: #2d2d2d; }"
+            "QLabel { color: #f0f0f0; background-color: transparent; }"
+            "QScrollArea { background-color: #2d2d2d; border: none; }"
+        )
+
+        layout = QVBoxLayout(dialog)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll_content = QWidget()
+        scroll_layout = QVBoxLayout(scroll_content)
+
+        sections: list[tuple[str, list[str]]] = [
+            (
+                tr("Headings"),
+                [
+                    "# Heading 1",
+                    "## Heading 2",
+                    "### Heading 3",
+                ],
+            ),
+            (
+                tr("Emphasis"),
+                [
+                    "**Bold text**",
+                    "*Italic text*",
+                    "~~Strikethrough~~",
+                    "`inline code`",
+                ],
+            ),
+            (
+                tr("Lists"),
+                [
+                    "- Unordered list item",
+                    "1. Ordered list item",
+                    "- [ ] Task list item",
+                ],
+            ),
+            (
+                tr("Links & Images"),
+                [
+                    "[Link text](https://example.com)",
+                    "![Alt text](image.png)",
+                ],
+            ),
+            (
+                tr("Code Blocks"),
+                [
+                    "```python",
+                    "code here",
+                    "```",
+                ],
+            ),
+            (
+                tr("Blockquote"),
+                [
+                    "> Blockquoted text",
+                ],
+            ),
+            (
+                tr("LaTeX"),
+                [
+                    "Inline: $E = mc^2$",
+                    "Block: $$\\sum_{i=1}^{n} x_i$$",
+                ],
+            ),
+            (
+                tr("Callouts"),
+                [
+                    "> [!NOTE]",
+                    "> [!TIP]",
+                    "> [!IMPORTANT]",
+                    "> [!WARNING]",
+                    "> [!CAUTION]",
+                ],
+            ),
+            (
+                tr("Horizontal Rule"),
+                [
+                    "---",
+                ],
+            ),
+        ]
+
+        for section_title, items in sections:
+            section_label = QLabel(section_title)
+            section_label.setFont(QFont("", 0, QFont.Weight.Bold))
+            section_label.setStyleSheet(
+                "margin-top: 8px; color: #f0f0f0; background-color: transparent;"
+            )
+            scroll_layout.addWidget(section_label)
+
+            for item in items:
+                code_label = QLabel(item)
+                code_label.setStyleSheet(
+                    "background-color: #3c3c3c; color: #f0f0f0; padding: 2px 6px; "
+                    "border-radius: 3px; font-family: Consolas, monospace;"
+                )
+                scroll_layout.addWidget(code_label)
+
+        scroll_layout.addStretch()
+        scroll.setWidget(scroll_content)
+        layout.addWidget(scroll)
+
+        link_label = QLabel(
+            tr(
+                'For a detailed Markdown guide, visit: '
+                '<a href="{}">markdownguide.org</a>'
+            ).format(_MARKDOWN_GUIDE_URL)
+        )
+        link_label.setWordWrap(True)
+        link_label.setTextFormat(Qt.TextFormat.RichText)
+        link_label.setOpenExternalLinks(True)
+        layout.addWidget(link_label)
 
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
         buttons.accepted.connect(dialog.accept)

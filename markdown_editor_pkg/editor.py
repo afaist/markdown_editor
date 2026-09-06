@@ -128,7 +128,6 @@ class MarkdownEditorPyQt(QMainWindow):
         self.ui_builder.build()
         self.toolbar_builder.build()
         self.menu_builder.build()
-        self.markdown_menu_builder.build()
         # Инициализация синхронизации прокрутки
         self.init_scroll_sync()
 
@@ -334,6 +333,9 @@ class MarkdownEditorPyQt(QMainWindow):
 
     def _show_shortcuts(self) -> None:
         self.help_handler.show_shortcuts()
+
+    def _show_markdown_help(self) -> None:
+        self.help_handler.show_markdown_help()
 
     def _show_restart_notification(self) -> None:
         """Show a notification that UI text will update on next restart."""

@@ -10,12 +10,13 @@ Provides:
 from __future__ import annotations
 
 import logging
-import os
 import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import QCoreApplication, QLocale, QTranslator
+
+from markdown_editor_pkg.settings import CONFIG_FILE
 
 if TYPE_CHECKING:
     from PyQt6.QtWidgets import QApplication
@@ -44,8 +45,9 @@ def _locate_locales_dir() -> Path:
         return _LOCALES_DIR
 
     # PyInstaller frozen application
-    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-        _LOCALES_DIR = Path(sys._MEIPASS) / "locales"
+    meipass = getattr(sys, "_MEIPASS", None)
+    if getattr(sys, "frozen", False) and meipass is not None:
+        _LOCALES_DIR = Path(meipass) / "locales"
         return _LOCALES_DIR
 
     # Development: locate relative to this module
@@ -62,7 +64,9 @@ def _locate_locales_dir() -> Path:
 def setup_translator(app: QApplication) -> QTranslator:
     """Initialize and install the application translator.
 
-    Loads the language from settings and installs the QTranslator on *app*.
+    On first run (no config file), detects the OS locale and uses that
+    language if a translation is available; otherwise falls back to English.
+    On subsequent runs, uses the language stored in settings.
 
     Returns:
         The QTranslator instance (installed on *app*).
@@ -72,13 +76,34 @@ def setup_translator(app: QApplication) -> QTranslator:
     _translator = QTranslator(app)
     locales_dir = _locate_locales_dir()
 
-    # Determine preferred language from settings
-    from markdown_editor_pkg.settings import Settings
+    # Determine preferred language
+    if not CONFIG_FILE.exists():
+        # First run: try OS locale, fallback to English
+        system_locale = QLocale.system()
+        lang_code = system_locale.name().split("_")[0]  # e.g. "ru" from "ru_RU"
 
-    settings = Settings()
-    lang_code = settings.get("language", "en")
+        # Try to load the system locale language
+        if _load_translator(_translator, lang_code, locales_dir):
+            logger.info("First run: loaded system locale language %s", lang_code)
+        else:
+            # Fallback to English
+            _load_translator(_translator, "en", locales_dir)
+            lang_code = "en"
+            logger.info("First run: system locale not available, using English")
 
-    _load_translator(_translator, lang_code, locales_dir)
+        # Save the chosen language to settings
+        from markdown_editor_pkg.settings import Settings
+
+        settings = Settings()
+        settings.set("language", lang_code)
+    else:
+        # Subsequent run: use language from settings
+        from markdown_editor_pkg.settings import Settings
+
+        settings = Settings()
+        lang_code = settings.get("language", "en")
+        _load_translator(_translator, lang_code, locales_dir)
+
     app.installTranslator(_translator)
 
     logger.info("Translator initialized: language=%s", lang_code)

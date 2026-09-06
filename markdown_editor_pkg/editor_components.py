@@ -321,6 +321,8 @@ class MenuBuilder:
         self._build_file_menu(menubar, parent)
         self._build_edit_menu(menubar, parent)
         self._build_view_menu(menubar, parent)
+        # Markdown menu must be before Help (Help is always last)
+        self._editor.markdown_menu_builder.build()
         self._build_help_menu(menubar, parent)
 
     def _build_file_menu(self, menubar: QMenuBar, parent: MarkdownEditorPyQt) -> None:
@@ -498,6 +500,7 @@ class MenuBuilder:
 
         self._add_action(help_menu, tr("About"), parent._show_about)
         self._add_action(help_menu, tr("Keyboard Shortcuts"), parent._show_shortcuts)
+        self._add_action(help_menu, tr("Markdown Help"), parent._show_markdown_help)
 
     @staticmethod
     def _add_action(
