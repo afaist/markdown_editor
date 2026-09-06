@@ -124,6 +124,9 @@ class MarkdownEditorPyQt(QMainWindow):
         self.file_io._statusbar = self._statusbar_ref
         self.file_export._statusbar = self._statusbar_ref
 
+        # Загрузка настроек (темы, шрифт)
+        self._load_settings()
+
         # Загрузка последней сессии
         self.session_handler.load_session()
 
@@ -136,6 +139,27 @@ class MarkdownEditorPyQt(QMainWindow):
         self.menu_builder.build()
         # Инициализация синхронизации прокрутки
         self.init_scroll_sync()
+
+    def _load_settings(self) -> None:
+        """Загрузить сохранённые настройки тем и шрифтов из Settings."""
+        from markdown_editor_pkg.settings import Settings
+
+        settings = Settings()
+
+        # Тема предпросмотра
+        saved_theme = settings.get("theme", "light")
+        if saved_theme in self.theme_manager.THEMES_CSS:
+            self.theme_manager.set_preview_theme(saved_theme)
+
+        # Тема редактора
+        saved_editor_theme = settings.get("editor_theme", "light")
+        if saved_editor_theme in self.theme_manager.EDITOR_STYLES:
+            self.theme_manager.set_editor_theme(saved_editor_theme, self.editor)
+
+        # Шрифт
+        saved_font = settings.get("editor_font", "Consolas")
+        saved_font_size = settings.get("editor_font_size", 11)
+        self.theme_manager.set_font(saved_font, saved_font_size, self.editor)
 
     # Обработчики событий
     def on_text_change(self) -> None:

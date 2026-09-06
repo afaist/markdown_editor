@@ -336,6 +336,27 @@ class ThemesManager:
         self._font_family = "Consolas"
         self._font_size = 11
 
+    # ─── Персистентность ──────────────────────────────────────────────
+
+    def _persist_theme(self) -> None:
+        """Сохранить текущую тему предпросмотра в Settings."""
+        from markdown_editor_pkg.settings import Settings
+
+        Settings().set("theme", self.theme_name)
+
+    def _persist_editor_theme(self) -> None:
+        """Сохранить текущую тему редактора в Settings."""
+        from markdown_editor_pkg.settings import Settings
+
+        Settings().set("editor_theme", self.editor_theme)
+
+    def _persist_font(self) -> None:
+        """Сохранить текущий шрифт и размер в Settings."""
+        from markdown_editor_pkg.settings import Settings
+
+        Settings().set("editor_font", self._font_family)
+        Settings().set("editor_font_size", self._font_size)
+
     # ─── CSS-темы (предпросмотр) ───────────────────────────────────────
 
     def get_preview_css(self) -> str:
@@ -350,12 +371,14 @@ class ThemesManager:
         """Переключить тему предпросмотра. Возвращает новое имя темы."""
         current_idx = self.THEME_ORDER.index(self.theme_name)
         self.theme_name = self.THEME_ORDER[(current_idx + 1) % len(self.THEME_ORDER)]
+        self._persist_theme()
         return self.theme_name
 
     def set_preview_theme(self, theme_name: str) -> None:
         """Установить тему предпросмотра."""
         if theme_name in self.THEMES_CSS:
             self.theme_name = theme_name
+            self._persist_theme()
 
     # ─── QSS-темы (редактор) ──────────────────────────────────────────
 
@@ -440,13 +463,16 @@ class ThemesManager:
         """Переключить тему редактора. Возвращает новое имя темы."""
         current_idx = self.THEME_ORDER.index(self.editor_theme)
         self.editor_theme = self.THEME_ORDER[(current_idx + 1) % len(self.THEME_ORDER)]
+        self._persist_editor_theme()
         return self.editor_theme
 
-    def set_editor_theme(self, theme_name: str, text_edit: QTextEdit) -> None:
+    def set_editor_theme(self, theme_name: str, text_edit: QTextEdit | None = None) -> None:
         """Установить тему редактора и применить стиль к QTextEdit."""
         if theme_name in self.EDITOR_STYLES:
             self.editor_theme = theme_name
-            text_edit.setStyleSheet(self.EDITOR_STYLES[theme_name])
+            if text_edit is not None:
+                text_edit.setStyleSheet(self.EDITOR_STYLES[theme_name])
+            self._persist_editor_theme()
 
     # ─── Шрифты ───────────────────────────────────────────────────────
 
@@ -459,6 +485,7 @@ class ThemesManager:
     def font_family(self, value: str) -> None:
         """Установить семейство шрифта."""
         self._font_family = value
+        self._persist_font()
 
     def get_available_fonts(self) -> list[str]:
         """Получить список доступных шрифтов."""
@@ -473,6 +500,7 @@ class ThemesManager:
     def font_size(self, value: int) -> None:
         """Установить размер шрифта с ограничением."""
         self._font_size = max(self.MIN_FONT_SIZE, min(self.MAX_FONT_SIZE, value))
+        self._persist_font()
 
     def set_font(self, family: str, size: int, text_edit: QTextEdit | None) -> None:
         """Установить шрифт и размер для QTextEdit."""

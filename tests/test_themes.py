@@ -289,3 +289,92 @@ class TestFontBounds:
         self.tm._font_size = ThemesManager.MIN_FONT_SIZE + 1
         new_size = self.tm.decrease_font(None)
         assert new_size == ThemesManager.MIN_FONT_SIZE
+
+
+class TestThemePersistence:
+    """Тесты сохранения тем в Settings."""
+
+    def test_set_theme_saves_to_settings(self, tmp_path, monkeypatch):
+        """set_preview_theme сохраняет тему в Settings."""
+        from markdown_editor_pkg import settings as settings_mod
+
+        config_path = tmp_path / "test_config.json"
+        monkeypatch.setattr(settings_mod, "CONFIG_FILE", config_path)
+
+        tm = ThemesManager()
+        tm.set_preview_theme("dracula")
+
+        # Новый экземпляр Settings читает тот же файл
+        from markdown_editor_pkg.settings import Settings
+
+        settings = Settings()
+        assert settings.get("theme") == "dracula"
+
+    def test_set_editor_theme_saves_to_settings(self, tmp_path, monkeypatch):
+        """set_editor_theme сохраняет тему в Settings."""
+        from markdown_editor_pkg import settings as settings_mod
+
+        config_path = tmp_path / "test_config.json"
+        monkeypatch.setattr(settings_mod, "CONFIG_FILE", config_path)
+
+        tm = ThemesManager()
+        tm.set_editor_theme("monokai")
+
+        from markdown_editor_pkg.settings import Settings
+
+        settings = Settings()
+        assert settings.get("editor_theme") == "monokai"
+
+    def test_settings_loads_saved_theme(self, tmp_path):
+        """Settings загружает сохранённую тему."""
+        from markdown_editor_pkg.settings import Settings
+
+        config_path = tmp_path / "test_config.json"
+        # Сначала сохраняем
+        settings = Settings(config_path=config_path)
+        settings.set("theme", "github-dark")
+        settings.set("editor_theme", "solarized-dark")
+
+        # Затем загружаем в новом экземпляре
+        settings2 = Settings(config_path=config_path)
+        assert settings2.get("theme") == "github-dark"
+        assert settings2.get("editor_theme") == "solarized-dark"
+
+    def test_font_settings_saves_to_settings(self, tmp_path, monkeypatch):
+        """Настройки шрифта сохраняются в Settings."""
+        from markdown_editor_pkg import settings as settings_mod
+
+        config_path = tmp_path / "test_config.json"
+        monkeypatch.setattr(settings_mod, "CONFIG_FILE", config_path)
+
+        tm = ThemesManager()
+        tm.set_font("JetBrains Mono", 16, None)
+
+        from markdown_editor_pkg.settings import Settings
+
+        settings = Settings()
+        assert settings.get("editor_font") == "JetBrains Mono"
+        assert settings.get("editor_font_size") == 16
+
+    def test_toggle_theme_saves_to_settings(self, tmp_path, monkeypatch):
+        """toggle_preview_theme сохраняет новую тему в Settings."""
+        from markdown_editor_pkg import settings as settings_mod
+
+        config_path = tmp_path / "test_config.json"
+        monkeypatch.setattr(settings_mod, "CONFIG_FILE", config_path)
+
+        tm = ThemesManager()
+        tm.set_preview_theme("light")
+
+        from markdown_editor_pkg.settings import Settings
+
+        settings = Settings()
+        assert settings.get("theme") == "light"
+
+        tm.toggle_preview_theme()
+        settings = Settings()
+        assert settings.get("theme") == "dark"
+
+        tm.toggle_preview_theme()
+        settings = Settings()
+        assert settings.get("theme") == "contrast"
