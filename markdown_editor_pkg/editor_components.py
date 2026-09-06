@@ -517,6 +517,7 @@ class MenuBuilder:
                 return _callback
 
             lang_action.triggered.connect(_make_lang_callback(lang["code"]))
+            assert lang_menu is not None
             lang_menu.addAction(lang_action)
 
     def _build_help_menu(self, menubar: QMenuBar, parent: MarkdownEditorPyQt) -> None:

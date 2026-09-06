@@ -40,7 +40,7 @@ def get_package_dir() -> str:
     Работает как в режиме разработки, так и в собранном бинарнике.
     """
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-        return sys._MEIPASS
+        return str(sys._MEIPASS)  # type: ignore[no-any-return]
     return os.path.dirname(os.path.abspath(__file__))
 
 
