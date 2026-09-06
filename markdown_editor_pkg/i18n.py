@@ -144,9 +144,7 @@ def load_language(lang_code: str) -> bool:
     return loaded
 
 
-def _load_translator(
-    translator: QTranslator, lang_code: str, locales_dir: Path
-) -> bool:
+def _load_translator(translator: QTranslator, lang_code: str, locales_dir: Path) -> bool:
     """Internal: load a .qm file for *lang_code* into *translator*."""
     lang_info = _get_language_info(lang_code)
     if lang_info is None:

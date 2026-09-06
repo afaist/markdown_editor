@@ -7,7 +7,11 @@ from typing import ClassVar
 
 
 class PrismJSProcessor:
-    """Управление ресурсами и интеграцией Prism.js."""
+    """Управление ресурсами и интеграцией Prism.js для подсветки кода.
+
+    Обеспечивает встраивание CSS и JS Prism.js в HTML-документ,
+    поддерживает несколько языков и тем оформления.
+    """
 
     # Константы путей (относительно base_dir, где находится markdown_editor_pkg)
     PRISM_JS = "prism/prism.min.js"

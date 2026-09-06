@@ -14,6 +14,11 @@ class PDFHandler:
     """Обработчик PDF-настроек и экспорта."""
 
     def __init__(self, editor: MarkdownEditorPyQt):
+        """Инициализация обработчика PDF-экспорта.
+
+        Args:
+            editor: Ссылка на основной объект MarkdownEditorPyQt.
+        """
         self.editor = editor
 
     def show_pdf_settings(self) -> None:

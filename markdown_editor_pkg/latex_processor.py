@@ -82,9 +82,15 @@ def _unicode_to_latex(text: str) -> str:
 
 
 class LaTeXProcessor:
-    """Извлекает LaTeX-формулы из текста и заменяет их на плейсхолдеры."""
+    """Извлекает LaTeX-формулы из текста и заменяет их на плейсхолдеры.
+
+    Поддерживает блочные ($$...$$) и встроенные ($...$) формулы.
+    Преобразует Unicode-символы в LaTeX-команды и восстанавливает
+    формулы после обработки Markdown.
+    """
 
     def __init__(self) -> None:
+        """Инициализация процессора LaTeX-формул."""
         self.display_math_cache: list[str] = []
         self.inline_math_cache: list[str] = []
 
@@ -94,8 +100,16 @@ class LaTeXProcessor:
         self.inline_math_cache = []
 
     def process(self, text: str) -> str:
-        """
-        Заменяет $$...$$ и $...$ на плейсхолдеры, сохраняя формулы в кэше.
+        """Заменить LaTeX-формулы на плейсхолдеры, сохранив формулы в кэше.
+
+        Сначала обрабатывает блочные формулы $$...$$, затем встроенные $...$.
+        Преобразует Unicode-математические символы в LaTeX-команды.
+
+        Args:
+            text: Исходный Markdown-текст.
+
+        Returns:
+            Текст с плейсхолдерами вместо формул.
         """
         self.reset()
 
@@ -123,7 +137,14 @@ class LaTeXProcessor:
         return result
 
     def restore_display(self, html: str) -> str:
-        """Восстанавливает блочные формулы из плейсхолдеров в HTML."""
+        """Восстановить блочные формулы из плейсхолдеров в HTML.
+
+        Args:
+            html: HTML-текст с плейсхолдерами display-math-N.
+
+        Returns:
+            HTML с восстановленными $$...$$ формулами.
+        """
 
         def restore(match: re.Match) -> str:
             idx = int(match.group(1))
@@ -136,7 +157,14 @@ class LaTeXProcessor:
         return html
 
     def restore_inline(self, html: str) -> str:
-        """Восстанавливает встроенные формулы из плейсхолдеров в HTML."""
+        """Восстановить встроенные формулы из плейсхолдеров в HTML.
+
+        Args:
+            html: HTML-текст с плейсхолдерами inline-math-N.
+
+        Returns:
+            HTML с восстановленными $...$ формулами.
+        """
 
         def restore(match: re.Match) -> str:
             idx = int(match.group(1))
@@ -156,7 +184,14 @@ class StrikethroughProcessor:
     STRIKE_PATTERN = re.compile(r"~~(.+?)~~")
 
     def apply(self, html: str) -> str:
-        """Применяет зачёркивание, защищая содержимое блоков кода."""
+        """Применить зачёркивание, защищая содержимое блоков кода.
+
+        Args:
+            html: HTML-текст для обработки.
+
+        Returns:
+            HTML с заменёнными ~~text~~ на <del>text</del>.
+        """
         code_blocks: list[str] = []
 
         def save_code(match: re.Match) -> str:

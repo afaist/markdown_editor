@@ -10,11 +10,18 @@ SESSION_CONFIG_FILE = Path.home() / ".markdown_editor_config.json"
 
 
 class SessionManager:
-    """Сохраняет и восстанавливает путь к последнему открытому файлу."""
+    """Сохраняет и восстанавливает путь к последнему открытому файлу.
+
+    Данные хранятся в JSON-файле ~/.markdown_editor_config.json.
+    """
 
     @staticmethod
     def save(filepath: str) -> None:
-        """Сохранить путь к файлу в конфигурационном файле."""
+        """Сохранить путь к файлу в конфигурационном файле.
+
+        Args:
+            filepath: Абсолютный путь к файлу.
+        """
         try:
             config = {"last_file": filepath}
             with open(SESSION_CONFIG_FILE, "w", encoding="utf-8") as f:
@@ -24,7 +31,11 @@ class SessionManager:
 
     @staticmethod
     def load() -> str | None:
-        """Загрузить путь к последнему файлу. Возвращает None, если не найден."""
+        """Загрузить путь к последнему файлу из конфигурации.
+
+        Returns:
+            Путь к последнему файлу или None, если не найден.
+        """
         if not SESSION_CONFIG_FILE.exists():
             return None
         try:

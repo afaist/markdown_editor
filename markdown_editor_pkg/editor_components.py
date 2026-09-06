@@ -39,10 +39,22 @@ class UIBuilder:
     """Создаёт основной UI: сплиттер, редактор, предпросмотр, статусбар."""
 
     def __init__(self, editor: MarkdownEditorPyQt) -> None:
+        """Инициализация сборщика UI.
+
+        Args:
+            editor: Ссылка на основной объект MarkdownEditorPyQt.
+        """
         self._editor = editor
 
     def build(self, parent: QMainWindow | None = None) -> None:
-        """Собрать весь UI и добавить его в parent (MarkdownEditorPyQt)."""
+        """Собрать весь UI и добавить его в parent (MarkdownEditorPyQt).
+
+        Создаёт сплиттер с редактором и превью, строит строку состояния
+        и подключает сигналы editor.textChanged.
+
+        Args:
+            parent: Родительский QMainWindow; по умолчанию используется self._editor.
+        """
         p = parent or self._editor
         self._build_splitter(p)
         self._build_statusbar(p)
@@ -126,10 +138,19 @@ class ToolbarBuilder:
     """Создаёт панель инструментов (QToolBar) с кнопками форматирования."""
 
     def __init__(self, editor: MarkdownEditorPyQt) -> None:
+        """Инициализация сборщика панели инструментов.
+
+        Args:
+            editor: Ссылка на основной объект MarkdownEditorPyQt.
+        """
         self._editor = editor
 
     def build(self) -> None:
-        """Собрать тулбар и добавить его в editor."""
+        """Собрать панель инструментов с комбобоксами, кнопками и действиями.
+
+        Создаёт QToolBar с комбобоксами для заголовков, стилей, типов списков,
+        кнопками форматирования, файловых действий и элементов управления шрифтом.
+        """
 
         # style_sheet_lbl = "color: white;"
         style_sheet_lbl = ""
@@ -310,10 +331,15 @@ class MenuBuilder:
     """Создаёт меню: Файл, Правка, Вид, Справка."""
 
     def __init__(self, editor: MarkdownEditorPyQt) -> None:
+        """Инициализация сборщика меню.
+
+        Args:
+            editor: Ссылка на основной объект MarkdownEditorPyQt.
+        """
         self._editor = editor
 
     def build(self) -> None:
-        """Собрать все меню и добавить их в menubar editor."""
+        """Собрать все меню (File, Edit, View, Markdown, Help) и добавить в menubar."""
         parent: MarkdownEditorPyQt = self._editor
         menubar = parent.menuBar()
         assert menubar is not None

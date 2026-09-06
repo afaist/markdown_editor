@@ -17,10 +17,19 @@ class FindReplaceDialog:
     """Modal dialog for finding and replacing text."""
 
     def __init__(self, editor):
+        """Инициализация диалога поиска и замены.
+
+        Args:
+            editor: Ссылка на основной объект MarkdownEditorPyQt.
+        """
         self.editor = editor  # MarkdownEditorPyQt
 
     def exec_dialog(self) -> int:
-        """Show the dialog and perform find/replace."""
+        """Показать модальный диалог поиска и замены текста.
+
+        Returns:
+            Код завершения диалога (Accepted/Rejected).
+        """
         dialog = QDialog(self.editor)
         dialog.setWindowTitle(tr("Find and Replace"))
         layout = QVBoxLayout()

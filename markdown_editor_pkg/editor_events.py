@@ -16,6 +16,11 @@ class EventHandler:
     """Обработчики событий: textChanged, обновление предпросмотра, статус."""
 
     def __init__(self, editor: "MarkdownEditorPyQt"):
+        """Инициализация обработчика событий.
+
+        Args:
+            editor: Ссылка на основной объект MarkdownEditorPyQt.
+        """
         self.editor = editor
         # Флаг для предотвращения рекурсии при синхронизации скролла
         self._syncing_scroll = False
@@ -25,7 +30,11 @@ class EventHandler:
         self._scroll_from_editor = False
 
     def connect(self) -> None:
-        """Подключить обработчики к сигналам (вызывается после init_ui)."""
+        """Подключить обработчики к сигналам (вызывается после init_ui).
+
+        Примечание: сигналы textChanged уже подключены в UIBuilder,
+        поэтому этот метод в настоящее время пуст.
+        """
         # Сигналы уже подключены в UIBuilder, здесь нет нужды
 
     def on_text_change(self) -> None:
@@ -48,7 +57,9 @@ class EventHandler:
         if self.editor.current_file:
             filename = os.path.basename(self.editor.current_file)
             if self.editor.is_dirty:
-                self.editor.file_name_label.setText(tr("Unsaved file. {filename}").format(filename=filename))
+                self.editor.file_name_label.setText(
+                    tr("Unsaved file. {filename}").format(filename=filename)
+                )
                 self.editor.file_name_label.setStyleSheet("color: #cc6600; font-weight: bold;")
             else:
                 self.editor.file_name_label.setText(filename)
@@ -86,13 +97,9 @@ class EventHandler:
             char_lbl = self.editor.char_count_label
             word_lbl = self.editor.word_count_label
             if char_lbl is not None:
-                char_lbl.setText(
-                    tr("Characters: {count}").format(count=len(text))
-                )
+                char_lbl.setText(tr("Characters: {count}").format(count=len(text)))
             if word_lbl is not None:
-                word_lbl.setText(
-                    tr("Words: {count}").format(count=len(text.split()))
-                )
+                word_lbl.setText(tr("Words: {count}").format(count=len(text.split())))
 
     def on_cursor_position_changed(self) -> None:
         """Синхронизация предпросмотра с позицией курсора в редакторе.

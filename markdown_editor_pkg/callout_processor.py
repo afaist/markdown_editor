@@ -31,7 +31,17 @@ class CalloutProcessor:
     )
 
     def process(self, html: str) -> str:
-        """Заменяет blockquote с callout-маркерами на div'ы."""
+        """Заменить blockquote с callout-маркерами на стилизованные div'ы.
+
+        Преобразует <blockquote> с [!NOTE], [!TIP], [!IMPORTANT], [!WARNING],
+        [!CAUTION] в <div class="callout callout-{type}">.
+
+        Args:
+            html: HTML-текст с blockquote.
+
+        Returns:
+            HTML с заменёнными blockquote на callout div'ы.
+        """
         return self.BLOCKQUOTE_PATTERN.sub(self._process_blockquote, html)
 
     def _process_blockquote(self, match: re.Match) -> str:
@@ -60,7 +70,7 @@ class CalloutProcessor:
             if type_match:
                 flush()
                 current_type = type_match.group(1).lower()
-                body_text = p[type_match.end():].strip()
+                body_text = p[type_match.end() :].strip()
                 if body_text:
                     current_paragraphs.append(body_text)
             else:

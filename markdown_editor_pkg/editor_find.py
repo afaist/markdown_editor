@@ -14,9 +14,14 @@ class FindReplaceHandler:
     """Обработчик диалога поиска и замены."""
 
     def __init__(self, editor: MarkdownEditorPyQt):
+        """Инициализация обработчика поиска и замены.
+
+        Args:
+            editor: Ссылка на основной объект MarkdownEditorPyQt.
+        """
         self.editor = editor
 
     def find_replace(self) -> None:
-        """Открыть диалог поиска и замены."""
+        """Открыть модальный диалог FindReplaceDialog для поиска и замены текста."""
         dialog = FindReplaceDialog(self.editor)
         dialog.exec_dialog()

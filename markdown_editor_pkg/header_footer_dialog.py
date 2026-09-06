@@ -17,6 +17,12 @@ class HeaderFooterDialog(QDialog):
     """Dialog for PDF export header/footer settings."""
 
     def __init__(self, parent=None, current_headers: dict | None = None):
+        """Инициализация диалога настроек колонтитулов PDF.
+
+        Args:
+            parent: Родительский виджет.
+            current_headers: Текущие настройки колонтитулов или None для значений по умолчанию.
+        """
         super().__init__(parent)
         self.setWindowTitle(tr("PDF Export Settings"))
         self.setModal(True)
@@ -42,16 +48,12 @@ class HeaderFooterDialog(QDialog):
 
         self.header_edit = QLineEdit()
         self.header_edit.setText(self.header_text)
-        self.header_edit.setPlaceholderText(
-            tr("Header text (e.g., file name)")
-        )
+        self.header_edit.setPlaceholderText(tr("Header text (e.g., file name)"))
         form.addRow(tr("Header:"), self.header_edit)
 
         self.footer_edit = QLineEdit()
         self.footer_edit.setText(self.footer_text)
-        self.footer_edit.setPlaceholderText(
-            tr("Footer text (e.g., markdown_editor)")
-        )
+        self.footer_edit.setPlaceholderText(tr("Footer text (e.g., markdown_editor)"))
         form.addRow(tr("Footer:"), self.footer_edit)
 
         layout.addLayout(form)
@@ -85,7 +87,11 @@ class HeaderFooterDialog(QDialog):
         self.footer_edit.setEnabled(checked)
 
     def get_headers(self) -> dict:
-        """Возвращает настройки колонтитулов."""
+        """Возвращает текущие настройки колонтитулов из полей диалога.
+
+        Returns:
+            Словарь с ключами show_headers, header_text, footer_text.
+        """
         return {
             "show_headers": self.show_cb.isChecked(),
             "header_text": self.header_edit.text().strip(),

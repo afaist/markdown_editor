@@ -43,6 +43,11 @@ class Settings:
     """
 
     def __init__(self, config_path: Path | None = None) -> None:
+        """Инициализация менеджера настроек.
+
+        Args:
+            config_path: Путь к файлу конфигурации; по умолчанию ~/.markdown_editor_config.json.
+        """
         self._path: Path = config_path or CONFIG_FILE
         self._data: dict[str, Any] = dict(DEFAULTS)
         self._loaded = False
@@ -50,18 +55,35 @@ class Settings:
     # ── Public API ────────────────────────────────────────────────────
 
     def get(self, key: str, default: Any = None) -> Any:
-        """Return the value for *key*, falling back to *default*."""
+        """Получить значение настройки по ключу с fallback на default.
+
+        Args:
+            key: Ключ настройки.
+            default: Значение по умолчанию, если ключ отсутствует.
+
+        Returns:
+            Значение настройки или default.
+        """
         self._ensure_loaded()
         return self._data.get(key, default)
 
     def set(self, key: str, value: Any) -> None:
-        """Set *key* to *value* and persist to disk."""
+        """Установить значение настройки и сохранить на диск.
+
+        Args:
+            key: Ключ настройки.
+            value: Новое значение.
+        """
         self._ensure_loaded()
         self._data[key] = value
         self._persist()
 
     def get_all(self) -> dict[str, Any]:
-        """Return a copy of all settings."""
+        """Возвращает копию всех настроек.
+
+        Returns:
+            Словарь со всеми текущими настройками.
+        """
         self._ensure_loaded()
         return dict(self._data)
 

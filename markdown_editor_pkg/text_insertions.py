@@ -14,9 +14,18 @@ if TYPE_CHECKING:
 
 
 class EditorCursor:
-    """Прокси для QTextCursor, убирающий прямой доступ к QTextEdit."""
+    """Прокси для QTextCursor, убирающий прямой доступ к QTextEdit.
+
+    Предоставляет удобные методы для работы с QTextCursor, включая
+    оборачивание выделения в префикс/суффикс.
+    """
 
     def __init__(self, text_edit: QTextEdit) -> None:
+        """Инициализация прокси курсора.
+
+        Args:
+            text_edit: Ссылка на QTextEdit.
+        """
         self._edit = text_edit
 
     @property
@@ -71,9 +80,18 @@ class EditorCursor:
 
 
 class TextInsertions:
-    """Методы вставки форматированного текста в QTextEdit."""
+    """Методы вставки форматированного текста в QTextEdit.
+
+    Поддерживает вставку: жирного, курсива, зачёркивания, кода, заголовков,
+    списков, цитат, LaTeX, ссылок, изображений и других элементов.
+    """
 
     def __init__(self, editor):
+        """Инициализация обработчика вставок текста.
+
+        Args:
+            editor: Ссылка на основной объект MarkdownEditorPyQt.
+        """
         self.editor = editor
 
     def _cursor(self) -> EditorCursor:
@@ -99,10 +117,12 @@ class TextInsertions:
     # ─── Стили (wrap) ───────────────────────────────────────────────────
 
     def insert_bold(self) -> None:
+        """Вставить выделение жирным: **текст**."""
         self._cursor().wrap_selection("**", "**", "текст")
         self._notify()
 
     def insert_italic(self) -> None:
+        """Вставить курсив: *текст*."""
         self._cursor().wrap_selection("*", "*", "текст")
         self._notify()
 
@@ -117,6 +137,11 @@ class TextInsertions:
     # ─── Заголовки ──────────────────────────────────────────────────────
 
     def insert_heading(self, level: int) -> None:
+        """Вставить заголовок Markdown уровня 1–7.
+
+        Args:
+            level: Уровень заголовка (1–7).
+        """
         if not 1 <= level <= 7:
             return
         c = self._cursor()
@@ -141,6 +166,7 @@ class TextInsertions:
     # ─── Списки ─────────────────────────────────────────────────────────
 
     def insert_unordered_list(self) -> None:
+        """Вставить маркированный список (- элемент) или применить к выделению."""
         c = self._cursor()
         cursor = c.text_cursor()
         selection = cursor.selectedText()
@@ -172,6 +198,7 @@ class TextInsertions:
         self._notify()
 
     def insert_ordered_list(self) -> None:
+        """Вставить нумерованный список (1. элемент) или применить к выделению."""
         c = self._cursor()
         cursor = c.text_cursor()
         selection = cursor.selectedText()
@@ -203,6 +230,7 @@ class TextInsertions:
         self._notify()
 
     def insert_task_list(self) -> None:
+        """Вставить список задач (- [ ] task) или применить к выделению."""
         c = self._cursor()
         cursor = c.text_cursor()
         selection = cursor.selectedText()
@@ -236,6 +264,7 @@ class TextInsertions:
     # ─── Цитата ─────────────────────────────────────────────────────────
 
     def insert_blockquote(self) -> None:
+        """Вставить цитату (> ) или применить к выделению."""
         c = self._cursor()
         cursor = c.text_cursor()
         selection = cursor.selectedText()
@@ -364,6 +393,7 @@ class TextInsertions:
     # ─── Ссылки и изображения ───────────────────────────────────────────
 
     def insert_link(self) -> None:
+        """Вставить ссылку через диалог ввода URL и текста."""
         url, ok1 = QInputDialog.getText(self.editor, "Вставить ссылку", "URL:")
         if ok1 and url:
             text, ok2 = QInputDialog.getText(self.editor, "Вставить ссылку", "Текст ссылки:")
@@ -375,6 +405,7 @@ class TextInsertions:
                 self._notify()
 
     def insert_image(self) -> None:
+        """Вставить изображение через диалог выбора файла."""
         filepath, _ = QFileDialog.getOpenFileName(
             self.editor,
             "Вставить изображение",
@@ -392,6 +423,7 @@ class TextInsertions:
     # ─── Дополнительные вставки ─────────────────────���───────────────────
 
     def insert_horizontal_rule(self) -> None:
+        """Вставить горизонтальную линию (---)."""
         c = self._cursor()
         cursor = c.text_cursor()
         cursor.insertText("\n---\n")

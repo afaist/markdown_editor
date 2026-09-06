@@ -18,15 +18,22 @@ from markdown_editor_pkg.resource_path import get_base_dir
 
 @dataclass
 class EditorState:
-    """Контекст состояния редактора: текущий файл и чистота."""
+    """Контекст состояния редактора: текущий файл и чистота.
+
+    Attributes:
+        current_file: Путь к текущему открытому файлу или None.
+        is_dirty: Флаг наличия несохранённых изменений.
+    """
 
     current_file: str | None = None
     is_dirty: bool = False
 
     def mark_clean(self) -> None:
+        """Установить флаг is_dirty в False."""
         self.is_dirty = False
 
     def mark_dirty(self) -> None:
+        """Установить флаг is_dirty в True."""
         self.is_dirty = True
 
 
@@ -40,6 +47,14 @@ class FileIO:
         renderer: MarkdownRenderer,
         state: EditorState,
     ):
+        """Инициализация обработчика файловых операций.
+
+        Args:
+            editor: Ссылка на основной объект MarkdownEditorPyQt.
+            statusbar: Ссылка на QStatusBar для сообщений.
+            renderer: Экземпляр MarkdownRenderer для рендеринга.
+            state: Экземпляр EditorState для управления состоянием.
+        """
         self._editor = editor
         self._statusbar = statusbar
         self._renderer = renderer
@@ -77,7 +92,11 @@ class FileIO:
     # ─── Открытие / Сохранение ─────────────────────────────────────────
 
     def open_file(self) -> None:
-        """Открыть Markdown-файл через диалог."""
+        """Открыть Markdown-файл через диалог выбора файла.
+
+        Показывает QFileDialog, читает содержимое, обновляет редактор,
+        статус и предпросмотр.
+        """
         filepath, _ = QFileDialog.getOpenFileName(
             self._editor,
             "Открыть файл",
@@ -93,7 +112,11 @@ class FileIO:
             self._error_msg("Ошибка", f"Не удалось открыть файл:\n{e!s}")
 
     def save_file(self) -> None:
-        """Сохранить текущий файл (или вызвать save_file_as, если путь не задан)."""
+        """Сохранить текущий файл в _state.current_file.
+
+        Если путь не задан, вызывает save_file_as. Записывает содержимое
+        редактора в файл и сбрасывает флаг is_dirty.
+        """
         if not self._state.current_file:
             self.save_file_as()
             return
@@ -108,7 +131,10 @@ class FileIO:
             self._error_msg("Ошибка", f"Не удалось сохранить файл:\n{e!s}")
 
     def save_file_as(self) -> None:
-        """Сохранить файл под новым именем."""
+        """Сохранить файл под новым именем через диалог QFileDialog.
+
+        Устанавливает новый путь в _state.current_file и вызывает save_file().
+        """
         filepath, _ = QFileDialog.getSaveFileName(
             self._editor,
             "Сохранить как...",
@@ -120,7 +146,11 @@ class FileIO:
             self.save_file()
 
     def new_file(self) -> None:
-        """Создать новый файл, предложив сохранить текущий при наличии изменений."""
+        """Создать новый файл, предложив сохранить текущий при наличии изменений.
+
+        Если есть несохранённые изменения, показывает QMessageBox с вопросом
+        о сохранении. Очищает редактор и сбрасывает состояние.
+        """
         if self._state.is_dirty:
             result = QMessageBox.question(
                 self._editor,
@@ -152,6 +182,14 @@ class FileExport:
         renderer: MarkdownRenderer,
         state: EditorState,
     ):
+        """Инициализация обработчика экспорта.
+
+        Args:
+            editor: Ссылка на основной объект MarkdownEditorPyQt.
+            statusbar: Ссылка на QStatusBar для сообщений.
+            renderer: Экземпляр MarkdownRenderer для рендеринга.
+            state: Экземпляр EditorState для управления состоянием.
+        """
         self._editor = editor
         self._statusbar = statusbar
         self._renderer = renderer
@@ -217,7 +255,11 @@ class FileExport:
             self._error_msg("Ошибка", f"Не удалось экспортировать в HTML:\n{e!s}")
 
     def export_to_pdf(self) -> None:
-        """Экспортировать Markdown в PDF через QWebEngineView."""
+        """Экспортировать Markdown в PDF через QWebEngineView.
+
+        Генерирует временный HTML-файл, загружает его в preview и вызывает
+        page.printToPdf() для записи PDF в выбранный файл.
+        """
         filepath, _ = QFileDialog.getSaveFileName(
             self._editor, "Экспорт в PDF", "", "PDF files (*.pdf);;All files (*)"
         )

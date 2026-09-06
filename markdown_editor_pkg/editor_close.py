@@ -17,10 +17,19 @@ class CloseHandler:
     """Window close event handler."""
 
     def __init__(self, editor: MarkdownEditorPyQt):
+        """Инициализация обработчика закрытия окна.
+
+        Args:
+            editor: Ссылка на основной объект MarkdownEditorPyQt.
+        """
         self.editor = editor
 
     def on_close(self, event: QCloseEvent) -> None:
-        """Handle the window close event."""
+        """Обработать событие закрытия окна с проверкой несохранённых изменений.
+
+        Если есть несохранённые изменения, показывает QMessageBox с вариантами
+        «Сохранить», «Отбросить» или «Отмена».
+        """
         if self.editor.is_dirty:
             msg = QMessageBox(self.editor)
             msg.setWindowTitle(tr("Confirm Exit"))

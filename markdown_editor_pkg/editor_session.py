@@ -18,14 +18,27 @@ class SessionHandler:
     """Обработчик сессий: сохранение/загрузка последнего файла."""
 
     def __init__(self, editor: MarkdownEditorPyQt):
+        """Инициализация обработчика сессий.
+
+        Args:
+            editor: Ссылка на основной объект MarkdownEditorPyQt.
+        """
         self.editor = editor
 
     def save_session(self, filepath: str) -> None:
-        """Сохранить путь к файлу в сессии."""
+        """Сохранить путь к файлу в сессии через SessionManager.
+
+        Args:
+            filepath: Абсолютный путь к сохранённому файлу.
+        """
         SessionManager.save(filepath)
 
     def load_session(self) -> None:
-        """Загрузить последнюю сессию (открыть последний файл)."""
+        """Загрузить последнюю сессию: открыть последний файл, если он существует.
+
+        Читает содержимое последнего файла, устанавливает текст в редактор,
+        обновляет статус и предпросмотр.
+        """
         last_file = SessionManager.load()
         if last_file and os.path.exists(last_file):
             self.editor.preview_timer.stop()

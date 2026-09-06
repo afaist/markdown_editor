@@ -35,6 +35,7 @@ def download_file(url: str, destination: str) -> None:
 
 
 def main():
+    """Загрузить ресурсы KaTeX из CDN в локальную папку katex/."""
     # Путь к папке katex внутри пакета
     script_dir = os.path.dirname(os.path.abspath(__file__))
     katex_dir = os.path.join(script_dir, "katex")

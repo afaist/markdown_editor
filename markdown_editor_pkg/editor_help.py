@@ -28,10 +28,15 @@ class HelpHandler:
     """Help handler and About dialog."""
 
     def __init__(self, editor: MarkdownEditorPyQt):
+        """Инициализация обработчика справки.
+
+        Args:
+            editor: Ссылка на основной объект MarkdownEditorPyQt.
+        """
         self.editor = editor
 
     def show_about(self) -> None:
-        """Show the About dialog with a clickable GigaCode link."""
+        """Показать диалог «О программе» с информацией и ссылкой на GigaCode."""
         dialog = QDialog(self.editor)
         dialog.setWindowTitle(tr("About"))
         dialog.setMinimumWidth(420)
@@ -69,7 +74,10 @@ class HelpHandler:
         dialog.exec()
 
     def show_shortcuts(self) -> None:
-        """Show the Keyboard Shortcuts reference dialog."""
+        """Показать диалог со справкой по горячим клавишам.
+
+        Отображает таблицу сочетаний клавиш для всех разделов меню.
+        """
         dialog = QDialog(self.editor)
         dialog.setWindowTitle(tr("Keyboard Shortcuts"))
         dialog.setMinimumWidth(520)
@@ -209,7 +217,11 @@ class HelpHandler:
         dialog.exec()
 
     def show_markdown_help(self) -> None:
-        """Show a Markdown syntax cheat-sheet dialog with a link to a detailed guide."""
+        """Показать диалог-шпаргалку по синтаксису Markdown.
+
+        Отображает примеры основных элементов синтаксиса и ссылку
+        на подробное руководство на markdownguide.org.
+        """
         dialog = QDialog(self.editor)
         dialog.setWindowTitle(tr("Markdown Help"))
         dialog.setMinimumWidth(560)
@@ -320,10 +332,9 @@ class HelpHandler:
         layout.addWidget(scroll)
 
         link_label = QLabel(
-            tr(
-                'For a detailed Markdown guide, visit: '
-                '<a href="{}">markdownguide.org</a>'
-            ).format(_MARKDOWN_GUIDE_URL)
+            tr('For a detailed Markdown guide, visit: <a href="{}">markdownguide.org</a>').format(
+                _MARKDOWN_GUIDE_URL
+            )
         )
         link_label.setWordWrap(True)
         link_label.setTextFormat(Qt.TextFormat.RichText)

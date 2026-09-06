@@ -134,42 +134,37 @@ class TestCalloutProcessor:
 
     def test_note_callout(self):
         """[!NOTE] преобразуется в callout-note div."""
-        html = '<blockquote><p>[!NOTE] This is a note</p></blockquote>'
+        html = "<blockquote><p>[!NOTE] This is a note</p></blockquote>"
         result = self.cp.process(html)
         assert 'class="callout callout-note"' in result
 
     def test_callout_marker_stripped(self):
         """Маркер [!TYPE] удаляется из тела callout."""
-        html = '<blockquote><p>[!NOTE] Body text</p></blockquote>'
+        html = "<blockquote><p>[!NOTE] Body text</p></blockquote>"
         result = self.cp.process(html)
         assert "[!NOTE]" not in result
 
     def test_tip_callout(self):
         """[!TIP] преобразуется в callout-tip."""
-        html = '<blockquote><p>[!TIP] A tip here</p></blockquote>'
+        html = "<blockquote><p>[!TIP] A tip here</p></blockquote>"
         result = self.cp.process(html)
         assert 'class="callout callout-tip"' in result
 
     def test_multiple_paragraphs_same_callout(self):
         """Несколько параграфов без маркера объединяются в один callout."""
-        html = (
-            '<blockquote>'
-            '<p>[!WARNING] First para</p>'
-            '<p>Second para no marker</p>'
-            '</blockquote>'
-        )
+        html = "<blockquote><p>[!WARNING] First para</p><p>Second para no marker</p></blockquote>"
         result = self.cp.process(html)
         assert result.count('class="callout callout-warning"') == 1
 
     def test_non_callout_blockquote_unchanged(self):
         """Обычный blockquote без [!TYPE] не меняется."""
-        html = '<blockquote><p>Just a regular quote</p></blockquote>'
+        html = "<blockquote><p>Just a regular quote</p></blockquote>"
         result = self.cp.process(html)
         assert 'class="callout' not in result
 
     def test_unmatched_callout_type(self):
         """Неизвестный тип [!FOO] не считается callout."""
-        html = '<blockquote><p>[!FOO] unknown</p></blockquote>'
+        html = "<blockquote><p>[!FOO] unknown</p></blockquote>"
         result = self.cp.process(html)
         assert 'class="callout' not in result
 
@@ -221,7 +216,7 @@ class TestMarkdownRendererPipeline:
 
     def test_callouts_in_pipeline(self):
         """Callouts обрабатываются в полном пайплайне."""
-        md = '> [!NOTE]\n> This is a note'
+        md = "> [!NOTE]\n> This is a note"
         html = self.renderer.render(md)
         assert 'class="callout callout-note"' in html
         assert "[!NOTE]" not in html
@@ -328,10 +323,7 @@ class TestMarkdownRendererHelpers:
 
     def test_render_mixed_latex_and_callouts(self):
         """Совместное использование LaTeX и Callouts работает."""
-        md = (
-            "> [!NOTE]\n"
-            "> Value is $x + y$\n"
-        )
+        md = "> [!NOTE]\n> Value is $x + y$\n"
         html = self.renderer.render(md)
         assert "$$x + y$$" not in html
         assert "$x + y$" in html

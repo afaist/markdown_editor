@@ -14,6 +14,11 @@ class ThemeFontHandler:
     """Обработчик тем предпросмотра/редактора и управления шрифтами."""
 
     def __init__(self, editor: MarkdownEditorPyQt):
+        """Инициализация обработчика тем и шрифтов.
+
+        Args:
+            editor: Ссылка на основной объект MarkdownEditorPyQt.
+        """
         self.editor = editor
 
     # ─── Переключение тем ──────────────────────────────────────────────

@@ -49,6 +49,12 @@ class MarkdownEditorPyQt(QMainWindow):
     """
 
     def __init__(self) -> None:
+        """Инициализация редактора: создание компонентов, таймеров и загрузка сессии.
+
+        Создаёт все подмодули (UI, рендерер, обработчики), настраивает таймеры
+        автосохранения и предпросмотра, затем инициализирует UI и загружает
+        последнюю сессию.
+        """
         super().__init__()
         self.setWindowTitle(tr("Markdown Editor (PyQt6)"))
         self.resize(1200, 800)
@@ -401,6 +407,7 @@ class MarkdownEditorPyQt(QMainWindow):
 
     # Закрытие
     def closeEvent(self, event_: QCloseEvent) -> None:  # type: ignore[override]
+        """Обработчик закрытия окна: проверка чистоты и сохранение сессии."""
         self.close_handler.on_close(event_)
 
     # ─── Обратная совместимость (для старых тестов) ─────────────────────
@@ -411,6 +418,7 @@ class MarkdownEditorPyQt(QMainWindow):
 
     @current_file.setter
     def current_file(self, value: str | None) -> None:
+        """Установить текущий путь к файлу."""
         self._file_state.current_file = value
 
     @property
@@ -419,6 +427,7 @@ class MarkdownEditorPyQt(QMainWindow):
 
     @is_dirty.setter
     def is_dirty(self, value: bool) -> None:
+        """Установить флаг наличия несохранённых изменений."""
         self._file_state.is_dirty = value
 
     @property
@@ -443,6 +452,7 @@ class MarkdownEditorPyQt(QMainWindow):
 
     @display_math_cache.setter
     def display_math_cache(self, value: list) -> None:
+        """Установить кэш блочных формул LaTeX."""
         self.latex_processor.display_math_cache = value
 
     @property
@@ -452,6 +462,7 @@ class MarkdownEditorPyQt(QMainWindow):
 
     @inline_math_cache.setter
     def inline_math_cache(self, value: list) -> None:
+        """Установить кэш встроенных формул LaTeX."""
         self.latex_processor.inline_math_cache = value
 
     def process_latex_before_markdown(self, text: str) -> str:

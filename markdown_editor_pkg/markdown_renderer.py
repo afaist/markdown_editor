@@ -119,6 +119,11 @@ class MarkdownRenderer:
     """
 
     def __init__(self, themes: ThemesManager):
+        """Инициализация рендерера Markdown.
+
+        Args:
+            themes: Экземпляр ThemesManager для управления темами.
+        """
         self.themes = themes
         self.latex_processor = LaTeXProcessor()
         self.strikethrough_processor = StrikethroughProcessor()

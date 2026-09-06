@@ -145,6 +145,7 @@ class ThemesManager:
     THEME_ORDER: ClassVar[list[str]] = ["light", "dark", "contrast"]
 
     def __init__(self) -> None:
+        """Инициализация менеджера тем с настройками по умолчанию."""
         self.theme_name = "light"
         self.editor_theme = "light"
         # Шрифт и размер шрифта по умолчанию
@@ -154,7 +155,11 @@ class ThemesManager:
     # ─── CSS-темы (предпросмотр) ───────────────────────────────────────
 
     def get_preview_css(self) -> str:
-        """Получить CSS для темы предпросмотра."""
+        """Получить CSS-стили для текущей темы предпросмотра.
+
+        Returns:
+            CSS-строка для текущей темы (light/dark/contrast).
+        """
         return self.THEMES_CSS.get(self.theme_name, self.THEMES_CSS["light"])
 
     def toggle_preview_theme(self) -> str:
@@ -199,7 +204,11 @@ class ThemesManager:
     }
 
     def get_editor_style(self) -> str:
-        """Получить QSS-стиль для редактора."""
+        """Получить QSS-стиль для текущей темы редактора.
+
+        Returns:
+            QSS-строка для текущей темы редактора.
+        """
         base = self.EDITOR_STYLES.get(self.editor_theme, self.EDITOR_STYLES["light"])
         return base
 

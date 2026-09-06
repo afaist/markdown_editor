@@ -55,7 +55,7 @@ def _is_empty_blockquote(line: str) -> tuple[bool, str] | None:
     if m:
         prefix = m.group(2)  # это "> "
         # Проверяем, что после префикса нет значимого текста
-        remaining = line[m.end():]
+        remaining = line[m.end() :]
         if remaining.strip() == "":
             return True, prefix
     return None
@@ -75,12 +75,26 @@ def _get_heading_info(line: str) -> bool:
 
 
 class MarkdownTextEdit(QTextEdit):
-    """QTextEdit с автопродолжением списков и цитат."""
+    """QTextEdit с автопродолжением списков, цитат и заголовков при нажатии Enter.
+
+    При нажатии Enter на пустом элементе списка или цитаты завершает
+    список/цитату. На строке с маркером — продолжает с тем же маркером.
+    """
 
     def __init__(self, parent=None) -> None:
+        """Инициализация кастомного QTextEdit.
+
+        Args:
+            parent: Родительский виджет.
+        """
         super().__init__(parent)
 
     def keyPressEvent(self, e: QKeyEvent | None) -> None:
+        """Обработка нажатия клавиш с автопродолжением списков и цитат.
+
+        Args:
+            e: Объект события клавиатуры.
+        """
         if (
             e is not None
             and e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter)

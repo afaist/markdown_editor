@@ -6,7 +6,12 @@ import urllib.request
 
 
 def download_file(url: str, destination: str) -> None:
-    """Скачивает файл по URL в указанное место назначения."""
+    """Скачать файл по URL в указанное место назначения.
+
+    Args:
+        url: URL файла для загрузки.
+        destination: Локальный путь для сохранения файла.
+    """
     try:
         # Создаем директорию назначения, если её нет
         dir_name = os.path.dirname(destination)
@@ -20,7 +25,8 @@ def download_file(url: str, destination: str) -> None:
         print(f"✗ Ошибка при скачивании {url}: {e}")
 
 
-def main():
+def main() -> None:
+    """Загрузить ресурсы Prism.js из CDN в локальную папку prism/."""
     version = "1.29.0"
     base_url = f"https://cdnjs.cloudflare.com/ajax/libs/prism/{version}"
 
