@@ -497,6 +497,7 @@ class MenuBuilder:
         assert help_menu is not None
 
         self._add_action(help_menu, tr("About"), parent._show_about)
+        self._add_action(help_menu, tr("Keyboard Shortcuts"), parent._show_shortcuts)
 
     @staticmethod
     def _add_action(

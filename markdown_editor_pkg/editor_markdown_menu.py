@@ -135,11 +135,11 @@ class MarkdownMenuBuilder:
             return
 
         for callout_type, label, shortcut in [
-            ("NOTE", tr("Note"), "Ctrl+Shift+1"),
-            ("TIP", tr("Tip"), "Ctrl+Shift+2"),
-            ("IMPORTANT", tr("Important"), "Ctrl+Shift+3"),
-            ("WARNING", tr("Warning"), "Ctrl+Shift+4"),
-            ("CAUTION", tr("Caution"), "Ctrl+Shift+5"),
+            ("NOTE", tr("Note"), "Ctrl+Shift+7"),
+            ("TIP", tr("Tip"), "Ctrl+Shift+8"),
+            ("IMPORTANT", tr("Important"), "Ctrl+Shift+9"),
+            ("WARNING", tr("Warning"), "Ctrl+Shift+0"),
+            ("CAUTION", tr("Caution"), "Ctrl+Shift+-"),
         ]:
             action = QAction(label, parent)
             action.setShortcut(QKeySequence(shortcut))

@@ -332,6 +332,9 @@ class MarkdownEditorPyQt(QMainWindow):
     def _show_about(self) -> None:
         self.help_handler.show_about()
 
+    def _show_shortcuts(self) -> None:
+        self.help_handler.show_shortcuts()
+
     def _show_restart_notification(self) -> None:
         """Show a notification that UI text will update on next restart."""
         from PyQt6.QtWidgets import QMessageBox
