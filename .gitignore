@@ -9,6 +9,7 @@ __pycache__/
 dist/
 build/
 *.spec
+!markdown-editor.spec
 
 # Virtual environments
 venv/
@@ -68,7 +69,7 @@ MANIFEST
 
 # PyInstaller
 *.manifest
-*.spec
+
 
 # Unit test / coverage reports
 htmlcov/
