@@ -15,6 +15,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from markdown_editor_pkg import __version__
 from markdown_editor_pkg.i18n import tr
 
 if TYPE_CHECKING:
@@ -49,7 +50,7 @@ class HelpHandler:
 
         info = QLabel(
             tr(
-                "Version: 1.0\n"
+                f"Version: {__version__}\n"
                 "Developed with Python 3.12+, PyQt6, QtWebEngine\n"
                 "LaTeX and Markdown support."
             )

@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=68.0", "wheel"]
+requires = ["setuptools>=68.0", "wheel", "setuptools_scm>=8.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "markdown-editor"
-version = "1.0.0"
 description = "Простой редактор Markdown с предпросмотром и поддержкой LaTeX-формул"
+dynamic = ["version"]
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.12"
@@ -75,3 +75,10 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101"]
+
+[tool.setuptools]
+packages = ["markdown_editor_pkg"]
+
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "node-and-timestamp"
