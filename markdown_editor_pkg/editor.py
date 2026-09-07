@@ -154,12 +154,12 @@ class MarkdownEditorPyQt(QMainWindow):
         # Тема редактора
         saved_editor_theme = settings.get("editor_theme", "light")
         if saved_editor_theme in self.theme_manager.EDITOR_STYLES:
-            self.theme_manager.set_editor_theme(saved_editor_theme, self.editor)
+            self.theme_manager.set_editor_theme(saved_editor_theme, self.editor, persist=False)
 
         # Шрифт
         saved_font = settings.get("editor_font", "Consolas")
         saved_font_size = settings.get("editor_font_size", 11)
-        self.theme_manager.set_font(saved_font, saved_font_size, self.editor)
+        self.theme_manager.set_font(saved_font, saved_font_size, self.editor, persist=False)
 
     # Обработчики событий
     def on_text_change(self) -> None:

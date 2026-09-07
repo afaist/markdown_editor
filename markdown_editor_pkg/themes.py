@@ -374,11 +374,17 @@ class ThemesManager:
         self._persist_theme()
         return self.theme_name
 
-    def set_preview_theme(self, theme_name: str) -> None:
-        """Установить тему предпросмотра."""
+    def set_preview_theme(self, theme_name: str, *, persist: bool = True) -> None:
+        """Установить тему предпросмотра.
+
+        Args:
+            theme_name: Имя темы.
+            persist: Сохранять ли тему в Settings (по True).
+        """
         if theme_name in self.THEMES_CSS:
             self.theme_name = theme_name
-            self._persist_theme()
+            if persist:
+                self._persist_theme()
 
     # ─── QSS-темы (редактор) ──────────────────────────────────────────
 
@@ -466,13 +472,22 @@ class ThemesManager:
         self._persist_editor_theme()
         return self.editor_theme
 
-    def set_editor_theme(self, theme_name: str, text_edit: QTextEdit | None = None) -> None:
-        """Установить тему редактора и применить стиль к QTextEdit."""
+    def set_editor_theme(
+        self, theme_name: str, text_edit: QTextEdit | None = None, *, persist: bool = True
+    ) -> None:
+        """Установить тему редактора и применить стиль к QTextEdit.
+
+        Args:
+            theme_name: Имя темы.
+            text_edit: Виджет QTextEdit для применения стиля.
+            persist: Сохранять ли тему в Settings (по True).
+        """
         if theme_name in self.EDITOR_STYLES:
             self.editor_theme = theme_name
             if text_edit is not None:
                 text_edit.setStyleSheet(self.EDITOR_STYLES[theme_name])
-            self._persist_editor_theme()
+            if persist:
+                self._persist_editor_theme()
 
     # ─── Шрифты ───────────────────────────────────────────────────────
 
@@ -502,10 +517,23 @@ class ThemesManager:
         self._font_size = max(self.MIN_FONT_SIZE, min(self.MAX_FONT_SIZE, value))
         self._persist_font()
 
-    def set_font(self, family: str, size: int, text_edit: QTextEdit | None) -> None:
-        """Установить шрифт и размер для QTextEdit."""
-        self.font_family = family
-        self.font_size = size
+    def set_font(
+        self, family: str, size: int, text_edit: QTextEdit | None, *, persist: bool = True
+    ) -> None:
+        """Установить шрифт и размер для QTextEdit.
+
+        Args:
+            family: Семейство шрифта.
+            size: Размер шрифта.
+            text_edit: Виджет QTextEdit для применения шрифта.
+            persist: Сохранять ли шрифт в Settings (по True).
+        """
+        if persist:
+            self.font_family = family
+            self.font_size = size
+        else:
+            self._font_family = family
+            self._font_size = size
         if text_edit is not None:
             font = QFont(family, size)
             text_edit.setFont(font)

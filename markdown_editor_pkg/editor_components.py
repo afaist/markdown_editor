@@ -81,7 +81,7 @@ class UIBuilder:
 
         text_edit = MarkdownTextEdit()
         text_edit.setFont(QFont("Consolas", 11))
-        self._editor.theme_manager.set_editor_theme("light", text_edit)
+        self._editor.theme_manager.set_editor_theme("light", text_edit, persist=False)
         editor_layout.addWidget(text_edit)
         self._editor.editor = text_edit  # type: ignore[attr-defined]
 
