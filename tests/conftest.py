@@ -10,6 +10,7 @@ os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = (
     " --disable-gpu-info-update"
 )
 os.environ["QTWEBENGINE_SETTINGS"] = '{"enable_gpu": "false"}'
+os.environ["QT_LOGGING_RULES"] = "qt.webengine.*=false"
 
 # Import QtWebEngineWidgets first to satisfy Qt requirements
 from PyQt6.QtWebEngineWidgets import QWebEngineView  # noqa: F401
