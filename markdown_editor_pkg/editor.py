@@ -76,6 +76,7 @@ class MarkdownEditorPyQt(QMainWindow):
         self.heading_combo: QComboBox | None = None  # type: ignore[misc]
         self.style_combo: QComboBox | None = None  # type: ignore[misc]
         self.list_style_combo: QComboBox | None = None  # type: ignore[misc]
+        self.theme_label: QLabel | None = None  # type: ignore[misc]
 
         # Подмодули
         self.theme_manager = ThemesManager()
@@ -155,6 +156,10 @@ class MarkdownEditorPyQt(QMainWindow):
         saved_editor_theme = settings.get("editor_theme", "light")
         if saved_editor_theme in self.theme_manager.EDITOR_STYLES:
             self.theme_manager.set_editor_theme(saved_editor_theme, self.editor, persist=False)
+
+        # Обновить метку темы
+        if self.theme_label is not None:
+            self.theme_label.setText(f"{tr('Theme')}: {self.theme_manager.theme_name.capitalize()}")
 
         # Шрифт
         saved_font = settings.get("editor_font", "Consolas")

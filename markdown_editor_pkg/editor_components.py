@@ -118,14 +118,18 @@ class UIBuilder:
         word_count_label = QLabel(tr("Words: 0"))
         file_name_label = QLabel("")
         file_name_label.setMinimumWidth(250)
+        theme_label = QLabel(f"{tr('Theme')}: Light")
+        theme_label.setMinimumWidth(150)
 
         statusbar.addPermanentWidget(file_name_label)
         statusbar.addPermanentWidget(char_count_label)
         statusbar.addPermanentWidget(word_count_label)
+        statusbar.addPermanentWidget(theme_label)
 
         self._editor.file_name_label = file_name_label  # type: ignore[attr-defined]
         self._editor.char_count_label = char_count_label  # type: ignore[attr-defined]
         self._editor.word_count_label = word_count_label  # type: ignore[attr-defined]
+        self._editor.theme_label = theme_label  # type: ignore[attr-defined]
 
     def _connect_signals(self, parent: QMainWindow) -> None:
         """Подключить сигналы editor.textChanged."""

@@ -8,8 +8,10 @@ import sys
 
 os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = (
     "--disable-gpu --disable-gpu-compositing --disable-software-rasterizer"
+    " --disable-gpu-info-update"
 )
 os.environ["QTWEBENGINE_SETTINGS"] = '{"enable_gpu": "false"}'
+os.environ["QT_LOGGING_RULES"] = "qt.webengine.services=false"
 
 from PyQt6.QtWidgets import QApplication
 
