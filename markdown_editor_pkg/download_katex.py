@@ -6,8 +6,13 @@
 """
 
 import os
+import sys
 import urllib.error
 import urllib.request
+
+# Fix console encoding on Windows (cp1252/cp1251 -> UTF-8)
+if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 # Версия KaTeX
 KATEX_VERSION = "0.16.9"
