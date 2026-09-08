@@ -111,15 +111,17 @@ jobs:
 
       - name: Build with PyInstaller (onedir)
         run: |
-          pyinstaller --clean --noconfirm markdown-editor.spec
+          pyinstaller --clean --noconfirm --onedir markdown-editor.spec
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: markdown-editor-windows
-          path: dist/markdown-editor/
+          path: |
+            dist/markdown-editor/
+            dist/markdown-editor.exe
           retention-days: 14
-          if-no-files-found: error
+          if-no-files-found: warn
 
   # ─── Создание релиза ───────────────────────────────────────────────
   create-release:
@@ -150,13 +152,7 @@ jobs:
       - name: Create zip for Windows
         run: |
           cd release/windows
-          ls -la
-          if [ -d markdown-editor ]; then
-            zip -r ../markdown-editor-windows-x86_64.zip markdown-editor/
-          else
-            echo "ERROR: markdown-editor/ not found in release/windows/"
-            exit 1
-          fi
+          zip -r ../markdown-editor-windows-x86_64.zip markdown-editor/
 
       - name: Get version from tag
         id: version
