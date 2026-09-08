@@ -150,7 +150,13 @@ jobs:
       - name: Create zip for Windows
         run: |
           cd release/windows
-          zip -r ../markdown-editor-windows-x86_64.zip markdown-editor/
+          ls -la
+          if [ -d markdown-editor ]; then
+            zip -r ../markdown-editor-windows-x86_64.zip markdown-editor/
+          else
+            echo "ERROR: markdown-editor/ not found in release/windows/"
+            exit 1
+          fi
 
       - name: Get version from tag
         id: version
