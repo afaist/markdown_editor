@@ -5,6 +5,11 @@ import sys
 
 # Set environment BEFORE importing anything else
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
+os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = (
+    "--disable-gpu --disable-gpu-compositing --disable-software-rasterizer"
+    " --disable-gpu-info-update"
+)
+os.environ["QTWEBENGINE_SETTINGS"] = '{"enable_gpu": "false"}'
 
 # Import QtWebEngineWidgets first to satisfy Qt requirements
 from PyQt6.QtWebEngineWidgets import QWebEngineView  # noqa: F401
