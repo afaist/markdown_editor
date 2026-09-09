@@ -57,7 +57,7 @@ class MarkdownEditorPyQt(QMainWindow):
         """
         super().__init__()
         self.setWindowTitle(tr("Markdown Editor (PyQt6)"))
-        self.resize(1200, 800)
+        self.resize(1400, 800)
 
         # Виджеты (заполняются UIBuilder)
         self.editor: QTextEdit  # type: ignore[misc]
@@ -76,6 +76,8 @@ class MarkdownEditorPyQt(QMainWindow):
         self.heading_combo: QComboBox | None = None  # type: ignore[misc]
         self.style_combo: QComboBox | None = None  # type: ignore[misc]
         self.list_style_combo: QComboBox | None = None  # type: ignore[misc]
+        self.insert_combo: QComboBox | None = None  # type: ignore[misc]
+        self.export_combo: QComboBox | None = None  # type: ignore[misc]
         self.theme_label: QLabel | None = None  # type: ignore[misc]
 
         # Подмодули

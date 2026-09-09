@@ -791,5 +791,20 @@ Development assisted by &lt;a href=&quot;{}&quot;&gt;GigaCode&lt;/a&gt;</source>
         <source>task</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="240"/>
+        <source>Insert formatting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="251"/>
+        <source>Export document</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="227"/>
+        <source>Insert</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 </TS>

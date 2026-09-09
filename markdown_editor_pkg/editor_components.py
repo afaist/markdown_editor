@@ -211,34 +211,40 @@ class ToolbarBuilder:
         parent.list_style_combo = list_style_combo  # type: ignore[attr-defined]
         toolbar.addSeparator()
 
-        # -- Форматирование --
-        actions: list[tuple[str, Callable[[], None]]] = [
+        # -- Комбо-бокс "Вставить" --
+        lbl_insert = QLabel(tr("Insert")+":")
+        lbl_insert.setStyleSheet(style_sheet_lbl)
+        lbl_insert.adjustSize()
+        toolbar.addWidget(lbl_insert)
+
+        insert_combo = QComboBox()
+        insert_items: list[tuple[str, Callable[[], None]]] = [
             (tr("Quote"), lambda: parent.text_insertions.insert_text("> ")),  # type: ignore[attr-defined]
             (tr("Code"), lambda: parent.text_insertions.insert_text("```\n```")),  # type: ignore[attr-defined]
             (tr("LaTeX inline"), parent.text_insertions.insert_inline_latex),  # type: ignore[attr-defined]
             (tr("LaTeX block"), parent.text_insertions.insert_block_latex),  # type: ignore[attr-defined]
             (tr("Link"), parent.text_insertions.insert_link),  # type: ignore[attr-defined]
             (tr("Image"), parent.text_insertions.insert_image),  # type: ignore[attr-defined]
-            (tr("Theme"), parent._toggle_theme),  # type: ignore[attr-defined]
-            (tr("Editor Theme"), parent._toggle_editor_theme),  # type: ignore[attr-defined]
         ]
-
-        for text, callback in actions:
-            action = QAction(text, parent)
-            action.triggered.connect(callback)
-            toolbar.addAction(action)
-
+        for text, _ in insert_items:
+            insert_combo.addItem(text)
+        insert_combo.setMinimumWidth(140)
+        insert_combo.setToolTip(tr("Insert formatting"))
+        insert_combo.activated.connect(self._on_insert_combo_activated)  # type: ignore[attr-defined]
+        toolbar.addWidget(insert_combo)
+        parent.insert_combo = insert_combo  # type: ignore[attr-defined]
         toolbar.addSeparator()
 
-        # -- Файловые действия --
-        for text, callback in [
-            (tr("Open"), parent.file_io.open_file),  # type: ignore[attr-defined]
-            (tr("Save"), parent.file_io.save_file),  # type: ignore[attr-defined]
-            (tr("Export to PDF"), parent.file_export.export_to_pdf),
-        ]:
-            action = QAction(text, parent)
-            action.triggered.connect(callback)
-            toolbar.addAction(action)
+        # -- Комбо-бокс "Экспорт" --
+        export_combo = QComboBox()
+        export_combo.addItem(tr("Export to PDF"), "pdf")
+        export_combo.addItem(tr("Export to HTML"), "html")
+        export_combo.setMinimumWidth(140)
+        export_combo.setToolTip(tr("Export document"))
+        export_combo.activated.connect(self._on_export_combo_activated)  # type: ignore[attr-defined]
+        toolbar.addWidget(export_combo)
+        parent.export_combo = export_combo  # type: ignore[attr-defined]
+        toolbar.addSeparator()
 
         self._build_font_controls(toolbar, parent)
 
@@ -280,6 +286,32 @@ class ToolbarBuilder:
                 parent.text_insertions.insert_ordered_list()
             elif idx == 2:
                 parent.text_insertions.insert_task_list()
+
+    def _on_insert_combo_activated(self) -> None:
+        """Обработчик выбора элемента в комбобоксе «Вставить»."""
+        parent = self._editor
+        if parent.insert_combo is not None:
+            idx = parent.insert_combo.currentIndex()
+            insert_handlers: list[Callable[[], None]] = [
+                lambda: parent.text_insertions.insert_text("> "),  # Quote
+                lambda: parent.text_insertions.insert_text("```\n```"),  # Code
+                parent.text_insertions.insert_inline_latex,  # LaTeX inline
+                parent.text_insertions.insert_block_latex,  # LaTeX block
+                parent.text_insertions.insert_link,  # Link
+                parent.text_insertions.insert_image,  # Image
+            ]
+            if 0 <= idx < len(insert_handlers):
+                insert_handlers[idx]()
+
+    def _on_export_combo_activated(self) -> None:
+        """Обработчик выбора формата в комбобоксе «Экспорт»."""
+        parent = self._editor
+        if parent.export_combo is not None:
+            idx = parent.export_combo.currentIndex()
+            if idx == 0:
+                parent.file_export.export_to_pdf()
+            elif idx == 1:
+                parent.file_export.export_to_html()
 
     def _build_font_controls(self, toolbar: QToolBar, parent: QMainWindow) -> None:
         """Создать комбобокс и кнопки управления шрифтом."""

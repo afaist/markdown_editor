@@ -131,26 +131,19 @@ The toolbar contains dropdowns and buttons grouped by function:
 | Headings | H1–H6 | Inserts heading at selected level |
 | Styles | Bold, Italic, Strikethrough, Code | Applies selected formatting style |
 | List | Bulleted, Numbered, Task List | Inserts selected list type |
+| **Insert** | Quote, Code, LaTeX inline, LaTeX block, Link, Image | Inserts selected element |
 | Font Selection | Consolas, Courier New, Fira Code, etc. | Changes editor font family |
+| **Export** | Export to PDF, Export to HTML | Exports document in selected format |
 
 **Buttons:**
 
 | Button | Action |
 | -------- | ---------- |
-| Quote | Inserts `>` (quote block) |
-| Code | Inserts a code block with triple backticks |
-| LaTeX inline | Inserts `$` for inline formulas |
-| LaTeX block | Inserts `$$\n$$` for block formulas |
-| Link | Opens a dialog to insert a link |
-| Image | Opens a file selection dialog for images |
-| Theme | Cycles through preview themes |
-| Editor Theme | Cycles through editor themes |
-| Open | Opens a file selection dialog |
-| Save | Saves the current file |
-| Export to PDF | Exports the document to PDF |
 | **+** | Increase font size |
 | **−** | Decrease font size |
 | Reset Font | Reset font and size to defaults |
+
+> **Note:** Open and Save actions are available via **File** menu (`Ctrl+O`, `Ctrl+S`) or via keyboard shortcuts.
 
 #### Markdown Menu
 

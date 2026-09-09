@@ -701,5 +701,20 @@ LaTeX and Markdown support.</source>
         <source>task</source>
         <translation>задание</translation>
     </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="240"/>
+        <source>Insert formatting</source>
+        <translation>Вставить форматирование</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="251"/>
+        <source>Export document</source>
+        <translation>Экспортировать документ</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="227"/>
+        <source>Insert</source>
+        <translation>Вставка</translation>
+    </message>
 </context>
 </TS>
