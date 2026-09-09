@@ -212,7 +212,7 @@ class ToolbarBuilder:
         toolbar.addSeparator()
 
         # -- Комбо-бокс "Вставить" --
-        lbl_insert = QLabel(tr("Insert")+":")
+        lbl_insert = QLabel(tr("Insert") + ":")
         lbl_insert.setStyleSheet(style_sheet_lbl)
         lbl_insert.adjustSize()
         toolbar.addWidget(lbl_insert)
