@@ -104,10 +104,7 @@ class ThemeFontHandler:
                 else:
                     if self.editor.font_combo.count() > 0:
                         self.editor.font_combo.setCurrentIndex(0)
-                        self.editor.theme_manager._font_family = (
-                            self.editor.font_combo.currentText()
-                        )
-                        self._update_font_size_label()
+        self._update_font_size_label()
         if self.editor._statusbar_ref:
             self.editor._statusbar_ref.showMessage(
                 f"Шрифт сброшен: {self.editor.theme_manager.font_family}, "

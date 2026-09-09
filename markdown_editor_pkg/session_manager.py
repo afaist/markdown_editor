@@ -23,9 +23,18 @@ class SessionManager:
             filepath: Абсолютный путь к файлу.
         """
         try:
-            config = {"last_file": filepath}
+            config: dict[str, str] = {}
+            if SESSION_CONFIG_FILE.exists():
+                with open(SESSION_CONFIG_FILE, encoding="utf-8") as f:
+                    try:
+                        config = json.load(f)
+                        if not isinstance(config, dict):
+                            config = {}
+                    except (json.JSONDecodeError, OSError):
+                        config = {}
+            config["last_file"] = filepath
             with open(SESSION_CONFIG_FILE, "w", encoding="utf-8") as f:
-                json.dump(config, f)
+                json.dump(config, f, ensure_ascii=False, indent=2)
         except (OSError, json.JSONDecodeError):
             logger.exception("Ошибка при сохранении сессии")
 

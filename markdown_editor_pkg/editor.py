@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 logger = logging.getLogger(__name__)
 
-from PyQt6.QtCore import QTimer
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtWidgets import QMainWindow
 
@@ -165,6 +165,11 @@ class MarkdownEditorPyQt(QMainWindow):
         saved_font = settings.get("editor_font", "Consolas")
         saved_font_size = settings.get("editor_font_size", 11)
         self.theme_manager.set_font(saved_font, saved_font_size, self.editor, persist=False)
+        self.theme_font_handler._update_font_size_label()
+        if self.font_combo is not None:
+            font_idx = self.font_combo.findText(saved_font, Qt.MatchFlag.MatchExactly)
+            if font_idx >= 0:
+                self.font_combo.setCurrentIndex(font_idx)
 
     # Обработчики событий
     def on_text_change(self) -> None:

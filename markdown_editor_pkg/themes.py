@@ -560,6 +560,7 @@ class ThemesManager:
         """Сбросить шрифт и размер к значениям по умолчанию."""
         self._font_family = self.DEFAULT_FONTS[0]
         self._font_size = self.DEFAULT_FONT_SIZE
+        self._persist_font()
         if text_edit is not None:
             font = QFont(self._font_family, self._font_size)
             text_edit.setFont(font)

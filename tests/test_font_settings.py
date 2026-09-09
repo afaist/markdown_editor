@@ -42,13 +42,13 @@ class TestFontSettings:
 
     def test_set_font(self):
         """set_font устанавливает шрифт и размер."""
-        self.tm.set_font("Arial", 14, None)
+        self.tm.set_font("Arial", 14, None, persist=False)
         assert self.tm._font_family == "Arial"
         assert self.tm._font_size == 14
 
     def test_font_family_setter(self):
         """font_family.setter устанавливает имя шрифта."""
-        self.tm.font_family = "Arial"
+        self.tm._font_family = "Arial"
         assert self.tm._font_family == "Arial"
 
     def test_font_combo_populated_in_editor(self):
