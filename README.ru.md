@@ -638,6 +638,6 @@ MIT License
 
 ## 👤 Автор
 
-Afaist
+Александр Зиновьев (<afaist@gmail.com>)
 
 Markdown Editor (PyQt6) — редактор Markdown с поддержкой LaTeX, созданный с использованием Python 3.12+, PyQt6, QtWebEngine, KaTeX и Prism.js.
