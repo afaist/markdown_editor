@@ -33,7 +33,7 @@ def download_file(url: str, destination: str) -> None:
 
 def main() -> None:
     """Загрузить ресурсы Prism.js из CDN в локальную папку prism/."""
-    version = "1.29.0"
+    version = "1.30.0"
     base_url = f"https://cdnjs.cloudflare.com/ajax/libs/prism/{version}"
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
