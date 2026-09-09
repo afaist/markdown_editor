@@ -8,7 +8,7 @@
 
 Markdown Editor — это desktop-приложение для создания и редактирования документов в формате Markdown с мгновенным предпросмотром. Поддерживает встроенные и блочные LaTeX-формулы через библиотеку KaTeX, несколько тем оформления, экспорт в HTML и PDF, GitHub Callouts, зачёркнутый текст, списки задач и множество инструментов форматирования.
 
-**Версия:** 1.0.0  
+**Версия:** 1.0.3  
 **Технологии:** Python 3.12+, PyQt6, QtWebEngine, KaTeX, Python-Markdown, Prism.js
 
 ## ✨ Особенности
@@ -73,6 +73,44 @@ pip install -e .
 ```bash
 python main.py
 ```
+
+### Установка из релизов
+
+Готовые бинарные файлы доступны на [странице релизов](https://github.com/afaist/markdown_editor/releases).
+
+#### Linux
+
+1. **Скачайте** архив последнего релиза: `markdown-editor-linux-x86_64.tar.gz`
+2. **Распакуйте** архив:
+
+```bash
+tar -xzf markdown-editor-linux-x86_64.tar.gz
+cd markdown-editor
+```
+
+3. **Запустите** приложение:
+
+```bash
+./markdown-editor
+```
+
+**Системные зависимости** (могут потребоваться на некоторых дистрибутивах):
+
+```bash
+# Debian/Ubuntu
+sudo apt-get install -y libgl1 libxkbcommon-x11-0 libxcb-cursor0 libegl1 libwebp-dev libfontconfig1 libfreetype6 libx11-xcb1
+
+# Fedora
+sudo dnf install -y libglvnd-glx libxkbcommon libegl libwebp fontconfig
+```
+
+#### Windows
+
+1. **Скачайте** архив последнего релиза: `markdown-editor-windows-x86_64.zip`
+2. **Распакуйте** архив в любую папку (например, `C:\Program Files\Markdown Editor\`)
+3. **Запустите** `markdown-editor.exe`
+
+> **Примечание:** При первом запуске Windows SmartScreen может показать предупреждение. Нажмите «Подробнее» → «Запустить всё-таки». Права администратора не требуются.
 
 ## 📖 Использование
 
@@ -475,6 +513,81 @@ python -m markdown_editor_pkg.i18n_build lrelease
 
 # Выполнить оба шага
 python -m markdown_editor_pkg.i18n_build all
+```
+
+### Создание релизов
+
+Релизы создаются с помощью Git-тегов и автоматизируются через GitHub Actions.
+
+#### Ручной процесс создания релиза
+
+1. **Убедитесь, что все тесты проходят**:
+
+```bash
+pytest tests/ -v
+```
+
+2. **Создайте новый тег версии**:
+
+```bash
+# Проверить текущие теги
+git tag -l | sort -V | tail -5
+
+# Создать новый тег (формат: vM.m.p)
+git tag v1.0.4
+
+# Отправить тег на GitHub
+git push origin main --tags
+```
+
+3. **GitHub Actions** автоматически:
+   - Соберёт бинарные файлы для Linux и Windows с помощью PyInstaller
+   - Создаст GitHub Release с артефактами сборки
+   - Сгенерирует заметки к релизу автоматически
+
+#### Автоматический релиз через GitHub Actions
+
+Также можно запустить сборку вручную через вкладку **Actions**:
+
+1. Откройте репозиторий на GitHub
+2. Перейдите в **Actions** → **Release**
+3. Нажмите **"Run workflow"**
+4. Выберите ветку и режим сборки:
+   - `all` — сборка для Linux и Windows
+   - `linux` — сборка только для Linux
+   - `windows` — сборка только для Windows
+   - `deb` — сборка только Debian-пакета
+
+#### Релиз-воркфлоу
+
+Релиз-воркфлоу (`.github/workflows/release.yml`) выполняет следующие шаги:
+
+| Задача | Платформа | Результат |
+| --- | -------- | ------ |
+| `build-linux` | Ubuntu 24.04 | `dist/markdown-editor/` (PyInstaller onedir) |
+| `build-windows` | Windows 2022 | `dist/markdown-editor/` + `dist/markdown-editor.exe` |
+| `create-release` | Ubuntu 24.04 | Создаёт GitHub Release с артефактами tarball/zip |
+
+**Артефакты, публикуемые с каждым релизом:**
+
+| Файл | Платформа | Формат |
+| ---- | -------- | ------ |
+| `markdown-editor-linux-x86_64.tar.gz` | Linux | Tarball |
+| `markdown-editor-windows-x86_64.zip` | Windows | ZIP-архив |
+
+#### Локальная сборка (для тестирования)
+
+```bash
+# Linux/macOS
+./build.sh onedir          # Сборка в папку (рекомендуется)
+./build.sh onefile         # Сборка в один файл
+./build.sh deb             # Сборка .deb-пакета
+./build.sh clean           # Очистка артефактов сборки
+
+# Windows
+build.bat onedir           # Сборка в папку
+build.bat onefile          # Сборка в один файл
+build.bat clean            # Очистка артефактов
 ```
 
 ### Распределение (Distribution)

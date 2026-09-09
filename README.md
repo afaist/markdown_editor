@@ -8,7 +8,7 @@ A simple and functional Markdown editor with real-time preview and LaTeX formula
 
 Markdown Editor is a desktop application for creating and editing Markdown documents with instant preview. It supports inline and block LaTeX formulas via KaTeX, multiple themes, HTML and PDF export, GitHub Callouts, strikethrough text, task lists, and numerous formatting tools.
 
-**Version:** 1.0.0  
+**Version:** 1.0.3  
 **Technologies:** Python 3.12+, PyQt6, QtWebEngine, KaTeX, Python-Markdown, Prism.js
 
 ## ✨ Features
@@ -73,6 +73,44 @@ pip install -e .
 ```bash
 python main.py
 ```
+
+### Installation from Releases
+
+Pre-built binaries are available on the [Releases page](https://github.com/afaist/markdown_editor/releases).
+
+#### Linux
+
+1. **Download** the latest release archive: `markdown-editor-linux-x86_64.tar.gz`
+2. **Extract** the archive:
+
+```bash
+tar -xzf markdown-editor-linux-x86_64.tar.gz
+cd markdown-editor
+```
+
+3. **Run** the application:
+
+```bash
+./markdown-editor
+```
+
+**System dependencies** (may be required on some distributions):
+
+```bash
+# Debian/Ubuntu
+sudo apt-get install -y libgl1 libxkbcommon-x11-0 libxcb-cursor0 libegl1 libwebp-dev libfontconfig1 libfreetype6 libx11-xcb1
+
+# Fedora
+sudo dnf install -y libglvnd-glx libxkbcommon libegl libwebp fontconfig
+```
+
+#### Windows
+
+1. **Download** the latest release archive: `markdown-editor-windows-x86_64.zip`
+2. **Extract** the archive to any folder (e.g., `C:\Program Files\Markdown Editor\`)
+3. **Run** `markdown-editor.exe`
+
+> **Note:** On first launch, Windows SmartScreen may show a warning. Click "More info" → "Run anyway". No administrator privileges are required.
 
 ## 📖 Usage
 
@@ -478,6 +516,81 @@ python -m markdown_editor_pkg.i18n_build lrelease
 
 # Execute both steps
 python -m markdown_editor_pkg.i18n_build all
+```
+
+### Creating Releases
+
+Releases are created using Git tags and automated via GitHub Actions.
+
+#### Manual Release Process
+
+1. **Ensure all tests pass**:
+
+```bash
+pytest tests/ -v
+```
+
+2. **Update the version tag**:
+
+```bash
+# Check current tag
+git tag -l | sort -V | tail -5
+
+# Create a new tag (format: vM.m.p)
+git tag v1.0.4
+
+# Push the tag to GitHub
+git push origin main --tags
+```
+
+3. **GitHub Actions** will automatically:
+   - Build binaries for Linux and Windows using PyInstaller
+   - Create a GitHub Release with the build artifacts
+   - Generate release notes automatically
+
+#### Automated Release via GitHub Actions
+
+You can also trigger a build manually from the **Actions** tab:
+
+1. Open the repository on GitHub
+2. Go to **Actions** → **Release**
+3. Click **"Run workflow"**
+4. Select the branch and build mode:
+   - `all` — build for Linux and Windows
+   - `linux` — build only Linux
+   - `windows` — build only Windows
+   - `deb` — build only Debian package
+
+#### Release Workflow
+
+The release workflow (`.github/workflows/release.yml`) performs the following steps:
+
+| Job | Platform | Output |
+| --- | -------- | ------ |
+| `build-linux` | Ubuntu 24.04 | `dist/markdown-editor/` (PyInstaller onedir) |
+| `build-windows` | Windows 2022 | `dist/markdown-editor/` + `dist/markdown-editor.exe` |
+| `create-release` | Ubuntu 24.04 | Creates GitHub Release with tarball/zip artifacts |
+
+**Artifacts published with each release:**
+
+| File | Platform | Format |
+| ---- | -------- | ------ |
+| `markdown-editor-linux-x86_64.tar.gz` | Linux | Tarball |
+| `markdown-editor-windows-x86_64.zip` | Windows | ZIP archive |
+
+#### Local Build (for testing)
+
+```bash
+# Linux/macOS
+./build.sh onedir          # Build in folder mode (recommended)
+./build.sh onefile         # Build as single file
+./build.sh deb             # Build .deb package
+./build.sh clean           # Clean build artifacts
+
+# Windows
+build.bat onedir           # Build in folder mode
+build.bat onefile          # Build as single file
+build.bat clean            # Clean build artifacts
 ```
 
 ### Distribution
