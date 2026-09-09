@@ -49,7 +49,7 @@ Markdown Editor — это desktop-приложение для создания 
 1. **Клонируйте репозиторий** (или скачайте файлы):
 
 ```bash
-git clone <url-репозитория>
+git clone https://github.com/afaist/markdown_editor.git
 cd markdown_editor
 ```
 

@@ -49,7 +49,7 @@ Markdown Editor is a desktop application for creating and editing Markdown docum
 1. **Clone the repository** (or download the files):
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/afaist/markdown_editor.git
 cd markdown_editor
 ```
 
