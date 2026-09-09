@@ -57,7 +57,6 @@ class MarkdownEditorPyQt(QMainWindow):
         """
         super().__init__()
         self.setWindowTitle(tr("Markdown Editor (PyQt6)"))
-        self.resize(1400, 800)
 
         # Виджеты (заполняются UIBuilder)
         self.editor: QTextEdit  # type: ignore[misc]
@@ -172,6 +171,26 @@ class MarkdownEditorPyQt(QMainWindow):
             font_idx = self.font_combo.findText(saved_font, Qt.MatchFlag.MatchExactly)
             if font_idx >= 0:
                 self.font_combo.setCurrentIndex(font_idx)
+
+        # Размер окна
+        from PyQt6.QtGui import QGuiApplication
+
+        screen = QGuiApplication.primaryScreen()
+        if screen is not None:
+            screen_size = screen.size()
+        else:
+            screen_size = None
+
+        saved_w = settings.get("window_width", 1400)
+        saved_h = settings.get("window_height", 800)
+
+        if screen_size is not None:
+            if saved_w > screen_size.width() or saved_h > screen_size.height():
+                self.showFullScreen()
+            else:
+                self.resize(saved_w, saved_h)
+        else:
+            self.resize(saved_w, saved_h)
 
     # Обработчики событий
     def on_text_change(self) -> None:

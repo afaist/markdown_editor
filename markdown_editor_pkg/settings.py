@@ -32,6 +32,8 @@ DEFAULTS: dict[str, Any] = {
     "editor_font": "Consolas",
     "editor_font_size": 11,
     "last_file": "",
+    "window_width": 1400,
+    "window_height": 800,
 }
 
 

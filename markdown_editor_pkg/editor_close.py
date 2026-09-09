@@ -60,7 +60,11 @@ class CloseHandler:
             elif reply == QMessageBox.StandardButton.Cancel:
                 event.ignore()
                 return
-            else:
-                event.accept()
-        else:
-            event.accept()
+
+        # Сохраняем размер окна перед закрытием
+        from markdown_editor_pkg.settings import Settings
+
+        Settings().set("window_width", self.editor.width())
+        Settings().set("window_height", self.editor.height())
+
+        event.accept()
