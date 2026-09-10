@@ -596,6 +596,30 @@ class MenuBuilder:
             assert lang_menu is not None
             lang_menu.addAction(lang_action)
 
+        # ── GPU acceleration toggle ────────────────────────────────────
+        view_menu.addSeparator()
+        gpu_settings = Settings()
+        _disable_gpu = bool(gpu_settings.get("disable_gpu", False))
+
+        _gpu_action = QAction(
+            tr("Disable GPU acceleration") if _disable_gpu else tr("Enable GPU acceleration"),
+            parent,
+        )
+        _gpu_action.setCheckable(True)
+        _gpu_action.setChecked(_disable_gpu)
+
+        def _toggle_gpu() -> None:
+            new_val = not _disable_gpu
+            gpu_settings.set("disable_gpu", new_val)
+            _gpu_action.setText(
+                tr("Disable GPU acceleration") if new_val else tr("Enable GPU acceleration")
+            )
+            _gpu_action.setChecked(new_val)
+            parent._show_gpu_restart_notification()
+
+        _gpu_action.triggered.connect(_toggle_gpu)
+        view_menu.addAction(_gpu_action)
+
     def _build_help_menu(self, menubar: QMenuBar, parent: MarkdownEditorPyQt) -> None:
         """Создать меню Справка."""
         help_menu = menubar.addMenu(tr("Help"))

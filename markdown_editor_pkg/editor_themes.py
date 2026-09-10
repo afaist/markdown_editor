@@ -28,12 +28,16 @@ class ThemeFontHandler:
     def _update_preview_theme_label(self, theme_name: str) -> None:
         """Обновить метку темы предпросмотра в строке состояния."""
         if self.editor.preview_theme_label is not None:
-            self.editor.preview_theme_label.setText(f"{tr('Preview Theme')}: {theme_name.capitalize()}")
+            self.editor.preview_theme_label.setText(
+                f"{tr('Preview Theme')}: {theme_name.capitalize()}"
+            )
 
     def _update_editor_theme_label(self, theme_name: str) -> None:
         """Обновить метку темы редактора в строке состояния."""
         if self.editor.editor_theme_label is not None:
-            self.editor.editor_theme_label.setText(f"{tr('Editor Theme')}: {theme_name.capitalize()}")
+            self.editor.editor_theme_label.setText(
+                f"{tr('Editor Theme')}: {theme_name.capitalize()}"
+            )
 
     def toggle_theme(self) -> None:
         """Переключить тему предпросмотра."""

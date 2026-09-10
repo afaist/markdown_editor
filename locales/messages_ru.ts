@@ -716,5 +716,27 @@ LaTeX and Markdown support.</source>
         <source>Insert</source>
         <translation>Вставка</translation>
     </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="605"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="615"/>
+        <source>Disable GPU acceleration</source>
+        <translation>Отключить ускорение GPU</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="605"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="615"/>
+        <source>Enable GPU acceleration</source>
+        <translation>Включить ускорение GPU</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor.py" line="421"/>
+        <source>GPU Acceleration Changed</source>
+        <translation>Настройки GPU изменены</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor.py" line="422"/>
+        <source>GPU acceleration setting changed. The application must be restarted for changes to take effect.</source>
+        <translation>Настройка ускорения GPU изменена. Для применения изменений необходимо перезапустить приложение.</translation>
+    </message>
 </context>
 </TS>

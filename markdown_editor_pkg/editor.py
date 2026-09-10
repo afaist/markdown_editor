@@ -161,9 +161,13 @@ class MarkdownEditorPyQt(QMainWindow):
 
         # Обновить метки тем
         if self.preview_theme_label is not None:
-            self.preview_theme_label.setText(f"{tr('Preview Theme')}: {self.theme_manager.theme_name.capitalize()}")
+            self.preview_theme_label.setText(
+                f"{tr('Preview Theme')}: {self.theme_manager.theme_name.capitalize()}"
+            )
         if self.editor_theme_label is not None:
-            self.editor_theme_label.setText(f"{tr('Editor Theme')}: {self.theme_manager.editor_theme.capitalize()}")
+            self.editor_theme_label.setText(
+                f"{tr('Editor Theme')}: {self.theme_manager.editor_theme.capitalize()}"
+            )
 
         # Шрифт
         saved_font = settings.get("editor_font", "Consolas")
@@ -409,6 +413,21 @@ class MarkdownEditorPyQt(QMainWindow):
         msg.setIcon(QMessageBox.Icon.Information)
         msg.setWindowTitle(tr("Language Changed"))
         msg.setText(tr("Language changed. Some UI elements will update after restart."))
+        msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+        msg.exec()
+
+    def _show_gpu_restart_notification(self) -> None:
+        """Show a notification that GPU settings require a restart."""
+        from PyQt6.QtWidgets import QMessageBox
+
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Icon.Information)
+        msg.setWindowTitle(tr("GPU Acceleration Changed"))
+        msg.setText(
+            tr(
+                "GPU acceleration setting changed. The application must be restarted for changes to take effect."
+            )
+        )
         msg.setStandardButtons(QMessageBox.StandardButton.Ok)
         msg.exec()
 

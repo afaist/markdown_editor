@@ -34,6 +34,7 @@ DEFAULTS: dict[str, Any] = {
     "last_file": "",
     "window_width": 1400,
     "window_height": 800,
+    "disable_gpu": False,
 }
 
 

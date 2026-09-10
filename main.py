@@ -3,14 +3,31 @@
 Markdown Editor - A simple Markdown editor with preview and LaTeX support.
 """
 
+import json
 import os
 import sys
+from pathlib import Path
 
-os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = (
-    "--disable-gpu --disable-gpu-compositing --disable-software-rasterizer"
-    " --disable-gpu-info-update"
-)
-os.environ["QTWEBENGINE_SETTINGS"] = '{"enable_gpu": "false"}'
+# ── GPU acceleration (must be set before any Qt import) ──────────────────
+
+_CONFIG_PATH = Path.home() / ".markdown_editor_config.json"
+_disable_gpu = False
+
+if _CONFIG_PATH.exists():
+    try:
+        with open(_CONFIG_PATH, encoding="utf-8") as f:
+            _cfg = json.load(f)
+        _disable_gpu = bool(_cfg.get("disable_gpu", False))
+    except (json.JSONDecodeError, OSError):
+        pass
+
+if _disable_gpu:
+    os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = (
+        "--disable-gpu --disable-gpu-compositing --disable-software-rasterizer"
+        " --disable-gpu-info-update"
+    )
+    os.environ["QTWEBENGINE_SETTINGS"] = '{"enable_gpu": "false"}'
+
 os.environ["QT_LOGGING_RULES"] = "qt.webengine.services=false"
 
 from PyQt6.QtWidgets import QApplication
