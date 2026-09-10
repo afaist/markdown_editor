@@ -257,7 +257,7 @@ jobs:
           # Build deb
           dpkg-deb --build \
             --root-owner-group \
-            deb-build \
+            deb-build/markdown-editor \
             "dist/markdown-editor_${VERSION}_${ARCH}.deb"
 
           echo "DEB_FILE=markdown-editor_${VERSION}_${ARCH}.deb" >> $GITHUB_ENV
