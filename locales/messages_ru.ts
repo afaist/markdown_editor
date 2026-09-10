@@ -395,6 +395,18 @@
         <translation>О программе</translation>
     </message>
     <message>
+        <location filename="../markdown_editor_pkg/editor_help.py" line="52"/>
+        <source>Version: {}</source>
+        <translation>Версия: {}</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_help.py" line="54"/>
+        <source>Developed with Python 3.12+, PyQt6, QtWebEngine
+LaTeX and Markdown support.</source>
+        <translation>Разработано на Python 3.12+, PyQt6, QtWebEngine
+Поддержка LaTeX и Markdown.</translation>
+    </message>
+    <message>
         <location filename="../markdown_editor_pkg/editor_events.py" line="51"/>
         <source>Unsaved file. {filename}</source>
         <translation>Файл не сохранён. {filename}</translation>
@@ -418,19 +430,6 @@
         <location filename="../markdown_editor_pkg/editor_events.py" line="94"/>
         <source>Words: {count}</source>
         <translation>Слов: {count}</translation>
-    </message>
-    <message>
-        <location filename="../markdown_editor_pkg/editor_help.py" line="26"/>
-        <source>Markdown Editor (PyQt6)
-
-Version: 1.0
-Developed with Python 3.12+, PyQt6, QtWebEngine
-LaTeX and Markdown support.</source>
-        <translation>Markdown Editor (PyQt6)
-
-Версия: 1.0
-Разработано на Python 3.12+, PyQt6, QtWebEngine
-Поддержка LaTeX и Markdown.</translation>
     </message>
     <message>
         <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="34"/>

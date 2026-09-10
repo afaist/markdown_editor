@@ -508,6 +508,10 @@
     <message>
         <location filename="../markdown_editor_pkg/editor_help.py" line="52"/>
         <source>Version: {}</source>
+        <translation>Версия: {}</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_help.py" line="54"/>
         <source>Developed with Python 3.12+, PyQt6, QtWebEngine
 LaTeX and Markdown support.</source>
         <translation>Разработано на Python 3.12+, PyQt6, QtWebEngine

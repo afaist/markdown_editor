@@ -48,10 +48,12 @@ class HelpHandler:
         title.setFont(QFont("", 0, QFont.Weight.Bold))
         layout.addWidget(title)
 
+        version_label = QLabel(tr("Version: {}").format(__version__))
+        version_label.setStyleSheet("margin-top: 4px;")
+        layout.addWidget(version_label)
+
         info = QLabel(
-            tr("Version: {}").format(__version__)
-            + "\n"
-            + tr("Developed with Python 3.12+, PyQt6, QtWebEngine\nLaTeX and Markdown support.")
+            tr("Developed with Python 3.12+, PyQt6, QtWebEngine\nLaTeX and Markdown support.")
         )
         info.setWordWrap(True)
         layout.addWidget(info)
