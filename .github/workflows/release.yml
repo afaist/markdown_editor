@@ -177,7 +177,6 @@ jobs:
 
       - name: Create .deb package
         run: |
-          export VERSION=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
           export ARCH=$(dpkg --print-architecture)
 
           # Create deb structure
@@ -193,7 +192,9 @@ jobs:
           # Create control, desktop, and icon files using Python
           python3 << 'PYEOF'
           import os
-          version = os.environ.get("VERSION", "1.0.0")
+          import tomllib
+          with open("pyproject.toml", "rb") as f:
+              version = tomllib.load(f)["project"]["version"]
           arch = os.environ.get("ARCH", "amd64")
 
           # control file
