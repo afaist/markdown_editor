@@ -123,9 +123,146 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
 
+  # ─── Сборка .deb пакета ────────────────────────────────────────────
+  build-deb:
+    if: github.event.inputs.mode == 'all' || github.event.inputs.mode == 'deb' || startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: 'pip'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgl1-mesa-dev \
+            libxkbcommon-x11-0 \
+            libxcb-cursor0 \
+            libegl1-mesa-dev \
+            libwebp-dev \
+            libfontconfig1 \
+            libfreetype6 \
+            libx11-xcb1 \
+            libxcb-icccm4 \
+            libxcb-image0 \
+            libxcb-keysyms1 \
+            libxcb-randr0 \
+            libxcb-render-util0 \
+            libxcb-shape0 \
+            libxcb-xinerama0 \
+            libxcb-xfixes0 \
+            dpkg-deb
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller PyQt6 PyQt6-WebEngine markdown
+
+      - name: Download KaTeX resources
+        run: python markdown_editor_pkg/download_katex.py
+
+      - name: Download Prism.js resources
+        run: python markdown_editor_pkg/download_prism.py
+
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --clean --noconfirm markdown-editor.spec
+
+      - name: Create .deb package
+        run: |
+          VERSION=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+          ARCH=$(dpkg --print-architecture)
+
+          # Create deb structure
+          rm -rf deb-build
+          mkdir -p deb-build/markdown-editor/opt/markdown-editor
+          mkdir -p deb-build/markdown-editor/usr/share/applications
+          mkdir -p deb-build/markdown-editor/usr/share/pixmaps
+
+          # Copy application files
+          cp -r dist/markdown-editor/* deb-build/markdown-editor/opt/markdown-editor/
+
+          # Create control file
+          cat > deb-build/markdown-editor/DEBIAN/control <<EOF
+Package: markdown-editor
+Version: $VERSION
+Section: utils
+Priority: optional
+Architecture: $ARCH
+Depends: libgl1, libxkbcommon-x11-0, libegl1, libxcb-cursor0, libfontconfig1, libfreetype6
+Maintainer: afaist <afaist@github.com>
+Description: Простой редактор Markdown с предпросмотром и поддержкой LaTeX
+ Markdown-редактор с live-предпросмотром, поддержкой LaTeX-формул (KaTeX),
+ синтаксическим выделением (Prism.js) и экспортом в PDF/HTML.
+EOF
+
+          # Create .desktop file
+          cat > deb-build/markdown-editor/usr/share/applications/markdown-editor.desktop <<EOF
+[Desktop Entry]
+Name=Markdown Editor
+Comment=Markdown editor with preview and LaTeX support
+Exec=/opt/markdown-editor/markdown-editor
+Icon=markdown-editor
+Terminal=false
+Type=Application
+Categories=Utility;TextEditor;
+MimeType=text/markdown;text/x-markdown;
+EOF
+
+          # Create simple icon (placeholder)
+          cat > deb-build/markdown-editor/usr/share/pixmaps/markdown-editor.xpm <<'EOF'
+/* XPM */
+static char * markdown_editor_xpm[] = {
+"16 16 3 1",
+"   c None",
+". c #000000",
+"+ c #CCCCCC",
+"                ",
+"   ++++++++    ",
+"  +...........+",
+"  +.+++++++.  +",
+"  +.+....+.+  +",
+"  +.+....+.+  +",
+"  +.+....+.+  +",
+"  +.+....+.+  +",
+"  +.+++++++.  +",
+"  +...........+",
+"  +++++++++++ +",
+"  +++++++++++ +",
+"  +++++++++++ +",
+"  +++++++++++ +",
+"   ++++++++++ ",
+"                ",
+};
+EOF
+
+          # Build deb
+          dpkg-deb --build \
+            --root-owner-group \
+            deb-build \
+            "dist/markdown-editor_${VERSION}_${ARCH}.deb"
+
+          echo "DEB_FILE=markdown-editor_${VERSION}_${ARCH}.deb" >> $GITHUB_ENV
+
+      - name: Upload .deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: markdown-editor-deb
+          path: dist/markdown-editor_*.deb
+          retention-days: 14
+          if-no-files-found: error
+
   # ─── Создание релиза ───────────────────────────────────────────────
   create-release:
-    needs: [build-linux, build-windows]
+    needs: [build-linux, build-windows, build-deb]
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     permissions:
@@ -143,6 +280,12 @@ jobs:
         with:
           name: markdown-editor-windows
           path: release/windows/
+
+      - name: Download .deb artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: markdown-editor-deb
+          path: release/deb/
 
       - name: Create tarball for Linux
         run: |
@@ -169,6 +312,7 @@ jobs:
           files: |
             release/markdown-editor-linux-x86_64.tar.gz
             release/markdown-editor-windows-x86_64.zip
+            release/deb/*.deb
           draft: false
           prerelease: ${{ !startsWith(github.ref, 'refs/tags/') }}
           generate_release_notes: true
