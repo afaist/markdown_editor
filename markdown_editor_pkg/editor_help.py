@@ -49,11 +49,9 @@ class HelpHandler:
         layout.addWidget(title)
 
         info = QLabel(
-            tr(
-                f"Version: {__version__}\n"
-                "Developed with Python 3.12+, PyQt6, QtWebEngine\n"
-                "LaTeX and Markdown support."
-            )
+            tr("Version: {}").format(__version__)
+            + "\n"
+            + tr("Developed with Python 3.12+, PyQt6, QtWebEngine\nLaTeX and Markdown support.")
         )
         info.setWordWrap(True)
         layout.addWidget(info)
