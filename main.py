@@ -21,9 +21,11 @@ if _CONFIG_PATH.exists():
     except (json.JSONDecodeError, OSError):
         pass
 
+os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-logging"
+
 if _disable_gpu:
-    os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = (
-        "--disable-gpu --disable-gpu-compositing --disable-software-rasterizer"
+    os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] += (
+        " --disable-gpu --disable-gpu-compositing --disable-software-rasterizer"
         " --disable-gpu-info-update"
     )
     os.environ["QTWEBENGINE_SETTINGS"] = '{"enable_gpu": "false"}'
