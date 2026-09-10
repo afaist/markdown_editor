@@ -1,7 +1,10 @@
 # markdown_editor_pkg — пакет Markdown Editor (PyQt6)
 """Пакет для Markdown редактора с поддержкой LaTeX."""
 
+from __future__ import annotations
+
 from importlib.metadata import version as _version
+from typing import Any
 
 __all__: list[str] = []
 
@@ -10,7 +13,7 @@ def _get_version() -> str:
     """Return package version from installed metadata or setuptools_scm."""
     # 1. Installed package metadata
     try:
-        return _version("markdown-editor")
+        return str(_version("markdown-editor"))  # type: ignore[no-any-return]
     except Exception:
         pass
 
@@ -18,7 +21,7 @@ def _get_version() -> str:
     try:
         from setuptools_scm import get_version
 
-        return get_version()
+        return str(get_version())  # type: ignore[no-any-return]
     except Exception:
         pass
 
