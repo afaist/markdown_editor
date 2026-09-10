@@ -34,7 +34,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12'
           cache: 'pip'
 
       - name: Install system dependencies
@@ -95,7 +95,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12'
           cache: 'pip'
 
       - name: Install Python dependencies
@@ -136,7 +136,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12'
           cache: 'pip'
 
       - name: Install system dependencies
@@ -178,8 +178,8 @@ jobs:
 
       - name: Create .deb package
         run: |
-          VERSION=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
-          ARCH=$(dpkg --print-architecture)
+          export VERSION=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+          export ARCH=$(dpkg --print-architecture)
 
           # Create deb structure
           rm -rf deb-build
@@ -190,59 +190,69 @@ jobs:
           # Copy application files
           cp -r dist/markdown-editor/* deb-build/markdown-editor/opt/markdown-editor/
 
-          # Create control file
-          cat > deb-build/markdown-editor/DEBIAN/control <<EOF
-Package: markdown-editor
-Version: $VERSION
-Section: utils
-Priority: optional
-Architecture: $ARCH
-Depends: libgl1, libxkbcommon-x11-0, libegl1, libxcb-cursor0, libfontconfig1, libfreetype6
-Maintainer: afaist <afaist@github.com>
-Description: Простой редактор Markdown с предпросмотром и поддержкой LaTeX
- Markdown-редактор с live-предпросмотром, поддержкой LaTeX-формул (KaTeX),
- синтаксическим выделением (Prism.js) и экспортом в PDF/HTML.
-EOF
+          # Create control, desktop, and icon files using Python
+          python3 << 'PYEOF'
+          import os
+          version = os.environ.get("VERSION", "1.0.0")
+          arch = os.environ.get("ARCH", "amd64")
 
-          # Create .desktop file
-          cat > deb-build/markdown-editor/usr/share/applications/markdown-editor.desktop <<EOF
-[Desktop Entry]
-Name=Markdown Editor
-Comment=Markdown editor with preview and LaTeX support
-Exec=/opt/markdown-editor/markdown-editor
-Icon=markdown-editor
-Terminal=false
-Type=Application
-Categories=Utility;TextEditor;
-MimeType=text/markdown;text/x-markdown;
-EOF
+          # control file
+          with open("deb-build/markdown-editor/DEBIAN/control", "w") as f:
+              f.write("\n".join([
+                  "Package: markdown-editor",
+                  f"Version: {version}",
+                  "Section: utils",
+                  "Priority: optional",
+                  f"Architecture: {arch}",
+                  "Depends: libgl1, libxkbcommon-x11-0, libegl1, libxcb-cursor0, libfontconfig1, libfreetype6",
+                  "Maintainer: afaist <afaist@github.com>",
+                  "Description: Простой редактор Markdown с предпросмотром и поддержкой LaTeX",
+                  "  Markdown-редактор с live-предпросмотром, поддержкой LaTeX-формул (KaTeX),",
+                  "  синтаксическим выделением (Prism.js) и экспортом в PDF/HTML.",
+              ]) + "\n")
 
-          # Create simple icon (placeholder)
-          cat > deb-build/markdown-editor/usr/share/pixmaps/markdown-editor.xpm <<'EOF'
-/* XPM */
-static char * markdown_editor_xpm[] = {
-"16 16 3 1",
-"   c None",
-". c #000000",
-"+ c #CCCCCC",
-"                ",
-"   ++++++++    ",
-"  +...........+",
-"  +.+++++++.  +",
-"  +.+....+.+  +",
-"  +.+....+.+  +",
-"  +.+....+.+  +",
-"  +.+....+.+  +",
-"  +.+++++++.  +",
-"  +...........+",
-"  +++++++++++ +",
-"  +++++++++++ +",
-"  +++++++++++ +",
-"  +++++++++++ +",
-"   ++++++++++ ",
-"                ",
-};
-EOF
+          # .desktop file
+          with open("deb-build/markdown-editor/usr/share/applications/markdown-editor.desktop", "w") as f:
+              f.write("\n".join([
+                  "[Desktop Entry]",
+                  "Name=Markdown Editor",
+                  "Comment=Markdown editor with preview and LaTeX support",
+                  "Exec=/opt/markdown-editor/markdown-editor",
+                  "Icon=markdown-editor",
+                  "Terminal=false",
+                  "Type=Application",
+                  "Categories=Utility;TextEditor;",
+                  "MimeType=text/markdown;text/x-markdown;",
+              ]) + "\n")
+
+          # XPM icon
+          with open("deb-build/markdown-editor/usr/share/pixmaps/markdown-editor.xpm", "w") as f:
+              f.write("\n".join([
+                  '/* XPM */',
+                  'static char * markdown_editor_xpm[] = {',
+                  '"16 16 3 1"',
+                  '"   c None"',
+                  '". c #000000"',
+                  '"+ c #CCCCCC"',
+                  '"                "',
+                  '"   ++++++++    "',
+                  '"  +...........+"',
+                  '"  +.+++++++.  +"',
+                  '"  +.+....+.+  +"',
+                  '"  +.+....+.+  +"',
+                  '"  +.+....+.+  +"',
+                  '"  +.+....+.+  +"',
+                  '"  +.+++++++.  +"',
+                  '"  +...........+"',
+                  '"  +++++++++++ +"',
+                  '"  +++++++++++ +"',
+                  '"  +++++++++++ +"',
+                  '"  +++++++++++ +"',
+                  '"   ++++++++++ "',
+                  '"                "',
+                  '};',
+              ]) + "\n")
+          PYEOF
 
           # Build deb
           dpkg-deb --build \
