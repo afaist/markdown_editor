@@ -167,6 +167,10 @@ class FileIO:
         self._editor._set_editor_text_without_dirty("")
         self._state.current_file = None
         self._state.mark_clean()
+        # Очистить last_file в конфиге — нового файла пока нет
+        from markdown_editor_pkg.session_manager import SessionManager
+
+        SessionManager.save("")
         self._editor.update_preview()
         self._editor.update_file_status()
         self._status_msg("Новый файл создан")
