@@ -182,6 +182,7 @@ jobs:
 
           # Create deb structure
           rm -rf deb-build
+          mkdir -p deb-build/markdown-editor/DEBIAN
           mkdir -p deb-build/markdown-editor/opt/markdown-editor
           mkdir -p deb-build/markdown-editor/usr/share/applications
           mkdir -p deb-build/markdown-editor/usr/share/pixmaps
