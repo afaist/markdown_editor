@@ -163,7 +163,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller PyQt6 PyQt6-WebEngine markdown
+          pip install pyinstaller PyQt6 PyQt6-WebEngine markdown setuptools_scm
 
       - name: Download KaTeX resources
         run: python markdown_editor_pkg/download_katex.py
@@ -192,9 +192,8 @@ jobs:
           # Create control, desktop, and icon files using Python
           python3 << 'PYEOF'
           import os
-          import tomllib
-          with open("pyproject.toml", "rb") as f:
-              version = tomllib.load(f)["project"]["version"]
+          from setuptools_scm import get_version
+          version = get_version()
           arch = os.environ.get("ARCH", "amd64")
 
           # control file
