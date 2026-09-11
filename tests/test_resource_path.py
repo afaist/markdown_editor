@@ -1,7 +1,6 @@
 """Tests for resource_path module."""
 
 import sys
-from unittest import mock
 
 from markdown_editor_pkg.resource_path import get_base_dir, get_package_dir, resource_path
 

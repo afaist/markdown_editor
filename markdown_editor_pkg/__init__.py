@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 from importlib.metadata import version as _version
-from typing import Any
 
 __all__: list[str] = []
 

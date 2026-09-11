@@ -92,7 +92,7 @@ class ScrollSyncManager:
     - Подключение скроллбара редактора к обработчику синхронизации
     """
 
-    def __init__(self, editor: "MarkdownEditorPyQt") -> None:
+    def __init__(self, editor: MarkdownEditorPyQt) -> None:
         """Инициализация менеджера синхронизации прокрутки.
 
         Args:

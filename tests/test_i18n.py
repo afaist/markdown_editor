@@ -1,10 +1,6 @@
 """Tests for i18n module."""
 
-import sys
 from pathlib import Path
-from unittest import mock
-
-from PyQt6.QtCore import QCoreApplication
 
 from markdown_editor_pkg.i18n import (
     _get_language_info,

@@ -2,8 +2,6 @@
 
 from unittest import mock
 
-from markdown_editor_pkg.editor_themes import ThemeFontHandler
-
 
 class TestThemeFontHandler:
     """Тесты ThemeFontHandler."""
@@ -17,8 +15,10 @@ class TestThemeFontHandler:
         """toggle_theme обновляет превью."""
         handler = markdown_editor.theme_font_handler
 
-        with mock.patch.object(markdown_editor.theme_manager, "toggle_preview_theme") as mock_toggle, \
-             mock.patch.object(markdown_editor, "update_preview") as mock_update:
+        with (
+            mock.patch.object(markdown_editor.theme_manager, "toggle_preview_theme") as mock_toggle,
+            mock.patch.object(markdown_editor, "update_preview") as mock_update,
+        ):
             mock_toggle.return_value = "dark"
             handler.toggle_theme()
 
@@ -87,7 +87,9 @@ class TestThemeFontHandler:
         handler.reset_font()
 
         # Шрифт должен быть сброшен
-        assert markdown_editor.theme_manager.font_family in markdown_editor.theme_manager.DEFAULT_FONTS
+        assert (
+            markdown_editor.theme_manager.font_family in markdown_editor.theme_manager.DEFAULT_FONTS
+        )
 
     def test_update_font_size_label(self, markdown_editor):
         """_update_font_size_label обновляет метку."""
@@ -96,14 +98,18 @@ class TestThemeFontHandler:
         handler._update_font_size_label()
 
         assert markdown_editor.font_size_label is not None
-        assert str(markdown_editor.theme_manager.font_size) in markdown_editor.font_size_label.text()
+        assert (
+            str(markdown_editor.theme_manager.font_size) in markdown_editor.font_size_label.text()
+        )
 
     def test_toggle_theme_with_statusbar(self, markdown_editor):
         """toggle_theme показывает статус в statusbar."""
         handler = markdown_editor.theme_font_handler
         markdown_editor._statusbar_ref = mock.Mock()
 
-        with mock.patch.object(markdown_editor.theme_manager, "toggle_preview_theme") as mock_toggle:
+        with mock.patch.object(
+            markdown_editor.theme_manager, "toggle_preview_theme"
+        ) as mock_toggle:
             mock_toggle.return_value = "dark"
             handler.toggle_theme()
 

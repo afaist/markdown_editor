@@ -3,9 +3,7 @@
 from unittest import mock
 
 import pytest
-
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QTextCursor
 
 from markdown_editor_pkg.editor_keypress import (
     MarkdownTextEdit,
@@ -169,6 +167,8 @@ class TestMarkdownTextEdit:
 
         app = QApplication.instance()
         if app is None:
+            import sys
+
             from PyQt6.QtWidgets import QApplication as _QApp
 
             app = _QApp(sys.argv)

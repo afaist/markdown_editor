@@ -4,9 +4,6 @@ from unittest import mock
 
 from PyQt6.QtWidgets import QDialog
 
-from markdown_editor_pkg.editor_pdf import PDFHandler
-from markdown_editor_pkg.header_footer_dialog import HeaderFooterDialog
-
 
 class TestPDFHandler:
     """Тесты PDFHandler."""
@@ -20,9 +17,7 @@ class TestPDFHandler:
         """show_pdf_settings открывает диалог настроек."""
         handler = markdown_editor.pdf_handler
 
-        with mock.patch(
-            "markdown_editor_pkg.editor_pdf.HeaderFooterDialog"
-        ) as mock_dialog_cls:
+        with mock.patch("markdown_editor_pkg.editor_pdf.HeaderFooterDialog") as mock_dialog_cls:
             mock_dialog = mock.Mock()
             mock_dialog.exec.return_value = QDialog.DialogCode.Accepted
             mock_dialog.get_headers.return_value = {
@@ -42,9 +37,7 @@ class TestPDFHandler:
         """show_pdf_settings сохраняет колонтитулы."""
         handler = markdown_editor.pdf_handler
 
-        with mock.patch(
-            "markdown_editor_pkg.editor_pdf.HeaderFooterDialog"
-        ) as mock_dialog_cls:
+        with mock.patch("markdown_editor_pkg.editor_pdf.HeaderFooterDialog") as mock_dialog_cls:
             mock_dialog = mock.Mock()
             mock_dialog.exec.return_value = QDialog.DialogCode.Accepted
             mock_dialog.get_headers.return_value = {
@@ -67,9 +60,7 @@ class TestPDFHandler:
         """show_pdf_settings при отмене не сохраняет."""
         handler = markdown_editor.pdf_handler
 
-        with mock.patch(
-            "markdown_editor_pkg.editor_pdf.HeaderFooterDialog"
-        ) as mock_dialog_cls:
+        with mock.patch("markdown_editor_pkg.editor_pdf.HeaderFooterDialog") as mock_dialog_cls:
             mock_dialog = mock.Mock()
             mock_dialog.exec.return_value = QDialog.DialogCode.Rejected
             mock_dialog_cls.return_value = mock_dialog
@@ -85,9 +76,7 @@ class TestPDFHandler:
         handler = markdown_editor.pdf_handler
         markdown_editor.file_export._pdf_headers = None
 
-        with mock.patch(
-            "markdown_editor_pkg.editor_pdf.HeaderFooterDialog"
-        ) as mock_dialog_cls:
+        with mock.patch("markdown_editor_pkg.editor_pdf.HeaderFooterDialog") as mock_dialog_cls:
             mock_dialog = mock.Mock()
             mock_dialog.exec.return_value = QDialog.DialogCode.Accepted
             mock_dialog.get_headers.return_value = {
@@ -107,9 +96,7 @@ class TestPDFHandler:
         handler = markdown_editor.pdf_handler
         markdown_editor._statusbar_ref = mock.Mock()
 
-        with mock.patch(
-            "markdown_editor_pkg.editor_pdf.HeaderFooterDialog"
-        ) as mock_dialog_cls:
+        with mock.patch("markdown_editor_pkg.editor_pdf.HeaderFooterDialog") as mock_dialog_cls:
             mock_dialog = mock.Mock()
             mock_dialog.exec.return_value = QDialog.DialogCode.Accepted
             mock_dialog.get_headers.return_value = {

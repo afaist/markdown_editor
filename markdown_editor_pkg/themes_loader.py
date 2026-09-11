@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import importlib.resources
-from pathlib import Path
-from typing import ClassVar
 
 
 def _read_theme_file(package: str, filename: str) -> str:

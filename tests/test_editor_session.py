@@ -1,9 +1,6 @@
 """Tests for editor_session module."""
 
-import os
 from unittest import mock
-
-from markdown_editor_pkg.editor_session import SessionHandler
 
 
 class TestSessionHandler:
@@ -18,9 +15,7 @@ class TestSessionHandler:
         """save_session вызывает SessionManager.save()."""
         handler = markdown_editor.session_handler
 
-        with mock.patch(
-            "markdown_editor_pkg.editor_session.SessionManager.save"
-        ) as mock_save:
+        with mock.patch("markdown_editor_pkg.editor_session.SessionManager.save") as mock_save:
             handler.save_session("/path/to/file.md")
             mock_save.assert_called_once_with("/path/to/file.md")
 
@@ -28,9 +23,7 @@ class TestSessionHandler:
         """load_session не делает ничего если файл не существует."""
         handler = markdown_editor.session_handler
 
-        with mock.patch(
-            "markdown_editor_pkg.editor_session.SessionManager.load"
-        ) as mock_load:
+        with mock.patch("markdown_editor_pkg.editor_session.SessionManager.load") as mock_load:
             mock_load.return_value = "/nonexistent/file.md"
             # Не должно вызвать исключение
             handler.load_session()
@@ -42,10 +35,10 @@ class TestSessionHandler:
 
         handler = markdown_editor.session_handler
 
-        with mock.patch(
-            "markdown_editor_pkg.editor_session.SessionManager.load"
-        ) as mock_load, \
-             mock.patch("os.path.exists") as mock_exists:
+        with (
+            mock.patch("markdown_editor_pkg.editor_session.SessionManager.load") as mock_load,
+            mock.patch("os.path.exists") as mock_exists,
+        ):
             mock_load.return_value = str(tmp_md)
             mock_exists.return_value = True
 
@@ -59,10 +52,10 @@ class TestSessionHandler:
         """load_session корректно обрабатывает нечитаемый файл."""
         handler = markdown_editor.session_handler
 
-        with mock.patch(
-            "markdown_editor_pkg.editor_session.SessionManager.load"
-        ) as mock_load, \
-             mock.patch("os.path.exists") as mock_exists:
+        with (
+            mock.patch("markdown_editor_pkg.editor_session.SessionManager.load") as mock_load,
+            mock.patch("os.path.exists") as mock_exists,
+        ):
             mock_load.return_value = "/path/to/corrupted.md"
             mock_exists.return_value = True
 

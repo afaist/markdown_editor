@@ -2,10 +2,6 @@
 
 from unittest import mock
 
-from PyQt6.QtCore import QUrl
-
-from markdown_editor_pkg.editor_events import EventHandler
-
 
 class TestEventHandlerInit:
     """Тесты инициализации EventHandler."""
@@ -38,9 +34,11 @@ class TestOnTextChange:
 
     def test_stops_preview_timer(self, markdown_editor):
         """on_text_change останавливает preview_timer перед запуском."""
-        with mock.patch.object(markdown_editor.preview_timer, "stop") as mock_stop, \
-             mock.patch.object(markdown_editor.preview_timer, "start") as mock_start, \
-             mock.patch.object(markdown_editor, "update_char_count"):
+        with (
+            mock.patch.object(markdown_editor.preview_timer, "stop") as mock_stop,
+            mock.patch.object(markdown_editor.preview_timer, "start") as mock_start,
+            mock.patch.object(markdown_editor, "update_char_count"),
+        ):
             markdown_editor.editor.setPlainText("test")
             markdown_editor.event_handler.on_text_change()
             assert mock_stop.call_count >= 1
@@ -48,8 +46,10 @@ class TestOnTextChange:
 
     def test_starts_preview_timer_with_delay(self, markdown_editor):
         """on_text_change запускает preview_timer с задержкой."""
-        with mock.patch.object(markdown_editor.preview_timer, "start") as mock_start, \
-             mock.patch.object(markdown_editor, "update_char_count"):
+        with (
+            mock.patch.object(markdown_editor.preview_timer, "start") as mock_start,
+            mock.patch.object(markdown_editor, "update_char_count"),
+        ):
             markdown_editor.editor.setPlainText("test")
             markdown_editor.event_handler.on_text_change()
             # Проверяем что start вызван с 300 (может быть вызван несколько раз)
@@ -133,7 +133,7 @@ class TestSetEditorTextWithoutDirty:
 
     def test_does_not_signal_text_changed(self, markdown_editor):
         """set_editor_text_without_dirty блокирует сигналы."""
-        with mock.patch.object(markdown_editor.editor, "textChanged") as mock_changed:
+        with mock.patch.object(markdown_editor.editor, "textChanged"):
             markdown_editor.event_handler.set_editor_text_without_dirty("test")
             # Сигналы должны быть заблокированы
             # Это сложно протестировать напрямую, но можно проверить что текст установлен

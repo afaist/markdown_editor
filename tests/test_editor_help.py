@@ -4,8 +4,6 @@ from unittest import mock
 
 from PyQt6.QtWidgets import QDialog
 
-from markdown_editor_pkg.editor_help import HelpHandler
-
 
 class TestHelpHandler:
     """Тесты HelpHandler."""

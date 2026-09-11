@@ -2,8 +2,6 @@
 
 from unittest import mock
 
-from markdown_editor_pkg.editor_find import FindReplaceHandler
-
 
 class TestFindReplaceHandler:
     """Тесты FindReplaceHandler."""
@@ -17,9 +15,7 @@ class TestFindReplaceHandler:
         """find_replace открывает диалог поиска."""
         handler = markdown_editor.find_replace_handler
 
-        with mock.patch(
-            "markdown_editor_pkg.editor_find.FindReplaceDialog"
-        ) as mock_dialog_cls:
+        with mock.patch("markdown_editor_pkg.editor_find.FindReplaceDialog") as mock_dialog_cls:
             mock_dialog = mock.Mock()
             mock_dialog_cls.return_value = mock_dialog
 
@@ -32,13 +28,11 @@ class TestFindReplaceHandler:
         """find_replace создаёт диалог с правильным editor."""
         handler = markdown_editor.find_replace_handler
 
-        with mock.patch(
-            "markdown_editor_pkg.editor_find.FindReplaceDialog"
-        ) as mock_dialog_cls:
+        with mock.patch("markdown_editor_pkg.editor_find.FindReplaceDialog") as mock_dialog_cls:
             mock_dialog = mock.Mock()
             mock_dialog_cls.return_value = mock_dialog
 
             handler.find_replace()
 
-            args, kwargs = mock_dialog_cls.call_args
+            args, _kwargs = mock_dialog_cls.call_args
             assert args[0] is markdown_editor

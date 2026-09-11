@@ -13,10 +13,8 @@ os.environ["QTWEBENGINE_SETTINGS"] = '{"enable_gpu": "false"}'
 os.environ["QT_LOGGING_RULES"] = "qt.webengine.*=false"
 
 # Import QtWebEngineWidgets first to satisfy Qt requirements
-from PyQt6.QtWebEngineWidgets import QWebEngineView  # noqa: F401
-
 # Import QApplication after QtWebEngineWidgets
-from PyQt6.QtCore import Qt
+from PyQt6.QtWebEngineWidgets import QWebEngineView  # noqa: F401
 from PyQt6.QtWidgets import QApplication
 
 # Create a single QApplication instance for all tests
@@ -25,7 +23,7 @@ if qt_app is None:
     qt_app = QApplication(sys.argv)
 
 
-import pytest  # noqa: E402
+import pytest
 
 
 @pytest.fixture(scope="session")

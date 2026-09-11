@@ -18,9 +18,11 @@ from markdown_editor_pkg.themes import ThemesManager
 def _read_template(filename: str) -> str:
     """Read a template file from the templates package."""
     try:
-        with importlib.resources.files("markdown_editor_pkg.templates").joinpath(filename).open(
-            encoding="utf-8"
-        ) as f:
+        with (
+            importlib.resources.files("markdown_editor_pkg.templates")
+            .joinpath(filename)
+            .open(encoding="utf-8") as f
+        ):
             return f.read()
     except FileNotFoundError:
         return ""

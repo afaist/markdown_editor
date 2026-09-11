@@ -5,8 +5,6 @@ from unittest import mock
 from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtWidgets import QMessageBox
 
-from markdown_editor_pkg.editor_close import CloseHandler
-
 
 class TestCloseHandler:
     """Тесты CloseHandler."""

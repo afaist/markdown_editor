@@ -43,7 +43,6 @@ if TYPE_CHECKING:
     )
 
     from markdown_editor_pkg.editor_events import EventHandler
-    from PyQt6.QtWebChannel import QWebChannel
 
 
 class MarkdownEditorPyQt(QMainWindow):
