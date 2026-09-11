@@ -50,16 +50,20 @@ class TestPdfHeaders:
         assert 'class="page-footer"' not in html
 
     def test_pdf_headers_in_print_styles(self):
-        """PRINT_STYLES_TEMPLATE содержит стили для колонтитулов."""
-        template = self.editor.renderer.PRINT_STYLES_TEMPLATE
+        """Шаблон print_styles содержит стили для колонтитулов."""
+        from markdown_editor_pkg.markdown_renderer import _PRINT_STYLES_TEMPLATE
+
+        template = _PRINT_STYLES_TEMPLATE
         assert ".page-header" in template
         assert ".page-footer" in template
         assert "position: fixed" in template
         assert "@media print" in template
 
     def test_pdf_headers_no_css_page_center(self):
-        """PRINT_STYLES_TEMPLATE не содержит нерабочие @top-center."""
-        template = self.editor.renderer.PRINT_STYLES_TEMPLATE
+        """Шаблон print_styles не содержит нерабочие @top-center."""
+        from markdown_editor_pkg.markdown_renderer import _PRINT_STYLES_TEMPLATE
+
+        template = _PRINT_STYLES_TEMPLATE
         assert "@top-center" not in template
         assert "@bottom-center" not in template
 

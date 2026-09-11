@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from markdown_editor_pkg.header_footer_dialog import HeaderFooterDialog
+from markdown_editor_pkg.i18n import tr
 
 if TYPE_CHECKING:
     from markdown_editor_pkg.editor import MarkdownEditorPyQt
@@ -34,8 +35,8 @@ class PDFHandler:
             self.editor.file_export.set_pdf_headers(headers)
             if self.editor._statusbar_ref:
                 status = (
-                    "Настройки PDF-экспорта сохранены"
+                    tr("PDF export settings saved")
                     if headers["show_headers"]
-                    else "Колонтитулы PDF отключены"
+                    else tr("PDF headers disabled")
                 )
                 self.editor._statusbar_ref.showMessage(status)

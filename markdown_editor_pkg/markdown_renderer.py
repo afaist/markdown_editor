@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.resources
 import os
 
 import markdown
@@ -11,6 +12,31 @@ from markdown_editor_pkg.latex_processor import LaTeXProcessor, StrikethroughPro
 from markdown_editor_pkg.prism_processor import PrismJSProcessor
 from markdown_editor_pkg.themes import ThemesManager
 
+# ─── Шаблоны из файлов ────────────────────────────────────────────────────
+
+
+def _read_template(filename: str) -> str:
+    """Read a template file from the templates package."""
+    try:
+        with importlib.resources.files("markdown_editor_pkg.templates").joinpath(filename).open(
+            encoding="utf-8"
+        ) as f:
+            return f.read()
+    except FileNotFoundError:
+        return ""
+
+
+_PRINT_STYLES_TEMPLATE: str = ""
+_KATEX_SETUP_JS: str = ""
+_PAGE_NUMBERING_JS: str = ""
+
+try:
+    _PRINT_STYLES_TEMPLATE = _read_template("print_styles.css")
+    _KATEX_SETUP_JS = _read_template("katex_setup.js")
+    _PAGE_NUMBERING_JS = _read_template("page_numbering.js")
+except Exception:
+    pass
+
 
 class MarkdownRenderer:
     """Конвертирует Markdown-текст в полный HTML-документ с LaTeX и темами."""
@@ -19,104 +45,6 @@ class MarkdownRenderer:
     KATEX_CSS = "katex/katex.min.css"
     KATEX_JS = "katex/katex.min.js"
     KATEX_AUTO_RENDER_JS = "katex/auto-render.min.js"
-
-    # Шаблон стилей для печати/PDF
-    PRINT_STYLES_TEMPLATE = """
-        <style>
-            {theme_css}
-
-            /* Стили для Callouts */
-            .callout {{
-                padding: 1em;
-                margin: 1em 0;
-                border-left: 4px solid;
-                background-color: var(--callout-bg, transparent);
-                break-inside: avoid;
-            }}
-            .callout-note {{ border-color: #0969da; background-color: #ddf4ff; color: #1a1a1a; }}
-            .callout-note.dark {{ background-color: #1a1a1a; color: #ffffff; }}
-
-            .callout-tip {{ border-color: #1a7f37; background-color: #dafbe1; color: #1a1a1a; }}
-            .callout-tip.dark {{ background-color: #1a1a1a; color: #ffffff; }}
-
-            .callout-important {{ border-color: #8250df; background-color: #eae6ff; color: #1a1a1a; }}
-            .callout-important.dark {{ background-color: #1a1a1a; color: #ffffff; }}
-
-            .callout-warning {{ border-color: #9a6700; background-color: #fff8c5; color: #1a1a1a; }}
-            .callout-warning.dark {{ background-color: #1a1a1a; color: #ffffff; }}
-
-            .callout-caution {{ border-color: #cf222e; background-color: #ffebe9; color: #1a1a1a; }}
-            .callout-caution.dark {{ background-color: #1a1a1a; color: #ffffff; }}
-
-            /* Общие стили для колонтитулов (скрыты на экране) */
-            .page-header {{
-                display: none;
-            }}
-            .page-footer {{
-                display: none;
-            }}
-
-            /* Стили для печати/PDF */
-            @media print {{
-                h1, h2, h3, h4, h5, h6 {{
-                    page-break-after: avoid;
-                    orphans: 2;
-                    widows: 2;
-                }}
-                h1 {{
-                    page-break-before: always;
-                }}
-                body > h1:first-child {{
-                    page-break-before: auto;
-                }}
-                table, img, pre, .callout {{
-                    page-break-inside: avoid;
-                }}
-                body {{
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
-                }}
-
-                @page {{
-                    margin: 2cm;
-                }}
-
-                .page-header {{
-                    display: block !important;
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    padding: 1cm;
-                    text-align: center;
-                    font-size: 9px;
-                    color: #888;
-                    border-bottom: 1px solid #ddd;
-                    background: white;
-                    z-index: 1000;
-                }}
-                .page-footer {{
-                    display: block !important;
-                    position: fixed;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    padding: 1cm;
-                    text-align: center;
-                    font-size: 9px;
-                    color: #888;
-                    border-top: 1px solid #ddd;
-                    background: white;
-                    z-index: 1000;
-                }}
-
-                body {{
-                    padding-top: 1.5cm;
-                    padding-bottom: 1.5cm;
-                }}
-            }}
-        </style>
-    """
 
     def __init__(self, themes: ThemesManager):
         """Инициализация рендерера Markdown.
@@ -149,7 +77,7 @@ class MarkdownRenderer:
 
         # Сборка полного HTML-документа
         theme_css = self.themes.get_preview_css()
-        print_styles = self.PRINT_STYLES_TEMPLATE.format(theme_css=theme_css)
+        print_styles = _PRINT_STYLES_TEMPLATE.format(theme_css=theme_css)
 
         katex_css = self._resolve_path(base_dir, self.KATEX_CSS)
         katex_js = self._resolve_path(base_dir, self.KATEX_JS)
@@ -158,7 +86,7 @@ class MarkdownRenderer:
         show_headers, header_text, footer_text = self._parse_headers(headers)
         header_html, footer_html = self._build_header_footer(show_headers, header_text, footer_text)
 
-        katex_js_code = self._build_katex_js(katex_js, auto_render_js)
+        katex_js_code = _KATEX_SETUP_JS.format(katex_js=katex_js, auto_render_js=auto_render_js)
         page_numbering_js = self._build_page_numbering_js(show_headers)
 
         full_html = self._build_html_document(
@@ -239,40 +167,6 @@ class MarkdownRenderer:
         return header_html, footer_html
 
     @staticmethod
-    def _build_katex_js(katex_js: str, auto_render_js: str) -> str:
-        """Создаёт JavaScript для KaTeX."""
-        return f"""
-<script src="file://{katex_js}"></script>
-<script src="file://{auto_render_js}"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {{
-        if (typeof renderMathInElement === 'undefined') {{
-            console.error("KaTeX auto-render not loaded");
-            return;
-        }}
-        const container = document.body;
-        function cleanMathElements() {{
-            container.innerHTML = container.innerHTML.replace(/[\\u200B-\\u200D\\uFEFF]/g, '');
-        }}
-        cleanMathElements();
-        try {{
-            renderMathInElement(document.body, {{
-                delimiters: [
-                    {{left: "$$", right: "$$", display: true}},
-                    {{left: "$", right: "$", display: false}}
-                ],
-                throwOnError: false,
-                displayMode: false,
-                strict: 'ignore'
-            }});
-        }} catch (e) {{
-            console.error("KaTeX render error:", e);
-        }}
-    }});
-</script>
-"""
-
-    @staticmethod
     def _build_page_numbering_js(enabled: bool) -> str:
         """Создаёт JavaScript для нумерации страниц (только при включённых колонтитулах).
 
@@ -282,39 +176,7 @@ class MarkdownRenderer:
         if not enabled:
             return ""
 
-        return """
-<script>
-    document.addEventListener("DOMContentLoaded", function() {{
-        var footers = document.querySelectorAll('.page-footer');
-        if (footers.length === 0) return;
-
-        var originalFooter = footers[0];
-        var footerTemplate = originalFooter.outerHTML;
-
-        var content = document.body.innerHTML;
-        var cleanContent = content
-            .replace(/<div class="page-header"[^>]*>.*?<\\/div>/gi, '')
-            .replace(/<div class="page-footer"[^>]*>.*?<\\/div>/gi, '');
-
-        var newBody = document.createElement('div');
-        newBody.style.cssText = 'width:100%;';
-
-        var pageDiv = document.createElement('div');
-        pageDiv.className = 'print-page';
-        pageDiv.innerHTML = cleanContent;
-
-        var resolved = footerTemplate.replace('{{PAGE_NUM}}', '1/1');
-        var temp = document.createElement('div');
-        temp.innerHTML = resolved;
-        var footerEl = temp.firstChild;
-        pageDiv.appendChild(footerEl);
-
-        newBody.appendChild(pageDiv);
-        document.body.innerHTML = '';
-        document.body.appendChild(newBody);
-    }});
-</script>
-"""
+        return _PAGE_NUMBERING_JS
 
     def _build_html_document(
         self,

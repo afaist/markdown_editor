@@ -26,6 +26,7 @@ from markdown_editor_pkg.i18n import tr
 from markdown_editor_pkg.latex_processor import LaTeXProcessor
 from markdown_editor_pkg.markdown_renderer import MarkdownRenderer
 from markdown_editor_pkg.resource_path import get_base_dir
+from markdown_editor_pkg.scroll_sync import ScrollSyncManager
 from markdown_editor_pkg.text_insertions import TextInsertions
 from markdown_editor_pkg.themes import ThemesManager
 
@@ -40,6 +41,9 @@ if TYPE_CHECKING:
         QStatusBar,
         QTextEdit,
     )
+
+    from markdown_editor_pkg.editor_events import EventHandler
+    from PyQt6.QtWebChannel import QWebChannel
 
 
 class MarkdownEditorPyQt(QMainWindow):
@@ -59,26 +63,29 @@ class MarkdownEditorPyQt(QMainWindow):
         self.setWindowTitle(tr("Markdown Editor (PyQt6)"))
 
         # Виджеты (заполняются UIBuilder)
-        self.editor: QTextEdit  # type: ignore[misc]
-        self.preview: QWebEngineView  # type: ignore[misc]
-        self.splitter: QSplitter  # type: ignore[misc]
-        self.editor_frame: QFrame  # type: ignore[misc]
-        self.preview_frame: QFrame  # type: ignore[misc]
-        self._statusbar_ref: QStatusBar | None = None  # type: ignore[misc]
-        self.file_name_label: QLabel | None = None  # type: ignore[misc]
-        self.char_count_label: QLabel | None = None  # type: ignore[misc]
-        self.word_count_label: QLabel | None = None  # type: ignore[misc]
-        self.font_combo: QComboBox | None = None  # type: ignore[misc]
-        self.font_size_label: QLabel | None = None  # type: ignore[misc]
-        self.font_increase_btn: QPushButton | None = None  # type: ignore[misc]
-        self.font_decrease_btn: QPushButton | None = None  # type: ignore[misc]
-        self.heading_combo: QComboBox | None = None  # type: ignore[misc]
-        self.style_combo: QComboBox | None = None  # type: ignore[misc]
-        self.list_style_combo: QComboBox | None = None  # type: ignore[misc]
-        self.insert_combo: QComboBox | None = None  # type: ignore[misc]
-        self.export_combo: QComboBox | None = None  # type: ignore[misc]
-        self.preview_theme_label: QLabel | None = None  # type: ignore[misc]
-        self.editor_theme_label: QLabel | None = None  # type: ignore[misc]
+        self.editor: QTextEdit
+        self.preview: QWebEngineView
+        self.splitter: QSplitter
+        self.editor_frame: QFrame
+        self.preview_frame: QFrame
+        self._statusbar_ref: QStatusBar | None = None
+        self.file_name_label: QLabel | None = None
+        self.char_count_label: QLabel | None = None
+        self.word_count_label: QLabel | None = None
+        self.font_combo: QComboBox | None = None
+        self.font_size_label: QLabel | None = None
+        self.font_increase_btn: QPushButton | None = None
+        self.font_decrease_btn: QPushButton | None = None
+        self.heading_combo: QComboBox | None = None
+        self.style_combo: QComboBox | None = None
+        self.list_style_combo: QComboBox | None = None
+        self.insert_combo: QComboBox | None = None
+        self.export_combo: QComboBox | None = None
+        self.preview_theme_label: QLabel | None = None
+        self.editor_theme_label: QLabel | None = None
+
+        # Scroll sync
+        self.scroll_sync = ScrollSyncManager(self)
 
         # Подмодули
         self.theme_manager = ThemesManager()
@@ -151,12 +158,12 @@ class MarkdownEditorPyQt(QMainWindow):
 
         # Тема предпросмотра
         saved_theme = settings.get("theme", "light")
-        if saved_theme in self.theme_manager.THEMES_CSS:
+        if saved_theme in ThemesManager._get_themes_css():
             self.theme_manager.set_preview_theme(saved_theme)
 
         # Тема редактора
         saved_editor_theme = settings.get("editor_theme", "light")
-        if saved_editor_theme in self.theme_manager.EDITOR_STYLES:
+        if saved_editor_theme in ThemesManager._get_editor_styles():
             self.theme_manager.set_editor_theme(saved_editor_theme, self.editor, persist=False)
 
         # Обновить метки тем
@@ -222,126 +229,7 @@ class MarkdownEditorPyQt(QMainWindow):
 
     def init_scroll_sync(self) -> None:
         """Инициализация синхронизации прокрутки между редактором и превью."""
-        # Подключаем скролл редактора
-        vbar = self.editor.verticalScrollBar()
-        if vbar is not None:
-            vbar.valueChanged.connect(self.event_handler.sync_scroll_from_editor)
-
-        # Инжектим JavaScript для отслеживания скролла в превью
-        self._inject_scroll_tracker_js()
-
-    def _inject_scroll_tracker_js(self) -> None:
-        """Инжектит JavaScript для отслеживания скролла в QWebEngineView."""
-        if self.preview is None:
-            return
-
-        page = self.preview.page()
-        if page is None:
-            return
-
-        # Создаём объект-мост для передачи событий из JS в PyQt
-        from PyQt6.QtCore import QObject, pyqtSlot
-        from PyQt6.QtWebChannel import QWebChannel
-
-        class ScrollBridge(QObject):
-            """Мост между JavaScript и PyQt для событий скролла."""
-
-            _handler: EventHandler
-            _isScrolling: bool = False  # type: ignore[misc]
-
-            @pyqtSlot(float)
-            def onPreviewScroll(self, scroll_pct: float) -> None:
-                self._handler.on_preview_scroll(scroll_pct)  # type: ignore[attr-defined]
-
-            @pyqtSlot()
-            def onScrollFromEditor(self) -> None:
-                """Устанавливает флаг, что скролл инициирован из редактора."""
-                self._handler._scroll_from_editor = True  # type: ignore[attr-defined]
-
-        self._scroll_bridge = ScrollBridge()
-        self._scroll_bridge._handler = self.event_handler  # type: ignore[attr-defined]
-
-        # Создаём QWebChannel и регистрируем объект
-        self._scroll_channel = QWebChannel()
-        self._scroll_channel.registerObject("qt_object", self._scroll_bridge)
-
-        # Запускаем JS-трекер сразу (без ожидания loadFinished)
-        # Это нужно, потому что setHtml не вызывает loadFinished
-        from PyQt6.QtCore import QTimer
-
-        QTimer.singleShot(500, lambda: self._init_scroll_tracker(delay=500))
-
-    def _init_scroll_tracker(self, delay: int = 100) -> None:
-        """Запускает JS-трекер скролла с задленной задержкой.
-
-        Args:
-            delay: Задержка в мс перед запуском трекера.
-        """
-        if self.preview is None:
-            return
-
-        page = self.preview.page()
-        if page is None:
-            return
-
-        # Регистрируем QWebChannel
-        page.setWebChannel(self._scroll_channel)  # type: ignore[union-attr]
-
-        # Запускаем JS-трекер (он сам подождёт появления qt_object)
-        from PyQt6.QtCore import QTimer
-
-        QTimer.singleShot(delay, lambda: page.runJavaScript(self._get_scroll_js()))  # type: ignore[union-attr]
-
-    def _get_scroll_js(self) -> str:
-        """Возвращает JavaScript-код для отслеживания скролла."""
-        return """
-(function() {
-    var lastPct = -1;
-    var bridge = null;
-    var scrollPollingStarted = false;
-
-    function startPolling() {
-        if (scrollPollingStarted) return;
-        scrollPollingStarted = true;
-
-        // Опрос скролла каждые 100мс вместо событий scroll
-        setInterval(function() {
-            var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            var scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            var pct = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
-
-            if (Math.abs(pct - lastPct) > 0.001) {
-                lastPct = pct;
-                // Не отправляем событие, если скролл инициирован из редактора
-                if (bridge && typeof bridge.onPreviewScroll === 'function' && !bridge._isScrolling) {
-                    try {
-                        bridge.onPreviewScroll(pct);
-                    } catch(e) {
-                        // Игнорируем ошибки
-                    }
-                }
-            }
-        }, 100);
-    }
-
-    // Ждём появления qt_object из QWebChannel
-    function waitForBridge() {
-        try {
-            if (typeof qt_object !== 'undefined' && typeof qt_object.onPreviewScroll === 'function') {
-                bridge = qt_object;
-                startPolling();
-            } else {
-                setTimeout(waitForBridge, 50);
-            }
-        } catch(e) {
-            setTimeout(waitForBridge, 50);
-        }
-    }
-
-    // Запускаем ожидание
-    waitForBridge();
-})();
-"""
+        self.scroll_sync.init()
 
     def on_preview_scroll(self, scroll_pct: float) -> None:
         """Обработчик скролла превью (для обратной совместимости)."""
@@ -483,7 +371,7 @@ class MarkdownEditorPyQt(QMainWindow):
             logger.exception("Scroll sync error in _scroll_preview_to_cursor")
 
     # Закрытие
-    def closeEvent(self, event_: QCloseEvent) -> None:  # type: ignore[override]
+    def closeEvent(self, event_: QCloseEvent | None) -> None:
         """Обработчик закрытия окна: проверка чистоты и сохранение сессии."""
         self.close_handler.on_close(event_)
 
@@ -516,11 +404,6 @@ class MarkdownEditorPyQt(QMainWindow):
     def editor_theme(self) -> str:
         """Для совместимости: имя текущей темы редактора."""
         return self.theme_manager.editor_theme
-
-    @property
-    def themes(self) -> dict:
-        """Для совместимости: словарь CSS-тем."""
-        return self.theme_manager.THEMES_CSS
 
     @property
     def display_math_cache(self) -> list:

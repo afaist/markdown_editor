@@ -251,11 +251,14 @@ class MarkdownMenuBuilder:
         menu: QMenu,
         text: str,
         callback: Callable[[], None],  # type: ignore[type-arg]
-        shortcut: str = "",
+        shortcut: str | QKeySequence | QKeySequence.StandardKey | None = None,
     ) -> None:
         """Add a QAction to the menu."""
         action = QAction(text, menu)
-        if shortcut:
-            action.setShortcut(QKeySequence(shortcut))
+        if shortcut is not None:
+            if isinstance(shortcut, str):
+                action.setShortcut(QKeySequence(shortcut))
+            else:
+                action.setShortcut(shortcut)
         action.triggered.connect(callback)
         menu.addAction(action)

@@ -45,7 +45,9 @@ class ThemeFontHandler:
         self.editor.update_preview()
         self._update_preview_theme_label(new_theme)
         if self.editor._statusbar_ref:
-            self.editor._statusbar_ref.showMessage(f"Тема: {new_theme.capitalize()}")
+            self.editor._statusbar_ref.showMessage(
+                f"{tr('Theme')}: {new_theme.capitalize()}"
+            )
 
     def set_theme(self, theme_name: str) -> None:
         """Установить тему предпросмотра."""
@@ -53,7 +55,9 @@ class ThemeFontHandler:
         self.editor.update_preview()
         self._update_preview_theme_label(theme_name)
         if self.editor._statusbar_ref:
-            self.editor._statusbar_ref.showMessage(f"Тема: {theme_name.capitalize()}")
+            self.editor._statusbar_ref.showMessage(
+                f"{tr('Theme')}: {theme_name.capitalize()}"
+            )
 
     def toggle_editor_theme(self) -> None:
         """Переключить тему редактора."""
@@ -61,14 +65,18 @@ class ThemeFontHandler:
         self.editor.theme_manager.set_editor_theme(new_theme, self.editor.editor)
         self._update_editor_theme_label(new_theme)
         if self.editor._statusbar_ref:
-            self.editor._statusbar_ref.showMessage(f"Тема редактора: {new_theme.capitalize()}")
+            self.editor._statusbar_ref.showMessage(
+                f"{tr('Editor Theme')}: {new_theme.capitalize()}"
+            )
 
     def set_editor_theme(self, theme_name: str) -> None:
         """Установить тему редактора."""
         self.editor.theme_manager.set_editor_theme(theme_name, self.editor.editor)
         self._update_editor_theme_label(theme_name)
         if self.editor._statusbar_ref:
-            self.editor._statusbar_ref.showMessage(f"Тема редактора: {theme_name.capitalize()}")
+            self.editor._statusbar_ref.showMessage(
+                f"{tr('Editor Theme')}: {theme_name.capitalize()}"
+            )
 
     # ─── Шрифты ─────────────────────────────────────────────────────────
 
@@ -80,7 +88,7 @@ class ThemeFontHandler:
         self._update_font_size_label()
         if self.editor._statusbar_ref:
             self.editor._statusbar_ref.showMessage(
-                f"Шрифт: {family}, размер: {self.editor.theme_manager.font_size}"
+                f"{tr('Font')}: {family}, {tr('Size')}: {self.editor.theme_manager.font_size}"
             )
 
     def increase_font(self) -> None:
@@ -88,14 +96,18 @@ class ThemeFontHandler:
         new_size = self.editor.theme_manager.increase_font(self.editor.editor)
         self._update_font_size_label()
         if self.editor._statusbar_ref:
-            self.editor._statusbar_ref.showMessage(f"Размер шрифта: {new_size}")
+            self.editor._statusbar_ref.showMessage(
+                f"{tr('Font size')}: {new_size}"
+            )
 
     def decrease_font(self) -> None:
         """Уменьшить размер шрифта."""
         new_size = self.editor.theme_manager.decrease_font(self.editor.editor)
         self._update_font_size_label()
         if self.editor._statusbar_ref:
-            self.editor._statusbar_ref.showMessage(f"Размер шрифта: {new_size}")
+            self.editor._statusbar_ref.showMessage(
+                f"{tr('Font size')}: {new_size}"
+            )
 
     def reset_font(self) -> None:
         """Сбросить шрифт к значениям по умолчанию."""
@@ -116,8 +128,8 @@ class ThemeFontHandler:
         self._update_font_size_label()
         if self.editor._statusbar_ref:
             self.editor._statusbar_ref.showMessage(
-                f"Шрифт сброшен: {self.editor.theme_manager.font_family}, "
-                f"размер: {self.editor.theme_manager.font_size}"
+                f"{tr('Font reset')}: {self.editor.theme_manager.font_family}, "
+                f"{tr('Size')}: {self.editor.theme_manager.font_size}"
             )
 
     def _update_font_size_label(self) -> None:

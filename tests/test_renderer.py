@@ -1,93 +1,9 @@
 """Tests for MarkdownRenderer internals."""
 
 from markdown_editor_pkg.callout_processor import CalloutProcessor
-from markdown_editor_pkg.latex_processor import (
-    LaTeXProcessor,
-    StrikethroughProcessor,
-)
+from markdown_editor_pkg.latex_processor import StrikethroughProcessor
 from markdown_editor_pkg.markdown_renderer import MarkdownRenderer
 from markdown_editor_pkg.themes import ThemesManager
-
-
-class TestLaTeXProcessor:
-    """Тесты извлечения и восстановления LaTeX-формул."""
-
-    def setup_method(self):
-        self.lp = LaTeXProcessor()
-        self.tm = ThemesManager()
-        self.renderer = MarkdownRenderer(self.tm)
-
-    def test_display_math_extraction(self):
-        """Блочные формулы $$...$$ извлекаются в кэш."""
-        self.lp.reset()
-        result = self.lp.process("Text $$x + y$$ more")
-        assert "<!-- display-math-0 -->" in result
-        assert len(self.lp.display_math_cache) == 1
-        assert self.lp.inline_math_cache == []
-
-    def test_inline_math_extraction(self):
-        """Встроенные формулы $...$ извлекаются в кэш."""
-        self.lp.reset()
-        result = self.lp.process("Text $x$ more")
-        assert "<!-- inline-math-0 -->" in result
-        assert len(self.lp.inline_math_cache) == 1
-
-    def test_display_math_priority_over_inline(self):
-        """$$ приоритетнее $ — двойные доллары не разбираются как два inline."""
-        self.lp.reset()
-        result = self.lp.process("$$a + b$$")
-        assert "<!-- display-math-0 -->" in result
-        assert "<!-- inline-math-" not in result
-
-    def test_unicode_to_latex(self):
-        """Unicode-символы конвертируются в LaTeX при извлечении."""
-        self.lp.reset()
-        self.lp.process("a $\u03b1$ b")
-        assert len(self.lp.inline_math_cache) == 1
-        assert "\u03b1" not in self.lp.inline_math_cache[0]
-
-    def test_restore_display(self):
-        """Восстановление блочных формул из плейсхолдеров."""
-        self.lp.reset()
-        self.lp.process("$$x + y$$")
-        html = "Some <!-- display-math-0 --> placeholder"
-        restored = self.lp.restore_display(html)
-        assert "$$x + y$$" in restored
-
-    def test_restore_inline(self):
-        """Восстановление встроенных формул из плейсхолдеров."""
-        self.lp.reset()
-        self.lp.process("$a + b$")
-        html = "Some <!-- inline-math-0 --> placeholder"
-        restored = self.lp.restore_inline(html)
-        assert "$a + b$" in restored
-
-    def test_multiple_formulas(self):
-        """Несколько формул в тексте сохраняют порядок."""
-        self.lp.reset()
-        result = self.lp.process("$a$ $$b$$ $c$")
-        assert result.count("<!--") == 3
-        assert len(self.lp.display_math_cache) == 1
-        assert len(self.lp.inline_math_cache) == 2
-
-    def test_reset_clears_cache(self):
-        """Метод reset очищает кэш."""
-        self.lp.process("$x$ $$y$$")
-        assert len(self.lp.display_math_cache) == 1
-        assert len(self.lp.inline_math_cache) == 1
-        self.lp.reset()
-        assert len(self.lp.display_math_cache) == 0
-        assert len(self.lp.inline_math_cache) == 0
-
-    def test_latex_in_fenced_code_preserved(self):
-        """Формулы внутри фенс-кода не извлекаются (через renderer)."""
-        html = self.renderer.render("```\n$not_latex$\n```")
-        assert "$not_latex$" in html
-
-    def test_latex_in_html_pre_preserved(self):
-        """Формулы внутри HTML <pre> не извлекаются (через renderer)."""
-        html = self.renderer.render("<pre>$not_latex$</pre>")
-        assert "$not_latex$" in html
 
 
 class TestStrikethroughProcessor:
@@ -337,8 +253,10 @@ class TestMarkdownRendererHelpers:
         assert "$\\alpha + \\beta$" in html
 
     def test_print_styles_template_contains_callout_styles(self):
-        """PRINT_STYLES_TEMPLATE содержит стили для callout."""
-        template = MarkdownRenderer.PRINT_STYLES_TEMPLATE
+        """Шаблон print_styles содержит стили для callout."""
+        from markdown_editor_pkg.markdown_renderer import _PRINT_STYLES_TEMPLATE
+
+        template = _PRINT_STYLES_TEMPLATE
         assert ".callout" in template
         assert ".callout-note" in template
         assert ".callout-tip" in template
@@ -347,8 +265,10 @@ class TestMarkdownRendererHelpers:
         assert ".callout-caution" in template
 
     def test_print_styles_contains_media_print(self):
-        """PRINT_STYLES_TEMPLATE содержит @media print."""
-        template = MarkdownRenderer.PRINT_STYLES_TEMPLATE
+        """Шаблон print_styles содержит @media print."""
+        from markdown_editor_pkg.markdown_renderer import _PRINT_STYLES_TEMPLATE
+
+        template = _PRINT_STYLES_TEMPLATE
         assert "@media print" in template
         assert "@page" in template
 

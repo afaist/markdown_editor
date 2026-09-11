@@ -24,12 +24,14 @@ class CloseHandler:
         """
         self.editor = editor
 
-    def on_close(self, event: QCloseEvent) -> None:
+    def on_close(self, event: QCloseEvent | None) -> None:
         """Обработать событие закрытия окна с проверкой несохранённых изменений.
 
         Если есть несохранённые изменения, показывает QMessageBox с вариантами
         «Сохранить», «Отбросить» или «Отмена».
         """
+        if event is None:
+            return
         if self.editor.is_dirty:
             msg = QMessageBox(self.editor)
             msg.setWindowTitle(tr("Confirm Exit"))

@@ -1,0 +1,6 @@
+            QTextEdit {
+                background-color: #272822;
+                color: #F8F8F2;
+                selection-background-color: #49483e;
+                selection-color: #F8F8F2;
+            }

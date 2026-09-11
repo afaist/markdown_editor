@@ -1,0 +1,102 @@
+"""Print styles template for PDF export.
+
+Contains CSS for callouts, page headers/footers, and @media print rules.
+The {theme_css} placeholder is replaced with the current theme's CSS.
+"""
+
+PRINT_STYLES_TEMPLATE = """
+        <style>
+            {theme_css}
+
+            /* Стили для Callouts */
+            .callout {{
+                padding: 1em;
+                margin: 1em 0;
+                border-left: 4px solid;
+                background-color: var(--callout-bg, transparent);
+                break-inside: avoid;
+            }}
+            .callout-note {{ border-color: #0969da; background-color: #ddf4ff; color: #1a1a1a; }}
+            .callout-note.dark {{ background-color: #1a1a1a; color: #ffffff; }}
+
+            .callout-tip {{ border-color: #1a7f37; background-color: #dafbe1; color: #1a1a1a; }}
+            .callout-tip.dark {{ background-color: #1a1a1a; color: #ffffff; }}
+
+            .callout-important {{ border-color: #8250df; background-color: #eae6ff; color: #1a1a1a; }}
+            .callout-important.dark {{ background-color: #1a1a1a; color: #ffffff; }}
+
+            .callout-warning {{ border-color: #9a6700; background-color: #fff8c5; color: #1a1a1a; }}
+            .callout-warning.dark {{ background-color: #1a1a1a; color: #ffffff; }}
+
+            .callout-caution {{ border-color: #cf222e; background-color: #ffebe9; color: #1a1a1a; }}
+            .callout-caution.dark {{ background-color: #1a1a1a; color: #ffffff; }}
+
+            /* Общие стили для колонтитулов (скрыты на экране) */
+            .page-header {{
+                display: none;
+            }}
+            .page-footer {{
+                display: none;
+            }}
+
+            /* Стили для печати/PDF */
+            @media print {{
+                h1, h2, h3, h4, h5, h6 {{
+                    page-break-after: avoid;
+                    orphans: 2;
+                    widows: 2;
+                }}
+                h1 {{
+                    page-break-before: always;
+                }}
+                body > h1:first-child {{
+                    page-break-before: auto;
+                }}
+                table, img, pre, .callout {{
+                    page-break-inside: avoid;
+                }}
+                body {{
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }}
+
+                @page {{
+                    margin: 2cm;
+                }}
+
+                .page-header {{
+                    display: block !important;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    padding: 1cm;
+                    text-align: center;
+                    font-size: 9px;
+                    color: #888;
+                    border-bottom: 1px solid #ddd;
+                    background: white;
+                    z-index: 1000;
+                }}
+                .page-footer {{
+                    display: block !important;
+                    position: fixed;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    padding: 1cm;
+                    text-align: center;
+                    font-size: 9px;
+                    color: #888;
+                    border-top: 1px solid #ddd;
+                    background: white;
+                    z-index: 1000;
+                }}
+
+                body {{
+                    padding-top: 1.5cm;
+                    padding-bottom: 1.5cm;
+                }}
+            }}
+        </style>
+    """

@@ -7,6 +7,8 @@ from typing import ClassVar
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QTextEdit
 
+from markdown_editor_pkg.themes_loader import load_editor_themes, load_preview_themes
+
 
 class ThemesManager:
     """Управление темами предпросмотра (CSS для WebView), редактора, шрифтами и размером шрифта."""
@@ -33,289 +35,6 @@ class ThemesManager:
     MIN_FONT_SIZE = 6
     MAX_FONT_SIZE = 72
     DEFAULT_FONT_SIZE = 11
-
-    THEMES_CSS: ClassVar[dict[str, str]] = {
-        "light": """
-        body {
-            background-color: #ffffff;
-            color: #333333;
-            font-family: sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        h1, h2, h3, h4, h5, h6 { color: #2c3e50; }
-        pre {
-            background-color: #f5f5f5;
-            border: 1px solid #ddd;
-            padding: 10px;
-            color: #24292e;
-            overflow-x: auto;
-        }
-        code {
-            background-color: #f5f5f5;
-            color: #d73a49;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-        blockquote {
-            border-left: 4px solid #ddd;
-            margin: 0;
-            padding-left: 16px;
-            color: #666;
-        }
-        a { color: #0366d6; }
-        hr { border: none; border-top: 1px solid #ddd; }
-        table { border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 6px; }
-        th { background-color: #f5f5f5; }
-        """,
-        "dark": """
-        body {
-            background-color: #1e1e1e;
-            color: #d4d4d4;
-            font-family: sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        h1, h2, h3, h4, h5, h6 { color: #569cd6; }
-        pre {
-            background-color: #2d2d2d;
-            border: 1px solid #404040;
-            padding: 10px;
-            color: #9cdcfe;
-            overflow-x: auto;
-        }
-        code {
-            background-color: #2d2d2d;
-            color: #ce9178;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-        blockquote {
-            border-left: 4px solid #404040;
-            margin: 0;
-            padding-left: 16px;
-            color: #aaaaaa;
-        }
-        a { color: #6a9fb5; }
-        hr { border: none; border-top: 1px solid #404040; }
-        table { border-collapse: collapse; }
-        th, td { border: 1px solid #404040; padding: 6px; }
-        th { background-color: #3d3d3d; }
-        """,
-        "contrast": """
-        body {
-            background-color: #000000;
-            color: #ffffff;
-            font-family: sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        h1, h2, h3, h4, h5, h6 { color: #00ffff; }
-        pre {
-            background-color: #1a1a1a;
-            border: 1px solid #666666;
-            padding: 10px;
-            color: #ffffff;
-            overflow-x: auto;
-        }
-        code {
-            background-color: #1a1a1a;
-            color: #00ffff;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-        blockquote {
-            border-left: 4px solid #666666;
-            margin: 0;
-            padding-left: 16px;
-            color: #ffffff;
-        }
-        a { color: #00ffff; }
-        hr { border: none; border-top: 1px solid #666666; }
-        table { border-collapse: collapse; }
-        th, td { border: 1px solid #666666; padding: 6px; }
-        th { background-color: #2a2a2a; }
-        """,
-        "monokai": """
-        body {
-            background-color: #272822;
-            color: #F8F8F2;
-            font-family: sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        h1, h2, h3, h4, h5, h6 { color: #F92672; }
-        pre {
-            background-color: #1e1e1e;
-            border: 1px solid #49483e;
-            padding: 10px;
-            color: #F8F8F2;
-            overflow-x: auto;
-        }
-        code {
-            background-color: #1e1e1e;
-            color: #F8F8F2;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-        blockquote {
-            border-left: 4px solid #75715e;
-            margin: 0;
-            padding-left: 16px;
-            color: #75715e;
-        }
-        a { color: #68C1D8; }
-        hr { border: none; border-top: 1px solid #49483e; }
-        table { border-collapse: collapse; }
-        th, td { border: 1px solid #49483e; padding: 6px; }
-        th { background-color: #3e3d32; }
-        """,
-        "dracula": """
-        body {
-            background-color: #282A36;
-            color: #F8F8F2;
-            font-family: sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        h1, h2, h3, h4, h5, h6 { color: #FF79C6; }
-        pre {
-            background-color: #1e1f29;
-            border: 1px solid #6272a4;
-            padding: 10px;
-            color: #F8F8F2;
-            overflow-x: auto;
-        }
-        code {
-            background-color: #1e1f29;
-            color: #F8F8F2;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-        blockquote {
-            border-left: 4px solid #6272a4;
-            margin: 0;
-            padding-left: 16px;
-            color: #6272a4;
-        }
-        a { color: #8BE9FD; }
-        hr { border: none; border-top: 1px solid #6272a4; }
-        table { border-collapse: collapse; }
-        th, td { border: 1px solid #6272a4; padding: 6px; }
-        th { background-color: #44475a; }
-        """,
-        "one-dark": """
-        body {
-            background-color: #282C34;
-            color: #ABB2BF;
-            font-family: sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        h1, h2, h3, h4, h5, h6 { color: #E06C75; }
-        pre {
-            background-color: #1e2127;
-            border: 1px solid #3E4451;
-            padding: 10px;
-            color: #ABB2BF;
-            overflow-x: auto;
-        }
-        code {
-            background-color: #1e2127;
-            color: #E6C584;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-        blockquote {
-            border-left: 4px solid #5C6370;
-            margin: 0;
-            padding-left: 16px;
-            color: #5C6370;
-        }
-        a { color: #61AFEF; }
-        hr { border: none; border-top: 1px solid #3E4451; }
-        table { border-collapse: collapse; }
-        th, td { border: 1px solid #3E4451; padding: 6px; }
-        th { background-color: #333842; }
-        """,
-        "github-dark": """
-        body {
-            background-color: #0D1117;
-            color: #C9D1D9;
-            font-family: sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        h1, h2, h3, h4, h5, h6 { color: #54AEFF; }
-        pre {
-            background-color: #161B22;
-            border: 1px solid #30363D;
-            padding: 10px;
-            color: #C9D1D9;
-            overflow-x: auto;
-        }
-        code {
-            background-color: #161B22;
-            color: #FFA00A;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-        blockquote {
-            border-left: 4px solid #30363D;
-            margin: 0;
-            padding-left: 16px;
-            color: #8B949E;
-        }
-        a { color: #58A6FF; }
-        hr { border: none; border-top: 1px solid #30363D; }
-        table { border-collapse: collapse; }
-        th, td { border: 1px solid #30363D; padding: 6px; }
-        th { background-color: #161B22; }
-        """,
-        "solarized-dark": """
-        body {
-            background-color: #002B36;
-            color: #839496;
-            font-family: sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        h1, h2, h3, h4, h5, h6 { color: #B58900; }
-        pre {
-            background-color: #073642;
-            border: 1px solid #586e75;
-            padding: 10px;
-            color: #839496;
-            overflow-x: auto;
-        }
-        code {
-            background-color: #073642;
-            color: #2AA198;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-        blockquote {
-            border-left: 4px solid #586e75;
-            margin: 0;
-            padding-left: 16px;
-            color: #586e75;
-        }
-        a { color: #2AA198; }
-        hr { border: none; border-top: 1px solid #586e75; }
-        table { border-collapse: collapse; }
-        th, td { border: 1px solid #586e75; padding: 6px; }
-        th { background-color: #073642; }
-        """,
-    }
 
     THEME_ORDER: ClassVar[list[str]] = [
         "light",
@@ -359,13 +78,18 @@ class ThemesManager:
 
     # ─── CSS-темы (предпросмотр) ───────────────────────────────────────
 
+    @classmethod
+    def _get_themes_css(cls) -> dict[str, str]:
+        """Load preview CSS themes from files."""
+        return load_preview_themes()
+
     def get_preview_css(self) -> str:
         """Получить CSS-стили для текущей темы предпросмотра.
 
         Returns:
             CSS-строка для текущей темы (light/dark/contrast).
         """
-        return self.THEMES_CSS.get(self.theme_name, self.THEMES_CSS["light"])
+        return self._get_themes_css().get(self.theme_name, self._get_themes_css()["light"])
 
     def toggle_preview_theme(self) -> str:
         """Переключить тему предпросмотра. Возвращает новое имя темы."""
@@ -381,80 +105,17 @@ class ThemesManager:
             theme_name: Имя темы.
             persist: Сохранять ли тему в Settings (по True).
         """
-        if theme_name in self.THEMES_CSS:
+        if theme_name in self._get_themes_css():
             self.theme_name = theme_name
             if persist:
                 self._persist_theme()
 
     # ─── QSS-темы (редактор) ──────────────────────────────────────────
 
-    # Стили для редактора — хранятся отдельно
-    EDITOR_STYLES: ClassVar[dict[str, str]] = {
-        "light": """
-            QTextEdit {
-                background-color: #ffffff;
-                color: #000000;
-                selection-background-color: #666666;
-                selection-color: #ffffff;
-            }
-        """,
-        "dark": """
-            QTextEdit {
-                background-color: #1e1e1e;
-                color: #d4d4d4;
-                selection-background-color: #404040;
-                selection-color: #ffffff;
-            }
-        """,
-        "contrast": """
-            QTextEdit {
-                background-color: #000000;
-                color: #ffffff;
-                selection-background-color: #666666;
-                selection-color: #ffffff;
-            }
-        """,
-        "monokai": """
-            QTextEdit {
-                background-color: #272822;
-                color: #F8F8F2;
-                selection-background-color: #49483e;
-                selection-color: #F8F8F2;
-            }
-        """,
-        "dracula": """
-            QTextEdit {
-                background-color: #282A36;
-                color: #F8F8F2;
-                selection-background-color: #44475a;
-                selection-color: #F8F8F2;
-            }
-        """,
-        "one-dark": """
-            QTextEdit {
-                background-color: #282C34;
-                color: #ABB2BF;
-                selection-background-color: #3E4451;
-                selection-color: #ABB2BF;
-            }
-        """,
-        "github-dark": """
-            QTextEdit {
-                background-color: #0D1117;
-                color: #C9D1D9;
-                selection-background-color: #30363D;
-                selection-color: #C9D1D9;
-            }
-        """,
-        "solarized-dark": """
-            QTextEdit {
-                background-color: #002B36;
-                color: #839496;
-                selection-background-color: #073642;
-                selection-color: #839496;
-            }
-        """,
-    }
+    @classmethod
+    def _get_editor_styles(cls) -> dict[str, str]:
+        """Load editor QSS themes from files."""
+        return load_editor_themes()
 
     def get_editor_style(self) -> str:
         """Получить QSS-стиль для текущей темы редактора.
@@ -462,7 +123,7 @@ class ThemesManager:
         Returns:
             QSS-строка для текущей темы редактора.
         """
-        base = self.EDITOR_STYLES.get(self.editor_theme, self.EDITOR_STYLES["light"])
+        base = self._get_editor_styles().get(self.editor_theme, self._get_editor_styles()["light"])
         return base
 
     def toggle_editor_theme(self) -> str:
@@ -482,10 +143,10 @@ class ThemesManager:
             text_edit: Виджет QTextEdit для применения стиля.
             persist: Сохранять ли тему в Settings (по True).
         """
-        if theme_name in self.EDITOR_STYLES:
+        if theme_name in self._get_editor_styles():
             self.editor_theme = theme_name
             if text_edit is not None:
-                text_edit.setStyleSheet(self.EDITOR_STYLES[theme_name])
+                text_edit.setStyleSheet(self._get_editor_styles()[theme_name])
             if persist:
                 self._persist_editor_theme()
 

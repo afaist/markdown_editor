@@ -32,7 +32,7 @@ class TestThemeSwitching:
 
     def test_themes_dict_exists(self):
         """Словарь THEMES_CSS содержит все темы."""
-        themes = self.tm.THEMES_CSS
+        themes = ThemesManager._get_themes_css()
         for theme in (
             "light",
             "dark",
@@ -70,7 +70,7 @@ class TestEditorTheme:
 
     def test_editor_themes_dict_exists(self):
         """Словарь EDITOR_STYLES содержит все темы."""
-        styles = self.tm.EDITOR_STYLES
+        styles = ThemesManager._get_editor_styles()
         for theme in (
             "light",
             "dark",

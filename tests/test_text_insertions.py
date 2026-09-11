@@ -36,7 +36,7 @@ class TestTextInsertions:
 
         ti.insert_bold()
         text = mock.editor.toPlainText()
-        assert "**текст**" in text
+        assert "**text**" in text
 
     def test_insert_bold_with_selection(self):
         """Вставка жирного с выделением текста."""
@@ -68,7 +68,7 @@ class TestTextInsertions:
 
         ti.insert_italic()
         text = mock.editor.toPlainText()
-        assert "*текст*" in text
+        assert "*text*" in text
 
     def test_insert_italic_with_selection(self):
         """Вставка курсива с выделением текста."""
@@ -99,7 +99,7 @@ class TestTextInsertions:
 
         ti.insert_strikethrough()
         text = mock.editor.toPlainText()
-        assert "~~текст~~" in text
+        assert "~~text~~" in text
 
     def test_insert_inline_code(self):
         """Вставка встроенного кода."""
@@ -114,7 +114,7 @@ class TestTextInsertions:
 
         ti.insert_inline_code()
         text = mock.editor.toPlainText()
-        assert "`код`" in text
+        assert "`code`" in text
 
     def test_insert_unordered_list_no_selection(self):
         """Вставка маркированного списка без выделения."""
@@ -129,7 +129,7 @@ class TestTextInsertions:
 
         ti.insert_unordered_list()
         text = mock.editor.toPlainText()
-        assert "- элемент списка" in text
+        assert "- list item" in text
 
     def test_insert_unordered_list_with_selection(self):
         """Вставка маркированного списка с выделением."""
@@ -160,7 +160,7 @@ class TestTextInsertions:
 
         ti.insert_ordered_list()
         text = mock.editor.toPlainText()
-        assert "1. элемент списка" in text
+        assert "1. list item" in text
 
     def test_insert_task_list(self):
         """Вставка элемента списка задач."""
@@ -329,7 +329,7 @@ class TestTextInsertions:
 
         ti.insert_table()
         text = mock.editor.toPlainText()
-        assert "| Колонка 1 | Колонка 2 | Колонка 3 |" in text
+        assert "| Column 1 | Column 2 | Column 3 |" in text
         assert "|-----------|-----------|----------|" in text
 
     def test_insert_html_comment(self):
@@ -503,7 +503,7 @@ class TestTextInsertions:
             ti.insert_image()
 
         text = mock.editor.toPlainText()
-        assert "![изображение](/path/to/image.png)" in text
+        assert "![image](/path/to/image.png)" in text
 
     def test_insert_image_cancel(self):
         """Отмена выбора изображения отменяет вставку."""

@@ -83,11 +83,6 @@ class TestFileOperationsIO:
 
             self.editor.file_ops.new_file()
 
-        # Если тест падает здесь, значит question был вызван.
-        # Проверьте, не вызывается ли он внутри?
-        print("Call count:", mock_qmsg_box.question.call_count)
-        print("Call args:", mock_qmsg_box.question.call_args_list)
-
         mock_qmsg_box.question.assert_not_called()
         assert self.editor.current_file is None
         assert self.editor.editor.toPlainText() == ""

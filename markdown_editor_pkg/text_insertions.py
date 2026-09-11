@@ -118,20 +118,20 @@ class TextInsertions:
 
     def insert_bold(self) -> None:
         """Вставить выделение жирным: **текст**."""
-        self._cursor().wrap_selection("**", "**", "текст")
+        self._cursor().wrap_selection("**", "**", tr("text"))
         self._notify()
 
     def insert_italic(self) -> None:
         """Вставить курсив: *текст*."""
-        self._cursor().wrap_selection("*", "*", "текст")
+        self._cursor().wrap_selection("*", "*", tr("text"))
         self._notify()
 
     def insert_strikethrough(self) -> None:
-        self._cursor().wrap_selection("~~", "~~", "текст")
+        self._cursor().wrap_selection("~~", "~~", tr("text"))
         self._notify()
 
     def insert_inline_code(self) -> None:
-        self._cursor().wrap_selection("`", "`", "код")
+        self._cursor().wrap_selection("`", "`", tr("code"))
         self._notify()
 
     # ─── Заголовки ──────────────────────────────────────────────────────
@@ -179,15 +179,15 @@ class TextInsertions:
             # Если текст не пустой и не заканчивается пустой строкой, добавляем пустую строку
             if full.strip() and not full.endswith("\n\n"):
                 cursor.insertText("\n")
-            text_to_insert = "- элемент списка"
+            text_to_insert = f"- {tr('list item')}"
             cursor.insertText(text_to_insert)
             end_pos = cursor.position()
-            start_pos = end_pos - len("элемент списка")
+            start_pos = end_pos - len(tr("list item"))
             cursor.setPosition(start_pos)
             cursor.movePosition(
                 QTextCursor.MoveOperation.Right,
                 QTextCursor.MoveMode.KeepAnchor,
-                len("элемент списка"),
+                len(tr("list item")),
             )
         else:
             lines = selection.split("\n")
@@ -211,15 +211,15 @@ class TextInsertions:
             # Если текст не пустой и не заканчивается пустой строкой, добавляем пустую строку
             if full.strip() and not full.endswith("\n\n"):
                 cursor.insertText("\n")
-            text_to_insert = "1. элемент списка"
+            text_to_insert = f"1. {tr('list item')}"
             cursor.insertText(text_to_insert)
             end_pos = cursor.position()
-            start_pos = end_pos - len("элемент списка")
+            start_pos = end_pos - len(tr("list item"))
             cursor.setPosition(start_pos)
             cursor.movePosition(
                 QTextCursor.MoveOperation.Right,
                 QTextCursor.MoveMode.KeepAnchor,
-                len("элемент списка"),
+                len(tr("list item")),
             )
         else:
             lines = [line for line in selection.split("\n") if line.strip()]
@@ -243,15 +243,16 @@ class TextInsertions:
             # Если текст не пустой и не заканчивается пустой строкой, добавляем пустую строку
             if full.strip() and not full.endswith("\n\n"):
                 cursor.insertText("\n")
-            text_to_insert = tr("- [ ] task")
+            task_placeholder = tr("task")
+            text_to_insert = f"- [ ] {task_placeholder}"
             cursor.insertText(text_to_insert)
             end_pos = cursor.position()
-            start_pos = end_pos - len(tr("task"))
+            start_pos = end_pos - len(task_placeholder)
             cursor.setPosition(start_pos)
             cursor.movePosition(
                 QTextCursor.MoveOperation.Right,
                 QTextCursor.MoveMode.KeepAnchor,
-                len(tr("task")),
+                len(task_placeholder),
             )
         else:
             lines = [line for line in selection.split("\n") if line.strip()]
@@ -394,9 +395,9 @@ class TextInsertions:
 
     def insert_link(self) -> None:
         """Вставить ссылку через диалог ввода URL и текста."""
-        url, ok1 = QInputDialog.getText(self.editor, "Вставить ссылку", "URL:")
+        url, ok1 = QInputDialog.getText(self.editor, tr("Insert Link"), tr("URL:"))
         if ok1 and url:
-            text, ok2 = QInputDialog.getText(self.editor, "Вставить ссылку", "Текст ссылки:")
+            text, ok2 = QInputDialog.getText(self.editor, tr("Insert Link"), tr("Link text:"))
             if ok2:
                 c = self._cursor()
                 cursor = c.text_cursor()
@@ -408,7 +409,7 @@ class TextInsertions:
         """Вставить изображение через диалог выбора файла."""
         filepath, _ = QFileDialog.getOpenFileName(
             self.editor,
-            "Вставить изображение",
+            tr("Insert Image"),
             "",
             "Images (*.png *.jpg *.jpeg *.gif *.bmp *.webp);;All files (*)",
         )
@@ -416,7 +417,7 @@ class TextInsertions:
             display_path = filepath.replace("\\", "/")
             c = self._cursor()
             cursor = c.text_cursor()
-            cursor.insertText(f"![изображение]({display_path})")
+            cursor.insertText(f"![{tr('image')}]({display_path})")
             c.set_text_cursor(cursor)
             self._notify()
 
@@ -435,10 +436,10 @@ class TextInsertions:
         c = self._cursor()
         cursor = c.text_cursor()
         table = (
-            "| Колонка 1 | Колонка 2 | Колонка 3 |\n"
-            "|-----------|-----------|----------|\n"
-            "| Данные    | Данные    | Данные   |\n"
-            "| Данные    | Данные    | Данные   |"
+            f"| {tr('Column 1')} | {tr('Column 2')} | {tr('Column 3')} |\n"
+            f"|-----------|-----------|----------|\n"
+            f"| {tr('Data')}    | {tr('Data')}    | {tr('Data')}   |\n"
+            f"| {tr('Data')}    | {tr('Data')}    | {tr('Data')}   |"
         )
         cursor.insertText(table)
         c.set_text_cursor(cursor)
@@ -449,7 +450,7 @@ class TextInsertions:
         cursor = c.text_cursor()
         selection = cursor.selectedText()
         if not selection:
-            selection = "комментарий"
+            selection = tr("comment")
         cursor.insertText(f"<!-- {selection} -->")
         c.set_text_cursor(cursor)
         self._notify()
