@@ -370,7 +370,7 @@ class MarkdownEditorPyQt(QMainWindow):
             logger.exception("Scroll sync error in _scroll_preview_to_cursor")
 
     # Закрытие
-    def closeEvent(self, event_: QCloseEvent | None) -> None:
+    def closeEvent(self, event_: QCloseEvent | None) -> None:  # type: ignore[reportIncompatibleMethodOverride]
         """Обработчик закрытия окна: проверка чистоты и сохранение сессии."""
         self.close_handler.on_close(event_)
 
