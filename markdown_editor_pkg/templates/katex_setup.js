@@ -6,20 +6,13 @@
             console.error("KaTeX auto-render not loaded");
             return;
         }}
-        const container = document.body;
-        function cleanMathElements() {{
-            container.innerHTML = container.innerHTML.replace(/[\\u200B-\\u200D\\uFEFF]/g, '');
-        }}
-        cleanMathElements();
         try {{
             renderMathInElement(document.body, {{
                 delimiters: [
                     {{left: "$$", right: "$$", display: true}},
                     {{left: "$", right: "$", display: false}}
                 ],
-                throwOnError: false,
-                displayMode: false,
-                strict: 'ignore'
+                throwOnError: false
             }});
         }} catch (e) {{
             console.error("KaTeX render error:", e);
