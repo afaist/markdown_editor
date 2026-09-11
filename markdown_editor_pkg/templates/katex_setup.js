@@ -1,9 +1,3 @@
-"""KaTeX setup JavaScript template.
-
-Loads KaTeX CSS/JS and configures auto-render for $...$ and $$...$$ delimiters.
-"""
-
-KATEX_SETUP_JS = """
 <script src="file://{katex_js}"></script>
 <script src="file://{auto_render_js}"></script>
 <script>
@@ -32,4 +26,3 @@ KATEX_SETUP_JS = """
         }}
     }});
 </script>
-"""

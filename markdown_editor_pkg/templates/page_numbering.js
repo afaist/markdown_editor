@@ -1,10 +1,3 @@
-"""Page numbering JavaScript template for PDF export.
-
-Adds page numbers to footers when headers are enabled.
-Uses CSS @media print for page breaking.
-"""
-
-PAGE_NUMBERING_JS = """
 <script>
     document.addEventListener("DOMContentLoaded", function() {{
         var footers = document.querySelectorAll('.page-footer');
@@ -36,4 +29,3 @@ PAGE_NUMBERING_JS = """
         document.body.appendChild(newBody);
     }});
 </script>
-"""
