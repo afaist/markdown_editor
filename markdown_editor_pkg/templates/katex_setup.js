@@ -12,7 +12,8 @@
                     {{left: "$$", right: "$$", display: true}},
                     {{left: "$", right: "$", display: false}}
                 ],
-                throwOnError: false
+                throwOnError: false,
+                strict: 'ignore'
             }});
         }} catch (e) {{
             console.error("KaTeX render error:", e);
