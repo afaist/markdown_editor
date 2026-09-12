@@ -25,25 +25,21 @@ class ThemeFontHandler:
 
     # ─── Переключение тем ──────────────────────────────────────────────
 
-    def _update_preview_theme_label(self, theme_name: str) -> None:
-        """Обновить метку темы предпросмотра в строке состояния."""
-        if self.editor.preview_theme_label is not None:
-            self.editor.preview_theme_label.setText(
-                f"{tr('Preview Theme')}: {theme_name.capitalize()}"
-            )
-
-    def _update_editor_theme_label(self, theme_name: str) -> None:
-        """Обновить метку темы редактора в строке состояния."""
-        if self.editor.editor_theme_label is not None:
-            self.editor.editor_theme_label.setText(
-                f"{tr('Editor Theme')}: {theme_name.capitalize()}"
+    def _update_theme_labels(self, editor_theme: str, preview_theme: str) -> None:
+        """Обновить объединённую метку тем в строке состояния."""
+        if self.editor.theme_label is not None:
+            self.editor.theme_label.setText(
+                f"{tr('Themes')}: {tr('editor')} - {editor_theme.capitalize()}, "
+                f"{tr('preview')} - {preview_theme.capitalize()}"
             )
 
     def toggle_theme(self) -> None:
         """Переключить тему предпросмотра."""
         new_theme = self.editor.theme_manager.toggle_preview_theme()
         self.editor.update_preview()
-        self._update_preview_theme_label(new_theme)
+        self._update_theme_labels(
+            self.editor.theme_manager.editor_theme, self.editor.theme_manager.theme_name
+        )
         if self.editor._statusbar_ref:
             self.editor._statusbar_ref.showMessage(f"{tr('Theme')}: {new_theme.capitalize()}")
 
@@ -51,7 +47,9 @@ class ThemeFontHandler:
         """Установить тему предпросмотра."""
         self.editor.theme_manager.set_preview_theme(theme_name)
         self.editor.update_preview()
-        self._update_preview_theme_label(theme_name)
+        self._update_theme_labels(
+            self.editor.theme_manager.editor_theme, self.editor.theme_manager.theme_name
+        )
         if self.editor._statusbar_ref:
             self.editor._statusbar_ref.showMessage(f"{tr('Theme')}: {theme_name.capitalize()}")
 
@@ -59,7 +57,7 @@ class ThemeFontHandler:
         """Переключить тему редактора."""
         new_theme = self.editor.theme_manager.toggle_editor_theme()
         self.editor.theme_manager.set_editor_theme(new_theme, self.editor.editor)
-        self._update_editor_theme_label(new_theme)
+        self._update_theme_labels(new_theme, self.editor.theme_manager.theme_name)
         if self.editor._statusbar_ref:
             self.editor._statusbar_ref.showMessage(
                 f"{tr('Editor Theme')}: {new_theme.capitalize()}"
@@ -68,7 +66,7 @@ class ThemeFontHandler:
     def set_editor_theme(self, theme_name: str) -> None:
         """Установить тему редактора."""
         self.editor.theme_manager.set_editor_theme(theme_name, self.editor.editor)
-        self._update_editor_theme_label(theme_name)
+        self._update_theme_labels(theme_name, self.editor.theme_manager.theme_name)
         if self.editor._statusbar_ref:
             self.editor._statusbar_ref.showMessage(
                 f"{tr('Editor Theme')}: {theme_name.capitalize()}"

@@ -51,6 +51,35 @@
         <translation>Слов: 0</translation>
     </message>
     <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="122"/>
+        <location filename="../markdown_editor_pkg/editor.py" line="171"/>
+        <source>Themes</source>
+        <translation>Темы</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="122"/>
+        <location filename="../markdown_editor_pkg/editor.py" line="171"/>
+        <source>editor</source>
+        <translation>редактора</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="122"/>
+        <location filename="../markdown_editor_pkg/editor.py" line="171"/>
+        <source>preview</source>
+        <translation>предпросмотра</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_themes.py" line="44"/>
+        <source>Theme</source>
+        <translation>Тема</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_themes.py" line="65"/>
+        <location filename="../markdown_editor_pkg/editor_themes.py" line="76"/>
+        <source>Editor Theme</source>
+        <translation>Тема редактора</translation>
+    </message>
+    <message>
         <location filename="../markdown_editor_pkg/editor_components.py" line="139"/>
         <source>Formatting</source>
         <translation>Форматирование</translation>

@@ -51,6 +51,24 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="122"/>
+        <location filename="../markdown_editor_pkg/editor.py" line="171"/>
+        <source>Themes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="122"/>
+        <location filename="../markdown_editor_pkg/editor.py" line="171"/>
+        <source>editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="122"/>
+        <location filename="../markdown_editor_pkg/editor.py" line="171"/>
+        <source>preview</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../markdown_editor_pkg/editor_components.py" line="139"/>
         <source>Formatting</source>
         <translation type="unfinished"></translation>

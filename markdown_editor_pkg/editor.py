@@ -165,14 +165,11 @@ class MarkdownEditorPyQt(QMainWindow):
         if saved_editor_theme in ThemesManager._get_editor_styles():
             self.theme_manager.set_editor_theme(saved_editor_theme, self.editor, persist=False)
 
-        # Обновить метки тем
-        if self.preview_theme_label is not None:
-            self.preview_theme_label.setText(
-                f"{tr('Preview Theme')}: {self.theme_manager.theme_name.capitalize()}"
-            )
-        if self.editor_theme_label is not None:
-            self.editor_theme_label.setText(
-                f"{tr('Editor Theme')}: {self.theme_manager.editor_theme.capitalize()}"
+        # Обновить метку тем
+        if self.theme_label is not None:
+            self.theme_label.setText(
+                f"{tr('Themes')}: {tr('editor')} - {self.theme_manager.editor_theme.capitalize()}, "
+                f"{tr('preview')} - {self.theme_manager.theme_name.capitalize()}"
             )
 
         # Шрифт

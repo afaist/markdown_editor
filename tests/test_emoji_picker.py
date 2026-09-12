@@ -1,7 +1,6 @@
 """Tests for EmojiPicker and insert_emoji functionality."""
 
 
-
 class TestEmojiPicker:
     """Тесты диалога выбора emoji."""
 
@@ -42,7 +41,9 @@ class TestEmojiPicker:
         dialog = EmojiPickerDialog()
 
         # Проверяем, что категории существуют
-        categories = [dialog.category_combo.itemText(i) for i in range(dialog.category_combo.count())]
+        categories = [
+            dialog.category_combo.itemText(i) for i in range(dialog.category_combo.count())
+        ]
         assert len(categories) > 0
 
     def test_emoji_picker_category_switching(self):
