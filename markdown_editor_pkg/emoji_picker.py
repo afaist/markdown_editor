@@ -982,16 +982,27 @@ EMOJI_DATA: dict[str, list[tuple[str, str]]] = {
 
 # ─── Перевод названий категорий ─────────────────────────────────────────────
 
-CATEGORY_TRANSLATIONS = {
-    "smileys": tr("Smileys & People"),
-    "gestures": tr("Gestures"),
-    "hearts": tr("Hearts"),
-    "nature": tr("Animals & Nature"),
-    "food": tr("Food & Drink"),
-    "travel": tr("Travel & Places"),
-    "objects": tr("Objects"),
-    "symbols": tr("Symbols"),
-}
+
+def get_category_translation(key: str) -> str:
+    """Получить переведённое название категории.
+
+    Args:
+        key: Ключ категории (английский).
+
+    Returns:
+        Переведенное имя категории.
+    """
+    translations = {
+        "smileys": tr("Smileys & People"),
+        "gestures": tr("Gestures"),
+        "hearts": tr("Hearts"),
+        "nature": tr("Animals & Nature"),
+        "food": tr("Food & Drink"),
+        "travel": tr("Travel & Places"),
+        "objects": tr("Objects"),
+        "symbols": tr("Symbols"),
+    }
+    return translations.get(key, key)
 
 
 def get_display_category(key: str) -> str:
@@ -1004,7 +1015,7 @@ def get_display_category(key: str) -> str:
         Переведенное имя.
         "Translated название категории.
     """
-    return CATEGORY_TRANSLATIONS.get(key, key)
+    return get_category_translation(key)
 
 
 class EmojiButton(QPushButton):
@@ -1064,7 +1075,7 @@ class EmojiPickerDialog(QDialog):
 
         # Категория
         cat_label = QLabel(tr("Category"))
-        cat_label.setStyleSheet("font-weight: bold; margin-top: 8px; margin-bottom: 4px;")
+        cat_label.setStyleSheet("font-weight: bold; margin-top: 4px; margin-bottom: 4px;")
         layout.addWidget(cat_label)
 
         self.category_combo = QComboBox()
@@ -1074,17 +1085,17 @@ class EmojiPickerDialog(QDialog):
 
         # Сетка emoji
         grid_label = QLabel()
-        grid_label.setStyleSheet("font-weight: bold; margin-top: 8px; margin-bottom: 4px;")
+        grid_label.setStyleSheet("font-weight: bold; margin-top: 4px; margin-bottom: 4px;")
         grid_label.setText(tr("Emoji"))
         layout.addWidget(grid_label)
 
         self.list_widget = QListWidget()
         self.list_widget.setViewMode(QListWidget.ViewMode.IconMode)
-        self.list_widget.setIconSize(QSize(56, 56))
+        self.list_widget.setIconSize(QSize(66, 66))
         self.list_widget.setGridSize(QSize(68, 68))
         self.list_widget.setFlow(QListWidget.Flow.LeftToRight)
         self.list_widget.setWrapping(True)
-        self.list_widget.setSpacing(8)
+        self.list_widget.setSpacing(2)
         self.list_widget.itemClicked.connect(self._on_emoji_clicked)
         # Скрываем текст под иконками — видны только emoji
         self.list_widget.setStyleSheet("QListWidget::item { height: 64px; width: 64px; }")

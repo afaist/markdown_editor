@@ -80,6 +80,67 @@
         <translation>Тема редактора</translation>
     </message>
     <message>
+        <location filename="../markdown_editor_pkg/emoji_picker.py" line="986"/>
+        <source>Smileys &amp; People</source>
+        <translation>Смайлы и люди</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/emoji_picker.py" line="987"/>
+        <source>Gestures</source>
+        <translation>Жесты</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/emoji_picker.py" line="988"/>
+        <source>Hearts</source>
+        <translation>Сердца</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/emoji_picker.py" line="989"/>
+        <source>Animals &amp; Nature</source>
+        <translation>Животные и природа</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/emoji_picker.py" line="990"/>
+        <source>Food &amp; Drink</source>
+        <translation>Еда и напитки</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/emoji_picker.py" line="991"/>
+        <source>Travel &amp; Places</source>
+        <translation>Путешествия и места</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/emoji_picker.py" line="992"/>
+        <source>Objects</source>
+        <translation>Объекты</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/emoji_picker.py" line="993"/>
+        <source>Symbols</source>
+        <translation>Символы</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/emoji_picker.py" line="1038"/>
+        <source>Emoji Picker</source>
+        <translation>Выбор эмодзи</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/emoji_picker.py" line="1056"/>
+        <location filename="../markdown_editor_pkg/emoji_picker.py" line="1061"/>
+        <source>Search emojis...</source>
+        <translation>Поиск эмодзи...</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/emoji_picker.py" line="1066"/>
+        <source>Category</source>
+        <translation>Категория</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/emoji_picker.py" line="1078"/>
+        <source>Emoji</source>
+        <translation>Эмодзи</translation>
+    </message>
+    <message>
         <location filename="../markdown_editor_pkg/editor_components.py" line="139"/>
         <source>Formatting</source>
         <translation>Форматирование</translation>
