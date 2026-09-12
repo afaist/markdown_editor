@@ -265,6 +265,15 @@ class MarkdownEditorPyQt(QMainWindow):
     def _reset_font(self) -> None:
         self.theme_font_handler.reset_font()
 
+    # Emoji
+    def _show_emoji_picker(self) -> None:
+        """Показать диалог выбора emoji."""
+        from markdown_editor_pkg.emoji_picker import EmojiPickerDialog
+
+        picker = EmojiPickerDialog(self)
+        picker.emoji_selected.connect(self.text_insertions.insert_emoji)
+        picker.exec()
+
     # PDF
     def _show_pdf_settings(self) -> None:
         self.pdf_handler.show_pdf_settings()

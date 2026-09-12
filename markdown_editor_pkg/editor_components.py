@@ -250,6 +250,13 @@ class ToolbarBuilder:
         parent.export_combo = export_combo  # type: ignore[attr-defined]
         toolbar.addSeparator()
 
+        # -- Кнопка Emoji --
+        emoji_btn = QPushButton("😀")
+        emoji_btn.setToolTip(tr("Insert Emoji"))
+        emoji_btn.setFixedWidth(32)
+        emoji_btn.clicked.connect(parent._show_emoji_picker)  # type: ignore[attr-defined]
+        toolbar.addWidget(emoji_btn)
+
         self._build_font_controls(toolbar, parent)
 
         # -- Сброс шрифта --

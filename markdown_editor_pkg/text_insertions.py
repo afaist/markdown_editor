@@ -484,3 +484,17 @@ class TextInsertions:
         cursor.setPosition(start_pos + len(placeholder), QTextCursor.MoveMode.KeepAnchor)
         c.set_text_cursor(cursor)
         self._notify()
+
+    # ─── Emoji ────────────────────────────────────────────────────────────
+
+    def insert_emoji(self, emoji: str) -> None:
+        """Вставить emoji в текущую позицию курсора.
+
+        Args:
+            emoji: Символ emoji для вставки.
+        """
+        c = self._cursor()
+        cursor = c.text_cursor()
+        cursor.insertText(emoji)
+        c.set_text_cursor(cursor)
+        self._notify()

@@ -246,6 +246,11 @@ class MarkdownMenuBuilder:
         comment_action.triggered.connect(parent.text_insertions.insert_html_comment)  # type: ignore[attr-defined]
         md_menu.addAction(comment_action)
 
+        emoji_action = QAction(tr("Emoji"), parent)
+        emoji_action.setShortcut(QKeySequence("Ctrl+E"))
+        emoji_action.triggered.connect(parent._show_emoji_picker)  # type: ignore[attr-defined]
+        md_menu.addAction(emoji_action)
+
     @staticmethod
     def _add_action(
         menu: QMenu,
