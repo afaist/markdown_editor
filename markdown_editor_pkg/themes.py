@@ -161,7 +161,6 @@ class ThemesManager:
     def font_family(self, value: str) -> None:
         """Установить семейство шрифта."""
         self._font_family = value
-        self._persist_font()
 
     def get_available_fonts(self) -> list[str]:
         """Получить список доступных шрифтов."""
@@ -176,7 +175,6 @@ class ThemesManager:
     def font_size(self, value: int) -> None:
         """Установить размер шрифта с ограничением."""
         self._font_size = max(self.MIN_FONT_SIZE, min(self.MAX_FONT_SIZE, value))
-        self._persist_font()
 
     def set_font(
         self, family: str, size: int, text_edit: QTextEdit | None, *, persist: bool = True
@@ -190,8 +188,9 @@ class ThemesManager:
             persist: Сохранять ли шрифт в Settings (по True).
         """
         if persist:
-            self.font_family = family
-            self.font_size = size
+            self._font_family = family
+            self._font_size = size
+            self._persist_font()
         else:
             self._font_family = family
             self._font_size = size

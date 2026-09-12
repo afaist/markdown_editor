@@ -158,7 +158,7 @@ class MarkdownEditorPyQt(QMainWindow):
         # Тема предпросмотра
         saved_theme = settings.get("theme", "light")
         if saved_theme in ThemesManager._get_themes_css():
-            self.theme_manager.set_preview_theme(saved_theme)
+            self.theme_manager.set_preview_theme(saved_theme, persist=False)
 
         # Тема редактора
         saved_editor_theme = settings.get("editor_theme", "light")
