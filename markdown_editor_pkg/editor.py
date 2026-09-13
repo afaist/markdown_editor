@@ -82,6 +82,7 @@ class MarkdownEditorPyQt(QMainWindow):
         self.export_combo: QComboBox | None = None
         self.preview_theme_label: QLabel | None = None
         self.editor_theme_label: QLabel | None = None
+        self.theme_label: QLabel | None = None
 
         # Scroll sync
         self.scroll_sync = ScrollSyncManager(self)

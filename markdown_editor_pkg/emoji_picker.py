@@ -1076,9 +1076,7 @@ class EmojiPickerDialog(QDialog):
 
         # Категория
         cat_label = QLabel(tr("Category"))
-        cat_label.setStyleSheet(
-            "font-weight: bold; margin-top: 4px; margin-bottom: 4px;"
-        )
+        cat_label.setStyleSheet("font-weight: bold; margin-top: 4px; margin-bottom: 4px;")
         layout.addWidget(cat_label)
 
         self.category_combo = QComboBox()
@@ -1088,9 +1086,7 @@ class EmojiPickerDialog(QDialog):
 
         # Сетка emoji
         grid_label = QLabel()
-        grid_label.setStyleSheet(
-            "font-weight: bold; margin-top: 4px; margin-bottom: 4px;"
-        )
+        grid_label.setStyleSheet("font-weight: bold; margin-top: 4px; margin-bottom: 4px;")
         grid_label.setText(tr("Emoji"))
         layout.addWidget(grid_label)
 
@@ -1103,9 +1099,7 @@ class EmojiPickerDialog(QDialog):
         self.list_widget.setSpacing(4)
         self.list_widget.itemClicked.connect(self._on_emoji_clicked)
         # Скрываем текст под иконками — видны только emoji
-        self.list_widget.setStyleSheet(
-            "QListWidget::item { height: 86px; width: 86px; }"
-        )
+        self.list_widget.setStyleSheet("QListWidget::item { height: 86px; width: 86px; }")
         layout.addWidget(self.list_widget)
 
     def _populate_categories(self) -> None:
