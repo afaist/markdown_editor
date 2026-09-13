@@ -1052,6 +1052,7 @@ class EmojiPickerDialog(QDialog):
 
         self._current_category_key = ""
         self._all_emojis: list[tuple[str, str]] = []  # (emoji, name)
+        self._emoji_font_size = 48
 
         self._build_ui()
         self._populate_categories()
@@ -1075,7 +1076,9 @@ class EmojiPickerDialog(QDialog):
 
         # Категория
         cat_label = QLabel(tr("Category"))
-        cat_label.setStyleSheet("font-weight: bold; margin-top: 4px; margin-bottom: 4px;")
+        cat_label.setStyleSheet(
+            "font-weight: bold; margin-top: 4px; margin-bottom: 4px;"
+        )
         layout.addWidget(cat_label)
 
         self.category_combo = QComboBox()
@@ -1085,20 +1088,24 @@ class EmojiPickerDialog(QDialog):
 
         # Сетка emoji
         grid_label = QLabel()
-        grid_label.setStyleSheet("font-weight: bold; margin-top: 4px; margin-bottom: 4px;")
+        grid_label.setStyleSheet(
+            "font-weight: bold; margin-top: 4px; margin-bottom: 4px;"
+        )
         grid_label.setText(tr("Emoji"))
         layout.addWidget(grid_label)
 
         self.list_widget = QListWidget()
         self.list_widget.setViewMode(QListWidget.ViewMode.IconMode)
-        self.list_widget.setIconSize(QSize(66, 66))
-        self.list_widget.setGridSize(QSize(68, 68))
+        self.list_widget.setIconSize(QSize(80, 80))
+        self.list_widget.setGridSize(QSize(90, 90))
         self.list_widget.setFlow(QListWidget.Flow.LeftToRight)
         self.list_widget.setWrapping(True)
-        self.list_widget.setSpacing(2)
+        self.list_widget.setSpacing(4)
         self.list_widget.itemClicked.connect(self._on_emoji_clicked)
         # Скрываем текст под иконками — видны только emoji
-        self.list_widget.setStyleSheet("QListWidget::item { height: 64px; width: 64px; }")
+        self.list_widget.setStyleSheet(
+            "QListWidget::item { height: 86px; width: 86px; }"
+        )
         layout.addWidget(self.list_widget)
 
     def _populate_categories(self) -> None:
@@ -1120,8 +1127,10 @@ class EmojiPickerDialog(QDialog):
         self.list_widget.clear()
         self._all_emojis = EMOJI_DATA.get(category_key, [])
 
+        font = QFont("Segoe UI Emoji", self._emoji_font_size)
         for emoji, name in self._all_emojis:
             item = QListWidgetItem(emoji)
+            item.setFont(font)
             item.setToolTip(name)
             self.list_widget.addItem(item)
 
@@ -1150,9 +1159,11 @@ class EmojiPickerDialog(QDialog):
         text_lower = text.lower()
         self.list_widget.clear()
 
+        font = QFont("Segoe UI Emoji", self._emoji_font_size)
         for emoji, name in self._all_emojis:
             if text_lower in name.lower() or text_lower in emoji:
                 item = QListWidgetItem(emoji)
+                item.setFont(font)
                 item.setToolTip(f"{name} ({text})")
                 self.list_widget.addItem(item)
 

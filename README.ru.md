@@ -35,6 +35,7 @@ Markdown Editor — это desktop-приложение для создания 
 - 🌍 **Интернационализация (i18n)** — поддержка английского и русского языков через Qt QTranslator
 - ⚙️ **Настройки** — централизованное хранилище настроек (язык, тема, шрифт) с JSON-персистентностью в `~/.markdown_editor_config.json`
 - 🖥️ **Распознавание ресурсов** — корректная работа путей к ресурсам (katex/, prism/) в режиме разработки и в собранном PyInstaller-бинарнике
+- 😀 **Выбор emoji** — диалог поиска и вставки emoji с категориями и сеточным отображением, доступен через панель инструментов
 
 ## 🚀 Установка
 
@@ -299,6 +300,7 @@ markdown_editor/
 │   ├── i18n_build.py            # i18n build script (lupdate/lrelease)
 │   ├── resource_path.py         # Resource path resolver (PyInstaller-aware)
 │   ├── settings.py              # Centralized settings manager (JSON-backed)
+│   ├── emoji_picker.py          # EmojiPickerDialog — диалог выбора emoji
 │   ├── katex/                   # Библиотека KaTeX
 │   │   ├── katex.min.css
 │   │   ├── katex.min.js
@@ -368,10 +370,11 @@ markdown_editor/
 24. **Settings** (`settings.py`) — централизованное хранилище настроек (JSON-backed): язык, тема, шрифт, размер шрифта, последний файл.
 25. **i18n** (`i18n.py`) — модуль интернационализации: `setup_translator()`, `load_language()`, `tr()`, `get_available_languages()`. Поддерживает `en` и `ru`.
 26. **i18n_build** (`i18n_build.py`) — CLI для Qt translation workflow: `lupdate`, `lrelease`, `all`.
-27. **resource_path** (`resource_path.py`) — хелпер для определения путей к ресурсам (работает в режиме разработки и в PyInstaller-бинарнике).
-28. **Редактор** — `QTextEdit` (`MarkdownTextEdit`) с подсветкой текущей темы.
-29. **Предпросмотр** — `QWebEngineView` для отображения HTML.
-30. **Экспорт** — `export_to_pdf()` использует `QWebEngineView.page().printToPdf()` для генерации PDF.
+27. **EmojiPickerDialog** (`emoji_picker.py`) — диалог выбора emoji с категориями, сеточным отображением и поиском.
+28. **resource_path** (`resource_path.py`) — хелпер для определения путей к ресурсам (работает в режиме разработки и в PyInstaller-бинарнике).
+29. **Редактор** — `QTextEdit` (`MarkdownTextEdit`) с подсветкой текущей темы.
+30. **Предпросмотр** — `QWebEngineView` для отображения HTML.
+31. **Экспорт** — `export_to_pdf()` использует `QWebEngineView.page().printToPdf()` для генерации PDF.
 
 ### Используемые расширения Markdown
 
