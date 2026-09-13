@@ -8,7 +8,7 @@ A simple and functional Markdown editor with real-time preview and LaTeX formula
 
 Markdown Editor is a desktop application for creating and editing Markdown documents with instant preview. It supports inline and block LaTeX formulas via KaTeX, multiple themes, HTML and PDF export, GitHub Callouts, strikethrough text, task lists, and numerous formatting tools.
 
-**Version:** 1.0.3  
+**Version:** 1.0.33  
 **Technologies:** Python 3.12+, PyQt6, QtWebEngine, KaTeX, Python-Markdown, Prism.js
 
 ## ✨ Features
