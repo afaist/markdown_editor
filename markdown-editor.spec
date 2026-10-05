@@ -1,4 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
+from pathlib import Path
+import sysconfig
 from PyInstaller.utils.hooks import collect_all
 
 datas = []
@@ -8,6 +11,19 @@ tmp_ret = collect_all('markdown_editor_pkg')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('PyQt6')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
+
+# Include libpython shared library (required when building with pyenv)
+libpython = sysconfig.get_config_var('LIBPL')
+if libpython:
+    for f in os.listdir(libpython):
+        if f.startswith('libpython') and (f.endswith('.so') or f.endswith('.so.1.0')):
+            binaries.append((os.path.join(libpython, f), '.'))
+
+# Include translation files
+locales_dir = Path("locales")
+if locales_dir.is_dir():
+    for qm in locales_dir.glob("*.qm"):
+        datas.append((str(qm), "locales"))
 
 
 a = Analysis(

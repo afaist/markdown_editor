@@ -21,13 +21,10 @@ if _config_path.exists():
     except (json.JSONDecodeError, OSError):
         pass
 
-_chromium_flags = "--log-level=3"
+_chromium_flags = "--log-level=3 --no-sandbox --disable-gpu-info-update"
 
 if _disable_gpu:
-    _chromium_flags += (
-        " --disable-gpu --disable-gpu-compositing --disable-software-rasterizer"
-        " --disable-gpu-info-update"
-    )
+    _chromium_flags += " --disable-gpu --disable-gpu-compositing --disable-software-rasterizer"
     os.environ["QTWEBENGINE_SETTINGS"] = '{"enable_gpu": "false"}'
 
 os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = _chromium_flags
