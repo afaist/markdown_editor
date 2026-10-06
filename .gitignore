@@ -8,6 +8,7 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+release/
 *.spec
 !markdown-editor.spec
 
