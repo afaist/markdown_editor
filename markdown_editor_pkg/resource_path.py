@@ -40,8 +40,7 @@ def get_package_dir() -> str:
     Работает как в режиме разработки, так и в собранном бинарнике.
     """
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-        # PyInstaller COLLECT places files under _MEIPASS/markdown_editor_pkg/
-        return os.path.join(sys._MEIPASS, "markdown_editor_pkg")  # type: ignore[no-any-return]
+        return sys._MEIPASS  # type: ignore[no-any-return]
     return os.path.dirname(os.path.abspath(__file__))
 
 
