@@ -229,9 +229,9 @@ class FileExport:
             doc_title = os.path.basename(filename)
 
         return {
-            "show_headers": True,
-            "header_text": doc_title,
-            "footer_text": "markdown_editor  —  ",
+            "show_headers": False,
+            "header_text": "",
+            "footer_text": "",
         }
 
     # ─── Экспорт ────────────────────────────────────────────────────────

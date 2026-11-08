@@ -29,7 +29,7 @@ class HeaderFooterDialog(QDialog):
         self.setMinimumWidth(400)
 
         # Значения по умолчанию
-        self.show_headers = current_headers.get("show_headers", True) if current_headers else True
+        self.show_headers = current_headers.get("show_headers", False) if current_headers else False
         self.header_text = current_headers.get("header_text", "") if current_headers else ""
         self.footer_text = current_headers.get("footer_text", "") if current_headers else ""
 

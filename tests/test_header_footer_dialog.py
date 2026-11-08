@@ -16,10 +16,10 @@ class TestHeaderFooterDialog:
         dialog.close()
 
     def test_get_headers_default(self):
-        """Значения по умолчанию: show_headers=True."""
+        """Значения по умолчанию: show_headers=False."""
         dialog = HeaderFooterDialog()
         headers = dialog.get_headers()
-        assert headers["show_headers"] is True
+        assert headers["show_headers"] is False
         dialog.close()
 
     def test_get_headers_custom(self):
@@ -38,21 +38,21 @@ class TestHeaderFooterDialog:
     def test_toggle_controls(self):
         """При отключении чекбокса редакторы блокируются."""
         dialog = HeaderFooterDialog()
-        # Изначально включено
-        assert dialog.header_edit.isEnabled() is True
-        assert dialog.footer_edit.isEnabled() is True
-
-        # Отключаем
-        dialog.show_cb.setChecked(False)
-        dialog._toggle_controls(False)
+        # Изначально выключено
         assert dialog.header_edit.isEnabled() is False
         assert dialog.footer_edit.isEnabled() is False
 
-        # Включаем обратно
+        # Включаем
         dialog.show_cb.setChecked(True)
         dialog._toggle_controls(True)
         assert dialog.header_edit.isEnabled() is True
         assert dialog.footer_edit.isEnabled() is True
+
+        # Отключаем обратно
+        dialog.show_cb.setChecked(False)
+        dialog._toggle_controls(False)
+        assert dialog.header_edit.isEnabled() is False
+        assert dialog.footer_edit.isEnabled() is False
         dialog.close()
 
     def test_get_headers_disabled(self):

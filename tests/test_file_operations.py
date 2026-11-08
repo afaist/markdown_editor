@@ -16,21 +16,20 @@ class TestFileOperationsHeaders:
         self.editor.close()
 
     def test_get_pdf_headers_no_file(self):
-        """Колонтитулы без открытого файла используют default название."""
+        """Колонтитулы без открытого файла выключены по умолчанию."""
         self.editor.current_file = None
         headers = self.editor.file_export._get_pdf_headers()
-        assert headers["show_headers"] is True
-        assert headers["header_text"] == "Markdown Editor"
-        assert "markdown_editor" in headers["footer_text"]
-        assert "—" in headers["footer_text"]
+        assert headers["show_headers"] is False
+        assert headers["header_text"] == ""
+        assert headers["footer_text"] == ""
 
     def test_get_pdf_headers_with_file(self):
-        """Колонтитулы с открытым файлом используют имя файла."""
+        """Колонтитулы с открытым файлом выключены по умолчанию."""
         self.editor.current_file = "/home/user/my_document.md"
         headers = self.editor.file_export._get_pdf_headers()
-        assert headers["show_headers"] is True
-        assert headers["header_text"] == "my_document.md"
-        assert "—" in headers["footer_text"]
+        assert headers["show_headers"] is False
+        assert headers["header_text"] == ""
+        assert headers["footer_text"] == ""
 
 
 class TestFileOperationsIO:
