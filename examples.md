@@ -194,6 +194,10 @@ int main() {
 
 ## LaTeX-формулы
 
+**Кирилица в формулах**
+
+ $$Q_\text{плавления}>0$$
+
 ### Встроенные формулы
 
 Формула Пифагора: $a^2 + b^2 = c^2$
@@ -206,9 +210,32 @@ int main() {
 
 ### Блочные формулы
 
+__Корни уравнения__
+
+$$x_{1,2} = {-b\pm\sqrt{b^2 - 4ac} \over 2a}.$$
+
+__Вектор__
+
+$$|\vec{A}|=\sqrt{A_x^2 + A_y^2 + A_z^2}.$$(1)
+
+
 **Квадратичная формула:**
 
 $$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
+
+__Матрица__
+
+$$T^{\mu\nu}=\begin{pmatrix}
+\varepsilon&0&0&0\\
+0&\varepsilon/3&0&0\\
+0&0&\varepsilon/3&0\\
+0&0&0&\varepsilon/3
+\end{pmatrix},$$
+
+
+**Интеграл**
+
+$$P_\omega={n_\omega\over 2}\hbar\omega\,{1+R\over 1-v^2}\int\limits_{-1}^{1}dx\,(x-v)|x-v|,$$
 
 **Интеграл Римана:**
 
@@ -228,7 +255,7 @@ $$R(\theta) = \begin{pmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\thet
 
 **Определитель матрицы 2×2:**
 
-$$\det\begin{pmatrix} a & b \\ c & d \end{pmatrix} = ad - bc$$
+$$\det\begin{pmatrix} a & b \\ c & d \end{pmatrix} = a\cdot d - b\cdot c$$
 
 ---
 
@@ -246,9 +273,9 @@ $$\det\begin{pmatrix} a & b \\ c & d \end{pmatrix} = ad - bc$$
 
 Рассмотрим квадратное уравнение вида:
 
-$$ax^2 + bx + c = 0$$
+$$a\cdot x^2 + b\cdot x + c = 0$$
 
-где $a$ не равен $0$.
+где $a\ne 0$.
 
 ## Дискриминант
 
