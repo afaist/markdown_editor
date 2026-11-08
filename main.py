@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Markdown Editor - A simple Markdown editor with preview and LaTeX support.
 """
@@ -29,6 +29,12 @@ if _disable_gpu:
 
 os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = _chromium_flags
 os.environ["QT_LOGGING_RULES"] = "qt.webengine.services=false"
+
+# ── Force xcb platform to avoid GNOME xsettings schema errors ─────────────
+# GTK integration may fail with missing schema keys in newer GNOME versions.
+# xcb is more stable and doesn't depend on GTK settings.
+if "QT_QPA_PLATFORM" not in os.environ:
+    os.environ["QT_QPA_PLATFORM"] = "xcb"
 
 # ── Suppress Chromium/Mesa stderr messages (GBM, GPUInfo, etc.) ──────────
 # These messages come from Mesa/Chromium directly to stderr, not via Qt.
