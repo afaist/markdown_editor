@@ -29,12 +29,12 @@ def _read_template(filename: str) -> str:
 
 
 _PRINT_STYLES_TEMPLATE: str = ""
-_KATEX_SETUP_JS: str = ""
+_MATHJAX_SETUP_JS: str = ""
 _PAGE_NUMBERING_JS: str = ""
 
 try:
     _PRINT_STYLES_TEMPLATE = _read_template("print_styles.css")
-    _KATEX_SETUP_JS = _read_template("katex_setup.js")
+    _MATHJAX_SETUP_JS = _read_template("mathjax_setup.js")
     _PAGE_NUMBERING_JS = _read_template("page_numbering.js")
 except Exception:
     pass
@@ -43,10 +43,8 @@ except Exception:
 class MarkdownRenderer:
     """Конвертирует Markdown-текст в полный HTML-документ с LaTeX и темами."""
 
-    # Шаблоны путей к KaTeX
-    KATEX_CSS = "katex/katex.min.css"
-    KATEX_JS = "katex/katex.min.js"
-    KATEX_AUTO_RENDER_JS = "katex/auto-render.min.js"
+    # Шаблоны путей к MathJax
+    MATHJAX_JS = "mathjax/tex-mml-chtml.js"
 
     def __init__(self, themes: ThemesManager):
         """Инициализация рендерера Markdown.
@@ -81,24 +79,21 @@ class MarkdownRenderer:
         theme_css = self.themes.get_preview_css()
         print_styles = _PRINT_STYLES_TEMPLATE.format(theme_css=theme_css)
 
-        katex_css = self._resolve_path(base_dir, self.KATEX_CSS)
-        katex_js = self._resolve_path(base_dir, self.KATEX_JS)
-        auto_render_js = self._resolve_path(base_dir, self.KATEX_AUTO_RENDER_JS)
+        mathjax_js = self._resolve_path(base_dir, self.MATHJAX_JS)
 
         show_headers, header_text, footer_text = self._parse_headers(headers)
         header_html, footer_html = self._build_header_footer(show_headers, header_text, footer_text)
 
-        katex_js_code = _KATEX_SETUP_JS.format(katex_js=katex_js, auto_render_js=auto_render_js)
+        mathjax_setup_code = _MATHJAX_SETUP_JS.replace("__MATHJAX_JS_PATH__", mathjax_js)
         page_numbering_js = self._build_page_numbering_js(show_headers)
 
         full_html = self._build_html_document(
             html_content,
             theme_name,
             print_styles,
-            katex_css,
             header_html,
             footer_html,
-            katex_js_code,
+            mathjax_setup_code,
             page_numbering_js,
         )
 
@@ -185,10 +180,9 @@ class MarkdownRenderer:
         html_content: str,
         theme_name: str,
         print_styles: str,
-        katex_css: str,
         header_html: str,
         footer_html: str,
-        katex_js_code: str,
+        mathjax_setup_code: str,
         page_numbering_js: str,
     ) -> str:
         """Собирает полный HTML-документ."""
@@ -197,14 +191,13 @@ class MarkdownRenderer:
 <head>
     <meta charset="UTF-8">
     <title>Markdown Preview — {theme_name}</title>
-    <link rel="stylesheet" href="file://{katex_css}">
     {print_styles}
 </head>
 <body>
 {header_html}
 {html_content}
 {footer_html}
-{katex_js_code}
+{mathjax_setup_code}
 {page_numbering_js}
 </body>
 </html>"""

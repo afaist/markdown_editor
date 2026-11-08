@@ -10,13 +10,13 @@ class TestResourcePath:
 
     def test_resource_path_returns_absolute_path(self):
         """resource_path возвращает абсолютный путь в режиме разработки."""
-        result = resource_path("katex/katex.min.css")
+        result = resource_path("mathjax/tex-mml-chtml.js")
         assert result.startswith("/")
 
     def test_resource_path_contains_relative(self):
         """resource_path включает относительный путь."""
-        result = resource_path("katex/katex.min.css")
-        assert "katex" in result
+        result = resource_path("mathjax/tex-mml-chtml.js")
+        assert "mathjax" in result
 
     def test_resource_path_simple_name(self):
         """resource_path с простым именем файла."""

@@ -1,8 +1,8 @@
-"""download_katex.py — Загрузка библиотеки KaTeX в папку markdown_editor_pkg/katex/.
+"""download_mathjax.py — Загрузка библиотеки MathJax в папку markdown_editor_pkg/mathjax/.
 
-Эквивалент bash-скрипта get_katex.sh, но на Python (без зависимости от wget).
+Эквивалент скрипта для KaTeX, но для MathJax 3 (поддерживает TikZ и полный LaTeX).
 Запускается из корня проекта:
-    python markdown_editor_pkg/download_katex.py
+    python markdown_editor_pkg/download_mathjax.py
 """
 
 import io
@@ -15,14 +15,12 @@ import urllib.request
 if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
-# Версия KaTeX
-KATEX_VERSION = "0.16.9"
-KATEX_URL_BASE = f"https://cdn.jsdelivr.net/npm/katex@{KATEX_VERSION}/dist"
+# Версия MathJax
+MATHJAX_VERSION = "3.2.2"
+MATHJAX_URL_BASE = f"https://cdn.jsdelivr.net/npm/mathjax@{MATHJAX_VERSION}/es5"
 
 FILES = [
-    ("katex.min.css", f"{KATEX_URL_BASE}/katex.min.css"),
-    ("katex.min.js", f"{KATEX_URL_BASE}/katex.min.js"),
-    ("auto-render.min.js", f"{KATEX_URL_BASE}/contrib/auto-render.min.js"),
+    ("tex-mml-chtml.js", f"{MATHJAX_URL_BASE}/tex-mml-chtml.js"),
 ]
 
 
@@ -41,21 +39,21 @@ def download_file(url: str, destination: str) -> None:
 
 
 def main():
-    """Загрузить ресурсы KaTeX из CDN в локальную папку katex/."""
-    # Путь к папке katex внутри пакета
+    """Загрузить ресурсы MathJax из CDN в локальную папку mathjax/."""
+    # Путь к папке mathjax внутри пакета
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    katex_dir = os.path.join(script_dir, "katex")
+    mathjax_dir = os.path.join(script_dir, "mathjax")
 
     # Создаём папку, если нет
-    if not os.path.exists(katex_dir):
-        os.makedirs(katex_dir)
-        print(f"Создана директория: {katex_dir}")
+    if not os.path.exists(mathjax_dir):
+        os.makedirs(mathjax_dir)
+        print(f"Создана директория: {mathjax_dir}")
 
     for filename, url in FILES:
-        dest_path = os.path.join(katex_dir, filename)
+        dest_path = os.path.join(mathjax_dir, filename)
         download_file(url, dest_path)
 
-    print("\n✅ Загрузка ресурсов KaTeX завершена.")
+    print("\n✅ Загрузка ресурсов MathJax завершена.")
 
 
 if __name__ == "__main__":

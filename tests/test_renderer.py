@@ -146,16 +146,11 @@ class TestMarkdownRendererPipeline:
         assert "<body>" in html
         assert "</html>" in html
 
-    def test_render_contains_katex_css(self):
-        """Рендеринг включает ссылку на KaTeX CSS."""
+    def test_render_contains_mathjax_js(self):
+        """Рендеринг включает скрипты MathJax."""
         html = self.renderer.render("# Test")
-        assert "katex.min.css" in html
-
-    def test_render_contains_katex_js(self):
-        """Рендеринг включает скрипты KaTeX."""
-        html = self.renderer.render("# Test")
-        assert "katex.min.js" in html
-        assert "auto-render.min.js" in html
+        assert "tex-mml-chtml.js" in html
+        assert "MathJax" in html
 
 
 class TestMarkdownRendererHelpers:
@@ -167,12 +162,15 @@ class TestMarkdownRendererHelpers:
 
     def test_resolve_path_no_base(self):
         """_resolve_path без base_dir возвращает относительный путь."""
-        assert self.renderer._resolve_path("", "katex/katex.min.css") == "katex/katex.min.css"
+        assert (
+            self.renderer._resolve_path("", "mathjax/tex-mml-chtml.js")
+            == "mathjax/tex-mml-chtml.js"
+        )
 
     def test_resolve_path_with_base(self):
         """_resolve_path с base_dir объединяет пути."""
-        result = self.renderer._resolve_path("/base", "katex/katex.min.css")
-        assert result == "/base/katex/katex.min.css"
+        result = self.renderer._resolve_path("/base", "mathjax/tex-mml-chtml.js")
+        assert result == "/base/mathjax/tex-mml-chtml.js"
 
     def test_parse_headers_none(self):
         """_parse_headers(None) возвращает выключенные колонтитулы."""

@@ -31,18 +31,16 @@ class TestMarkdownRender:
         md = "Формула: $a^2 + b^2 = c^2$"
         html = self.editor.render_markdown(md)
         assert "$a^2 + b^2 = c^2$" in html
-        assert "katex.min.js" in html
-        assert "auto-render.min.js" in html
-        assert '{left: "$", right: "$", display: false}' in html
+        assert "tex-mml-chtml.js" in html
+        assert "MathJax" in html
 
     def test_latex_block_render(self):
         """Блочные формулы $$...$$ корректно обрабатываются."""
         md = "$$\\int_0^1 x^2 dx$$"
         html = self.editor.render_markdown(md)
         assert "$$\\int_0^1 x^2 dx$$" in html
-        assert "katex.min.js" in html
-        assert "auto-render.min.js" in html
-        assert '{left: "$$", right: "$$", display: true}' in html
+        assert "tex-mml-chtml.js" in html
+        assert "MathJax" in html
 
     def test_full_html_structure(self):
         """Рендеринг возвращает полный HTML-документ."""
@@ -56,8 +54,8 @@ class TestMarkdownRender:
         assert "</head>" in html
         assert "<body>" in html
         assert "</body>" in html
-        assert "katex.min.css" in html
-        assert "katex.min.js" in html
+        assert "tex-mml-chtml.js" in html
+        assert "MathJax" in html
 
     def test_render_with_tables(self):
         """Таблицы Markdown рендерятся в <table>."""
