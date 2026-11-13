@@ -27,8 +27,8 @@ classifiers = [
 ]
 
 dependencies = [
-    "PyQt6>=6.6.0",
-    "PyQt6-WebEngine>=6.6.0",
+    "PyQt6>=6.6.0,<6.9.0",
+    "PyQt6-WebEngine>=6.6.0,<6.9.0",
     "markdown>=3.4.0",
 ]
 
@@ -61,7 +61,6 @@ python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
-disable_error_code = "syntax"
 
 [tool.ruff]
 target-version = "py312"
