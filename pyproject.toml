@@ -32,6 +32,15 @@ dependencies = [
     "markdown>=3.4.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.11",
+    "ruff",
+    "pytest",
+    "pytest-cov",
+    "pytest-qt",
+]
+
 [project.urls]
 Homepage = "https://github.com/afaist/markdown_editor"
 Repository = "https://github.com/afaist/markdown_editor"
@@ -52,7 +61,6 @@ python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
-disable_error_code = "syntax"
 
 [tool.ruff]
 target-version = "py312"
