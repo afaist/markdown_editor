@@ -83,7 +83,7 @@ class ScrollBridge(QObject):
         self._handler._scroll_from_editor = True  # type: ignore[attr-defined]
 
 
-class ScrollSyncManager:
+class ScrollSyncManager(QObject):
     """Управляет синхронизацией прокрутки между QTextEdit и QWebEngineView.
 
     Инкапсулирует:
@@ -92,15 +92,13 @@ class ScrollSyncManager:
     - Подключение скроллбара редактора к обработчику синхронизации
     """
 
-    def __init__(self, editor: MarkdownEditorPyQt) -> None:
-        """Инициализация менеджера синхронизации прокрутки.
-
-        Args:
-            editor: Ссылка на MarkdownEditorPyQt (для доступа к preview и event_handler).
-        """
-        self._editor = editor
+    def __init__(self, parent: QObject | None = None) -> None:
+        super().__init__(parent)
+        self._editor: MarkdownEditorPyQt | None = None
         self._scroll_bridge: ScrollBridge | None = None
         self._scroll_channel: QWebChannel | None = None
+        self._init_scroll_timer: QTimer | None = None
+        self._scroll_js_timer: QTimer | None = None
 
     @property
     def scroll_bridge(self) -> ScrollBridge | None:
@@ -117,6 +115,9 @@ class ScrollSyncManager:
 
         Подключает скроллбар редактора и инжектит JS-трекер в превью.
         """
+        self._editor = self.parent()  # type: ignore[assignment]
+        if self._editor is None:
+            return
         editor = self._editor
         # Подключаем скролл редактора
         vbar = editor.editor.verticalScrollBar()
@@ -128,6 +129,7 @@ class ScrollSyncManager:
 
     def _inject_scroll_tracker_js(self) -> None:
         """Инжектит JavaScript для отслеживания скролла в QWebEngineView."""
+        assert self._editor is not None
         editor = self._editor
         if editor.preview is None:
             return
@@ -146,7 +148,10 @@ class ScrollSyncManager:
 
         # Запускаем JS-трекер сразу (без ожидания loadFinished)
         # Это нужно, потому что setHtml не вызывает loadFinished
-        QTimer.singleShot(500, lambda: self._init_scroll_tracker(delay=500))
+        self._init_scroll_timer = QTimer(self)
+        self._init_scroll_timer.setSingleShot(True)
+        self._init_scroll_timer.timeout.connect(lambda: self._init_scroll_tracker(delay=500))
+        self._init_scroll_timer.start(500)
 
     def _init_scroll_tracker(self, delay: int = 100) -> None:
         """Запускает JS-трекер скролла с заданной задержкой.
@@ -154,6 +159,7 @@ class ScrollSyncManager:
         Args:
             delay: Задержка в мс перед запуском трекера.
         """
+        assert self._editor is not None
         editor = self._editor
         if editor.preview is None:
             return
@@ -167,8 +173,22 @@ class ScrollSyncManager:
             page.setWebChannel(self._scroll_channel)
 
         # Запускаем JS-трекер (он сам подождёт появления qt_object)
-        QTimer.singleShot(delay, lambda: page.runJavaScript(_SCROLL_JS))
+        self._scroll_js_timer = QTimer(self)
+        self._scroll_js_timer.setSingleShot(True)
+        self._scroll_js_timer.timeout.connect(
+            lambda: page.runJavaScript(_SCROLL_JS)  # type: ignore[arg-type]
+        )
+        self._scroll_js_timer.start(delay)
 
     def get_scroll_js(self) -> str:
         """Возвращает JavaScript-код для отслеживания скролла."""
         return _SCROLL_JS
+
+    def stop_timers(self) -> None:
+        """Останавливает все таймеры."""
+        for timer in (self._init_scroll_timer, self._scroll_js_timer):
+            if timer is not None:
+                timer.stop()
+                timer.deleteLater()
+        self._init_scroll_timer = None
+        self._scroll_js_timer = None

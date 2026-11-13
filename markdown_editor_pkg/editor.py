@@ -379,6 +379,7 @@ class MarkdownEditorPyQt(QMainWindow):
     # Закрытие
     def closeEvent(self, event_: QCloseEvent | None) -> None:  # type: ignore[reportIncompatibleMethodOverride]
         """Обработчик закрытия окна: проверка чистоты и сохранение сессии."""
+        self.scroll_sync.stop_timers()
         self.close_handler.on_close(event_)
 
     # ─── Обратная совместимость (для старых тестов) ─────────────────────

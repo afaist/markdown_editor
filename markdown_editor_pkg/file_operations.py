@@ -223,11 +223,6 @@ class FileExport:
         if self._pdf_headers is not None:
             return self._pdf_headers
 
-        filename = self._state.current_file or ""
-        doc_title = "Markdown Editor"
-        if filename:
-            doc_title = os.path.basename(filename)
-
         return {
             "show_headers": False,
             "header_text": "",
