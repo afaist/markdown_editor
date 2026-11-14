@@ -225,20 +225,13 @@ EOF
         --executable "$appimage_dir/${app_name}.appdir/usr/bin/${app_name}" \
         --output appimage
 
-    # Переименовываем в понятное имя
+    # Переименовываем в понятное имя — ищем любой .AppImage файл
     local output_file="dist/${app_name}-x86_64.appimage"
-    if [ -f "${app_name}-${app_version}-x86_64.AppImage" ]; then
-        mv "${app_name}-${app_version}-x86_64.AppImage" "$output_file"
-    elif [ -f "${app_name}-x86_64.AppImage" ]; then
-        mv "${app_name}-x86_64.AppImage" "$output_file"
-    elif [ -f "${app_name//-/_}-${app_version}-x86_64.AppImage" ]; then
-        mv "${app_name//-/_}-${app_version}-x86_64.AppImage" "$output_file"
-    elif [ -f "${app_name//-/_}-x86_64.AppImage" ]; then
-        mv "${app_name//-/_}-x86_64.AppImage" "$output_file"
-    elif [ -f "Markdown_${app_name//-/_}-${app_version}-x86_64.AppImage" ]; then
-        mv "Markdown_${app_name//-/_}-${app_version}-x86_64.AppImage" "$output_file"
-    elif [ -f "Markdown_${app_name//-/_}-x86_64.AppImage" ]; then
-        mv "Markdown_${app_name//-/_}-x86_64.AppImage" "$output_file"
+    local appimage_src
+    appimage_src=$(ls -1 *.AppImage 2>/dev/null | head -1)
+    if [ -n "$appimage_src" ]; then
+        mv "$appimage_src" "$output_file"
+        log_info "AppImage переименована: $appimage_src -> $output_file"
     fi
 
     # Очистка временных файлов

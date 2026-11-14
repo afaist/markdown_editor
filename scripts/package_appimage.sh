@@ -158,33 +158,17 @@ linuxdeploy \
     --executable "$APPDIR/usr/bin/${APP_NAME}" \
     --output appimage
 
-# Переименовываем
+# Переименовываем — ищем любой .AppImage файл в текущей директории
 OUTPUT_FILE="${OUTPUT_DIR}/${APP_NAME}-x86_64.appimage"
 echo "[INFO] Поиск созданного AppImage..."
-ls -la *.AppImage 2>/dev/null || true
-if [ -f "${APP_NAME}-${VERSION}-x86_64.AppImage" ]; then
-    mv "${APP_NAME}-${VERSION}-x86_64.AppImage" "$OUTPUT_FILE"
-    echo "[OK] AppImage переименована: ${APP_NAME}-${VERSION}-x86_64.AppImage -> $OUTPUT_FILE"
-elif [ -f "${APP_NAME}-x86_64.AppImage" ]; then
-    mv "${APP_NAME}-x86_64.AppImage" "$OUTPUT_FILE"
-    echo "[OK] AppImage переименована: ${APP_NAME}-x86_64.AppImage -> $OUTPUT_FILE"
-elif [ -f "${APP_NAME//-/_}-${VERSION}-x86_64.AppImage" ]; then
-    mv "${APP_NAME//-/_}-${VERSION}-x86_64.AppImage" "$OUTPUT_FILE"
-    echo "[OK] AppImage переименована: ${APP_NAME//-/_}-${VERSION}-x86_64.AppImage -> $OUTPUT_FILE"
-elif [ -f "${APP_NAME//-/_}-x86_64.AppImage" ]; then
-    mv "${APP_NAME//-/_}-x86_64.AppImage" "$OUTPUT_FILE"
-    echo "[OK] AppImage переименована: ${APP_NAME//-/_}-x86_64.AppImage -> $OUTPUT_FILE"
-elif [ -f "Markdown_${APP_NAME//-/_}-x86_64.AppImage" ]; then
-    mv "Markdown_${APP_NAME//-/_}-x86_64.AppImage" "$OUTPUT_FILE"
-    echo "[OK] AppImage переименована: Markdown_${APP_NAME//-/_}-x86_64.AppImage -> $OUTPUT_FILE"
-elif [ -f "Markdown_${APP_NAME//-/_}-${VERSION}-x86_64.AppImage" ]; then
-    mv "Markdown_${APP_NAME//-/_}-${VERSION}-x86_64.AppImage" "$OUTPUT_FILE"
-    echo "[OK] AppImage переименована: Markdown_${APP_NAME//-/_}-${VERSION}-x86_64.AppImage -> $OUTPUT_FILE"
-else
+APPIMAGE_SRC=$(ls -1 *.AppImage 2>/dev/null | head -1)
+if [ -z "$APPIMAGE_SRC" ]; then
     echo "[ERROR] AppImage файл не найден!"
     ls -la
     exit 1
 fi
+mv "$APPIMAGE_SRC" "$OUTPUT_FILE"
+echo "[OK] AppImage переименована: $APPIMAGE_SRC -> $OUTPUT_FILE"
 
 # Очистка
 rm -rf "appimage-build"
