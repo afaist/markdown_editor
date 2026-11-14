@@ -49,6 +49,10 @@ check_dependencies() {
         log_error "  wget -O linuxdeploy https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-x86_64.AppImage"
         log_error "  chmod +x linuxdeploy"
         log_error "  sudo mv linuxdeploy /usr/local/bin/"
+        log_error ""
+        log_error "  wget -O linuxdeploy-plugin-qt https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/latest/download/linuxdeploy-plugin-qt-x86_64.AppImage"
+        log_error "  chmod +x linuxdeploy-plugin-qt"
+        log_error "  sudo mv linuxdeploy-plugin-qt /usr/local/bin/"
         exit 1
     fi
 
