@@ -176,9 +176,21 @@ jobs:
         run: |
           pyinstaller --clean --noconfirm markdown-editor.spec
 
+      - name: Get version
+        id: version
+        run: |
+          python3 << 'PYEOF' > $GITHUB_OUTPUT
+          try:
+              from setuptools_scm import get_version
+              print(get_version())
+          except Exception:
+              print("0.0.0")
+          PYEOF
+
       - name: Create .deb package
         run: |
           export ARCH=$(dpkg --print-architecture)
+          export VERSION="${{ steps.version.outputs.version }}"
 
           # Create deb structure
           rm -rf deb-build
@@ -334,59 +346,86 @@ jobs:
         run: |
           APP_NAME="markdown-editor"
 
-          APP_VERSION=$(python3 << 'PYEOF'
-try:
-    from importlib.metadata import version
-    print(version("markdown-editor"))
-except Exception:
-    try:
-        from setuptools_scm import get_version
-        print(get_version())
-    except Exception:
-        print("dev")
-PYEOF
-          )
+          # Write helper script
+          cat > /tmp/_prepare_appimage.py << 'SCRIPTEOF'
+          import os
+          from pathlib import Path
+          import shutil
 
-          rm -rf appimage-build
-          mkdir -p "appimage-build/${APP_NAME}.appdir/usr/bin"
-          mkdir -p "appimage-build/${APP_NAME}.appdir/usr/lib"
-          mkdir -p "appimage-build/${APP_NAME}.appdir/usr/share/applications"
-          mkdir -p "appimage-build/${APP_NAME}.appdir/usr/share/icons/hicolor/256x256/apps"
-          mkdir -p "appimage-build/${APP_NAME}.appdir/usr/share/metainfo"
+          app_name = os.environ.get("APP_NAME", "markdown-editor")
+
+          # Get version
+          try:
+              from importlib.metadata import version
+              app_version = version("markdown-editor")
+          except Exception:
+              try:
+                  from setuptools_scm import get_version
+                  app_version = get_version()
+              except Exception:
+                  app_version = "dev"
+
+          os.environ["APP_VERSION"] = app_version
+
+          appdir = Path("appimage-build") / f"{app_name}.appdir"
+          appdir.mkdir(parents=True, exist_ok=True)
+          (appdir / "usr" / "bin").mkdir(parents=True, exist_ok=True)
+          (appdir / "usr" / "lib").mkdir(parents=True, exist_ok=True)
+          (appdir / "usr" / "share" / "applications").mkdir(parents=True, exist_ok=True)
+          (appdir / "usr" / "share" / "icons" / "hicolor" / "256x256" / "apps").mkdir(parents=True, exist_ok=True)
+          (appdir / "usr" / "share" / "metainfo").mkdir(parents=True, exist_ok=True)
 
           # Copy application files
-          cp -r dist/${APP_NAME}/* "appimage-build/${APP_NAME}.appdir/usr/bin/"
+          src = Path("dist") / app_name
+          for item in src.iterdir():
+              if item.is_dir():
+                  shutil.copytree(item, appdir / "usr" / "bin" / item.name, dirs_exist_ok=True)
+              else:
+                  shutil.copy2(item, appdir / "usr" / "bin")
 
           # Desktop file
-          cp markdown-editor.desktop "appimage-build/${APP_NAME}.appdir/usr/share/applications/${APP_NAME}.desktop"
-          sed -i 's|Exec=/opt/markdown-editor/markdown-editor|Exec=markdown-editor|' \
-            "appimage-build/${APP_NAME}.appdir/usr/share/applications/${APP_NAME}.desktop"
+          desktop = appdir / "usr" / "share" / "applications" / f"{app_name}.desktop"
+          desktop.write_text("[Desktop Entry]\n")
+          desktop.write_text(f"Name={app_name.replace('-', ' ').title()}\n", mode="a")
+          desktop.write_text("Name[ru]=Редактор Markdown\n", mode="a")
+          desktop.write_text("Comment=A simple Markdown editor with preview and LaTeX support\n", mode="a")
+          desktop.write_text("Comment[ru]=Простой редактор Markdown с предпросмотром и поддержкой LaTeX\n", mode="a")
+          desktop.write_text(f"Exec={app_name}\n", mode="a")
+          desktop.write_text(f"Icon={app_name}\n", mode="a")
+          desktop.write_text("Terminal=false\n", mode="a")
+          desktop.write_text("Type=Application\n", mode="a")
+          desktop.write_text("Categories=Utility;TextEditor;\n", mode="a")
+          desktop.write_text("MimeType=text/markdown;text/x-markdown;\n", mode="a")
+          desktop.write_text("Keywords=markdown;latex;editor;\n", mode="a")
 
           # Icon
-          if [ -f "icon.png" ]; then
-            cp icon.png "appimage-build/${APP_NAME}.appdir/usr/share/icons/hicolor/256x256/apps/${APP_NAME}.png"
-          fi
+          icon_src = Path("icon.png")
+          if icon_src.exists():
+              shutil.copy2(icon_src, appdir / "usr" / "share" / "icons" / "hicolor" / "256x256" / "apps" / f"{app_name}.png")
 
-          # Metainfo (AppStream)
-          cat > "appimage-build/${APP_NAME}.appdir/usr/share/metainfo/${APP_NAME}.metainfo.xml" <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<component type="desktop-application">
-  <id>${APP_NAME}</id>
-  <name>Markdown Editor</name>
-  <summary>Простой редактор Markdown с предпросмотром и поддержкой LaTeX</summary>
-  <description>
-    <p>Markdown-редактор с live-предпросмотром, поддержкой LaTeX-формул (KaTeX),
-    синтаксическим выделением (Prism.js) и экспортом в PDF/HTML.</p>
-  </description>
-  <url type="homepage">https://github.com/afaist/markdown_editor</url>
-  <provides>
-    <binary>${APP_NAME}</binary>
-  </provides>
-  <launchable type="desktop-id">${APP_NAME}.desktop</launchable>
-</component>
-EOF
+          # Metainfo (AppStream) - write line by line to avoid YAML issues
+          metainfo = appdir / "usr" / "share" / "metainfo" / f"{app_name}.metainfo.xml"
+          lines = [
+              '<?xml version="1.0" encoding="UTF-8"?>',
+              '<component type="desktop-application">',
+              f'  <id>{app_name}</id>',
+              f'  <name>{app_name.replace("-", " ").title()}</name>',
+              '  <summary>Простой редактор Markdown с предпросмотром и поддержкой LaTeX</summary>',
+              '  <description>',
+              '    <p>Markdown-редактор с live-предпросмотром, поддержкой LaTeX-формул (KaTeX),',
+              '    синтаксическим выделением (Prism.js) и экспортом в PDF/HTML.</p>',
+              '  </description>',
+              '  <url type="homepage">https://github.com/afaist/markdown_editor</url>',
+              '  <provides>',
+              f'    <binary>{app_name}</binary>',
+              '  </provides>',
+              f'  <launchable type="desktop-id">{app_name}.desktop</launchable>',
+              '</component>',
+          ]
+          metainfo.write_text("\n".join(lines) + "\n")
+          SCRIPTEOF
 
-          echo "APP_VERSION=${APP_VERSION}" >> $GITHUB_ENV
+          python3 /tmp/_prepare_appimage.py
 
       - name: Build AppImage
         run: |
@@ -420,7 +459,9 @@ EOF
   # ─── Создание релиза ───────────────────────────────────────────────
   create-release:
     needs: [build-linux, build-windows, build-deb, build-appimage]
-    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    if: >-
+      (startsWith(github.ref, 'refs/tags/') && always()) ||
+      (github.event_name == 'workflow_dispatch' && always())
     runs-on: ubuntu-24.04
     permissions:
       contents: write
