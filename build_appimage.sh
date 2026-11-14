@@ -172,13 +172,13 @@ if pyqt6_internal.exists():
     sed -i 's|Exec=/opt/markdown-editor/markdown-editor|Exec=markdown-editor|' \
         "$appimage_dir/${app_name}.appdir/usr/share/applications/${app_name}.desktop"
 
-    # Копируем иконку
+    # Копируем иконку с ресайзом
     if [ -f "icon.png" ]; then
         python3 -c '
 from PIL import Image
 src = Image.open("icon.png")
-src.thumbnail((256, 256), Image.LANCZOS)
 w, h = src.size
+src.thumbnail((256, 256), Image.LANCZOS)
 if w != h:
     x = (w - h) // 2 if w > h else 0
     y = (h - w) // 2 if h > w else 0
@@ -213,7 +213,8 @@ EOF
     log_info "Шаг 3/3: Сборка AppImage..."
 
     # Устанавливаем RPATH
-    patchelf --set-rpath '$ORIGIN/../lib/qt6:$ORIGIN' "$appimage_dir/${app_name}.appdir/usr/bin/${app_name}"
+    RPATH_VAL='$ORIGIN/../lib/qt6:$ORIGIN'
+    patchelf --set-rpath "$RPATH_VAL" "$appimage_dir/${app_name}.appdir/usr/bin/${app_name}" || true
 
     export APPIMAGE_EXTRACT_AND_RUN=1
 
