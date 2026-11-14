@@ -333,17 +333,19 @@ jobs:
       - name: Prepare AppImage structure
         run: |
           APP_NAME="markdown-editor"
-          APP_VERSION=$(python3 -c "
+
+          APP_VERSION=$(python3 << 'PYEOF'
 try:
     from importlib.metadata import version
-    print(version('markdown-editor'))
+    print(version("markdown-editor"))
 except Exception:
     try:
         from setuptools_scm import get_version
         print(get_version())
     except Exception:
-        print('dev')
-" 2>/dev/null || echo "dev")
+        print("dev")
+PYEOF
+          )
 
           rm -rf appimage-build
           mkdir -p "appimage-build/${APP_NAME}.appdir/usr/bin"
