@@ -179,12 +179,12 @@ jobs:
       - name: Get version
         id: version
         run: |
-          python3 << 'PYEOF' > $GITHUB_OUTPUT
+          python3 << 'PYEOF'
           try:
               from setuptools_scm import get_version
-              print(get_version())
+              print(f"version={get_version()}")
           except Exception:
-              print("0.0.0")
+              print("version=0.0.0")
           PYEOF
 
       - name: Create .deb package
