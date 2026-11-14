@@ -28,6 +28,7 @@ mkdir -p "$APPDIR/usr/share/metainfo"
 
 # Копируем собранные файлы
 cp -r "$SOURCE_DIR"/* "$APPDIR/usr/bin/"
+echo "[OK] Файлы скопированы"
 
 # Копируем Qt6 библиотеки из pip-пакета
 echo "[INFO] Копирование Qt6 библиотек..."
@@ -91,31 +92,34 @@ if pyqt6_internal.exists():
     for item in pyqt6_internal.iterdir():
         if item.is_file():
             shutil.copy2(item, appdir / "usr" / "bin")
+
+print("Qt6 libraries copied successfully")
 PYEOF
 
 # Desktop file
 cp markdown-editor.desktop "$APPDIR/usr/share/applications/${APP_NAME}.desktop"
 sed -i 's|Exec=/opt/markdown-editor/markdown-editor|Exec=markdown-editor|' \
     "$APPDIR/usr/share/applications/${APP_NAME}.desktop"
+echo "[OK] Desktop файл создан"
 
-# Icon
+# Icon — resize to 256x256 square
 if [ -f "icon.png" ]; then
     python3 -c '
 from PIL import Image
-import shutil
 src = Image.open("icon.png")
-# Resize to 256x256 square
-src.thumbnail((256, 256), Image.LANCZOS)
-# Ensure square by center-cropping if needed
 w, h = src.size
+print(f"Icon original size: {w}x{h}")
+src.thumbnail((256, 256), Image.LANCZOS)
 if w != h:
     x = (w - h) // 2 if w > h else 0
     y = (h - w) // 2 if h > w else 0
     src = src.crop((x, y, x + min(w,h), y + min(w,h)))
     src = src.resize((256, 256), Image.LANCZOS)
 src.save("appimage-build/markdown-editor.appdir/usr/share/icons/hicolor/256x256/apps/markdown-editor.png")
+print("Icon resized to 256x256")
 '
 fi
+echo "[OK] Иконка обработана"
 
 # Metainfo
 cat > "$APPDIR/usr/share/metainfo/${APP_NAME}.metainfo.xml" <<EOF
@@ -135,9 +139,13 @@ cat > "$APPDIR/usr/share/metainfo/${APP_NAME}.metainfo.xml" <<EOF
   <launchable type="desktop-id">${APP_NAME}.desktop</launchable>
 </component>
 EOF
+echo "[OK] Metainfo создан"
 
 # Устанавливаем RPATH
-patchelf --set-rpath '$ORIGIN/../lib/qt6:$ORIGIN' "$APPDIR/usr/bin/${APP_NAME}"
+echo "[INFO] Настройка RPATH..."
+RPATH_VAL='$ORIGIN/../lib/qt6:$ORIGIN'
+patchelf --set-rpath "$RPATH_VAL" "$APPDIR/usr/bin/${APP_NAME}" || true
+echo "[OK] RPATH настроен"
 
 # Сборка AppImage
 echo "[INFO] Сборка AppImage через linuxdeploy..."
@@ -152,10 +160,18 @@ linuxdeploy \
 
 # Переименовываем
 OUTPUT_FILE="${OUTPUT_DIR}/${APP_NAME}-x86_64.appimage"
+echo "[INFO] Поиск созданного AppImage..."
+ls -la *.AppImage 2>/dev/null || true
 if [ -f "${APP_NAME}-${VERSION}-x86_64.AppImage" ]; then
     mv "${APP_NAME}-${VERSION}-x86_64.AppImage" "$OUTPUT_FILE"
+    echo "[OK] AppImage переименована: ${APP_NAME}-${VERSION}-x86_64.AppImage -> $OUTPUT_FILE"
 elif [ -f "${APP_NAME}-x86_64.AppImage" ]; then
     mv "${APP_NAME}-x86_64.AppImage" "$OUTPUT_FILE"
+    echo "[OK] AppImage переименована: ${APP_NAME}-x86_64.AppImage -> $OUTPUT_FILE"
+else
+    echo "[ERROR] AppImage файл не найден!"
+    ls -la
+    exit 1
 fi
 
 # Очистка
