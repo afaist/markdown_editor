@@ -174,7 +174,18 @@ if pyqt6_internal.exists():
 
     # Копируем иконку
     if [ -f "icon.png" ]; then
-        cp icon.png "$appimage_dir/${app_name}.appdir/usr/share/icons/hicolor/256x256/apps/${app_name}.png"
+        python3 -c '
+from PIL import Image
+src = Image.open("icon.png")
+src.thumbnail((256, 256), Image.LANCZOS)
+w, h = src.size
+if w != h:
+    x = (w - h) // 2 if w > h else 0
+    y = (h - w) // 2 if h > w else 0
+    src = src.crop((x, y, x + min(w,h), y + min(w,h)))
+    src = src.resize((256, 256), Image.LANCZOS)
+src.save("appimage-build/markdown-editor.appdir/usr/share/icons/hicolor/256x256/apps/markdown-editor.png")
+'
     elif [ -f "icon.ico" ]; then
         log_warn "icon.ico найден, но для AppImage нужен PNG. Иконка может отсутствовать."
     fi
