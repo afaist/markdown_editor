@@ -168,12 +168,18 @@ if [ -f "${APP_NAME}-${VERSION}-x86_64.AppImage" ]; then
 elif [ -f "${APP_NAME}-x86_64.AppImage" ]; then
     mv "${APP_NAME}-x86_64.AppImage" "$OUTPUT_FILE"
     echo "[OK] AppImage переименована: ${APP_NAME}-x86_64.AppImage -> $OUTPUT_FILE"
-elif [ -f "${APP_NAME//-/}_${VERSION}-x86_64.AppImage" ]; then
-    mv "${APP_NAME//-/}_${VERSION}-x86_64.AppImage" "$OUTPUT_FILE"
-    echo "[OK] AppImage переименована: ${APP_NAME//-/}_${VERSION}-x86_64.AppImage -> $OUTPUT_FILE"
-elif [ -f "${APP_NAME//-/}-x86_64.AppImage" ]; then
-    mv "${APP_NAME//-/}-x86_64.AppImage" "$OUTPUT_FILE"
-    echo "[OK] AppImage переименована: ${APP_NAME//-/}-x86_64.AppImage -> $OUTPUT_FILE"
+elif [ -f "${APP_NAME//-/_}-${VERSION}-x86_64.AppImage" ]; then
+    mv "${APP_NAME//-/_}-${VERSION}-x86_64.AppImage" "$OUTPUT_FILE"
+    echo "[OK] AppImage переименована: ${APP_NAME//-/_}-${VERSION}-x86_64.AppImage -> $OUTPUT_FILE"
+elif [ -f "${APP_NAME//-/_}-x86_64.AppImage" ]; then
+    mv "${APP_NAME//-/_}-x86_64.AppImage" "$OUTPUT_FILE"
+    echo "[OK] AppImage переименована: ${APP_NAME//-/_}-x86_64.AppImage -> $OUTPUT_FILE"
+elif [ -f "Markdown_${APP_NAME//-/_}-x86_64.AppImage" ]; then
+    mv "Markdown_${APP_NAME//-/_}-x86_64.AppImage" "$OUTPUT_FILE"
+    echo "[OK] AppImage переименована: Markdown_${APP_NAME//-/_}-x86_64.AppImage -> $OUTPUT_FILE"
+elif [ -f "Markdown_${APP_NAME//-/_}-${VERSION}-x86_64.AppImage" ]; then
+    mv "Markdown_${APP_NAME//-/_}-${VERSION}-x86_64.AppImage" "$OUTPUT_FILE"
+    echo "[OK] AppImage переименована: Markdown_${APP_NAME//-/_}-${VERSION}-x86_64.AppImage -> $OUTPUT_FILE"
 else
     echo "[ERROR] AppImage файл не найден!"
     ls -la

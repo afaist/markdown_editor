@@ -235,6 +235,10 @@ EOF
         mv "${app_name//-/_}-${app_version}-x86_64.AppImage" "$output_file"
     elif [ -f "${app_name//-/_}-x86_64.AppImage" ]; then
         mv "${app_name//-/_}-x86_64.AppImage" "$output_file"
+    elif [ -f "Markdown_${app_name//-/_}-${app_version}-x86_64.AppImage" ]; then
+        mv "Markdown_${app_name//-/_}-${app_version}-x86_64.AppImage" "$output_file"
+    elif [ -f "Markdown_${app_name//-/_}-x86_64.AppImage" ]; then
+        mv "Markdown_${app_name//-/_}-x86_64.AppImage" "$output_file"
     fi
 
     # Очистка временных файлов
