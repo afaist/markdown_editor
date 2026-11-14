@@ -16,6 +16,7 @@ on:
           - linux
           - windows
           - deb
+          - appimage
 
 permissions:
   contents: write
@@ -270,9 +271,153 @@ jobs:
           retention-days: 14
           if-no-files-found: error
 
+  # ─── Сборка AppImage ───────────────────────────────────────────────
+  build-appimage:
+    if: github.event.inputs.mode == 'all' || github.event.inputs.mode == 'appimage' || startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgl1-mesa-dev \
+            libxkbcommon-x11-0 \
+            libxcb-cursor0 \
+            libegl1-mesa-dev \
+            libwebp-dev \
+            libfontconfig1 \
+            libfreetype6 \
+            libx11-xcb1 \
+            libxcb-icccm4 \
+            libxcb-image0 \
+            libxcb-keysyms1 \
+            libxcb-randr0 \
+            libxcb-render-util0 \
+            libxcb-shape0 \
+            libxcb-xinerama0 \
+            libxcb-xfixes0 \
+            libfuse2
+
+      - name: Install linuxdeploy
+        run: |
+          wget -O linuxdeploy https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-x86_64.AppImage
+          chmod +x linuxdeploy
+          sudo mv linuxdeploy /usr/local/bin/
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller PyQt6 PyQt6-WebEngine markdown setuptools_scm
+
+      - name: Download KaTeX resources
+        run: python markdown_editor_pkg/download_katex.py
+
+      - name: Download Prism.js resources
+        run: python markdown_editor_pkg/download_prism.py
+
+      - name: Build with PyInstaller (onedir)
+        run: |
+          pyinstaller --clean --noconfirm markdown-editor.spec
+
+      - name: Prepare AppImage structure
+        run: |
+          APP_NAME="markdown-editor"
+          APP_VERSION=$(python3 -c "
+try:
+    from importlib.metadata import version
+    print(version('markdown-editor'))
+except Exception:
+    try:
+        from setuptools_scm import get_version
+        print(get_version())
+    except Exception:
+        print('dev')
+" 2>/dev/null || echo "dev")
+
+          rm -rf appimage-build
+          mkdir -p "appimage-build/${APP_NAME}.appdir/usr/bin"
+          mkdir -p "appimage-build/${APP_NAME}.appdir/usr/lib"
+          mkdir -p "appimage-build/${APP_NAME}.appdir/usr/share/applications"
+          mkdir -p "appimage-build/${APP_NAME}.appdir/usr/share/icons/hicolor/256x256/apps"
+          mkdir -p "appimage-build/${APP_NAME}.appdir/usr/share/metainfo"
+
+          # Copy application files
+          cp -r dist/${APP_NAME}/* "appimage-build/${APP_NAME}.appdir/usr/bin/"
+
+          # Desktop file
+          cp markdown-editor.desktop "appimage-build/${APP_NAME}.appdir/usr/share/applications/${APP_NAME}.desktop"
+          sed -i 's|Exec=/opt/markdown-editor/markdown-editor|Exec=markdown-editor|' \
+            "appimage-build/${APP_NAME}.appdir/usr/share/applications/${APP_NAME}.desktop"
+
+          # Icon
+          if [ -f "icon.png" ]; then
+            cp icon.png "appimage-build/${APP_NAME}.appdir/usr/share/icons/hicolor/256x256/apps/${APP_NAME}.png"
+          fi
+
+          # Metainfo (AppStream)
+          cat > "appimage-build/${APP_NAME}.appdir/usr/share/metainfo/${APP_NAME}.metainfo.xml" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>${APP_NAME}</id>
+  <name>Markdown Editor</name>
+  <summary>Простой редактор Markdown с предпросмотром и поддержкой LaTeX</summary>
+  <description>
+    <p>Markdown-редактор с live-предпросмотром, поддержкой LaTeX-формул (KaTeX),
+    синтаксическим выделением (Prism.js) и экспортом в PDF/HTML.</p>
+  </description>
+  <url type="homepage">https://github.com/afaist/markdown_editor</url>
+  <provides>
+    <binary>${APP_NAME}</binary>
+  </provides>
+  <launchable type="desktop-id">${APP_NAME}.desktop</launchable>
+</component>
+EOF
+
+          echo "APP_VERSION=${APP_VERSION}" >> $GITHUB_ENV
+
+      - name: Build AppImage
+        run: |
+          export APPIMAGE_EXTRACT_AND_RUN=1
+
+          linuxdeploy \
+            --appdir "appimage-build/markdown-editor.appdir" \
+            --desktop-file "appimage-build/markdown-editor.appdir/usr/share/applications/markdown-editor.desktop" \
+            --icon-file "appimage-build/markdown-editor.appdir/usr/share/icons/hicolor/256x256/apps/markdown-editor.png" \
+            --executable "appimage-build/markdown-editor.appdir/usr/bin/markdown-editor" \
+            --plugin qt \
+            --output appimage
+
+          # Rename to consistent name
+          if [ -f "markdown-editor-${APP_VERSION}-x86_64.AppImage" ]; then
+            mv "markdown-editor-${APP_VERSION}-x86_64.AppImage" "dist/markdown-editor-x86_64.appimage"
+          elif [ -f "markdown-editor-x86_64.AppImage" ]; then
+            mv "markdown-editor-x86_64.AppImage" "dist/markdown-editor-x86_64.appimage"
+          fi
+
+          rm -rf appimage-build
+
+      - name: Upload AppImage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: markdown-editor-appimage
+          path: dist/markdown-editor-x86_64.appimage
+          retention-days: 14
+          if-no-files-found: error
+
   # ─── Создание релиза ───────────────────────────────────────────────
   create-release:
-    needs: [build-linux, build-windows, build-deb]
+    needs: [build-linux, build-windows, build-deb, build-appimage]
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     permissions:
@@ -296,6 +441,12 @@ jobs:
         with:
           name: markdown-editor-deb
           path: release/deb/
+
+      - name: Download AppImage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: markdown-editor-appimage
+          path: release/appimage/
 
       - name: Create tarball for Linux
         run: |
@@ -323,6 +474,7 @@ jobs:
             release/markdown-editor-linux-x86_64.tar.gz
             release/markdown-editor-windows-x86_64.zip
             release/deb/*.deb
+            release/appimage/*.appimage
           draft: false
           prerelease: ${{ !startsWith(github.ref, 'refs/tags/') }}
           generate_release_notes: true
