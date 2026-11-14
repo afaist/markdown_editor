@@ -386,17 +386,18 @@ jobs:
           # Desktop file
           desktop = appdir / "usr" / "share" / "applications" / f"{app_name}.desktop"
           desktop.write_text("[Desktop Entry]\n")
-          desktop.write_text(f"Name={app_name.replace('-', ' ').title()}\n", mode="a")
-          desktop.write_text("Name[ru]=Редактор Markdown\n", mode="a")
-          desktop.write_text("Comment=A simple Markdown editor with preview and LaTeX support\n", mode="a")
-          desktop.write_text("Comment[ru]=Простой редактор Markdown с предпросмотром и поддержкой LaTeX\n", mode="a")
-          desktop.write_text(f"Exec={app_name}\n", mode="a")
-          desktop.write_text(f"Icon={app_name}\n", mode="a")
-          desktop.write_text("Terminal=false\n", mode="a")
-          desktop.write_text("Type=Application\n", mode="a")
-          desktop.write_text("Categories=Utility;TextEditor;\n", mode="a")
-          desktop.write_text("MimeType=text/markdown;text/x-markdown;\n", mode="a")
-          desktop.write_text("Keywords=markdown;latex;editor;\n", mode="a")
+          with open(desktop, "a") as f:
+              f.write(f"Name={app_name.replace('-', ' ').title()}\n")
+              f.write("Name[ru]=Редактор Markdown\n")
+              f.write("Comment=A simple Markdown editor with preview and LaTeX support\n")
+              f.write("Comment[ru]=Простой редактор Markdown с предпросмотром и поддержкой LaTeX\n")
+              f.write(f"Exec={app_name}\n")
+              f.write(f"Icon={app_name}\n")
+              f.write("Terminal=false\n")
+              f.write("Type=Application\n")
+              f.write("Categories=Utility;TextEditor;\n")
+              f.write("MimeType=text/markdown;text/x-markdown;\n")
+              f.write("Keywords=markdown;latex;editor;\n")
 
           # Icon
           icon_src = Path("icon.png")
