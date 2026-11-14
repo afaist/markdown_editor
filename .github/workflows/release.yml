@@ -15,22 +15,22 @@ on:
           - all
           - linux
           - windows
-          - deb
-          - appimage
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
-  # ─── Linux сборка ──────────────────────────────────────────────────
+  # ─── Linux сборка (tar.gz + deb + AppImage) ────────────────────────
   build-linux:
-    if: github.event.inputs.mode == 'all' || github.event.inputs.mode == 'linux' || github.event.inputs.mode == 'deb' || startsWith(github.ref, 'refs/tags/')
+    if: github.event.inputs.mode == 'all' || github.event.inputs.mode == 'linux' || startsWith(github.ref, 'refs/tags/')
+    name: Build Linux (x86_64)
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
+    timeout-minutes: 45
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -42,124 +42,27 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            gcc \
             libgl1-mesa-dev \
-            libxkbcommon-x11-0 \
-            libxcb-cursor0 \
+            libgl1-mesa-glx \
             libegl1-mesa-dev \
-            libwebp-dev \
+            libegl1 \
+            libxkbcommon-x11-0 \
+            libxkbcommon0 \
+            libxcb-cursor0 \
+            libxcb-xinerama0 \
+            libdbus-1-3 \
             libfontconfig1 \
             libfreetype6 \
-            libx11-xcb1 \
-            libxcb-icccm4 \
-            libxcb-image0 \
-            libxcb-keysyms1 \
-            libxcb-randr0 \
-            libxcb-render-util0 \
-            libxcb-shape0 \
-            libxcb-xinerama0 \
-            libxcb-xfixes0
+            libfuse2 \
+            dpkg-dev \
+            patchelf
 
-      - name: Install Python dependencies
+      - name: Install linuxdeploy
         run: |
-          python -m pip install --upgrade pip
-          pip install pyinstaller PyQt6 PyQt6-WebEngine markdown
-
-      - name: Download KaTeX resources
-        run: python markdown_editor_pkg/download_katex.py
-
-      - name: Download Prism.js resources
-        run: python markdown_editor_pkg/download_prism.py
-
-      - name: Build with PyInstaller (onedir)
-        run: |
-          pyinstaller --clean --noconfirm markdown-editor.spec
-          echo "BUILD_MODE=onedir" >> $GITHUB_ENV
-
-      - name: Upload Linux artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: markdown-editor-linux
-          path: dist/markdown-editor/
-          retention-days: 14
-          if-no-files-found: error
-
-  # ─── Windows сборка ────────────────────────────────────────────────
-  build-windows:
-    if: github.event.inputs.mode == 'all' || github.event.inputs.mode == 'windows' || startsWith(github.ref, 'refs/tags/')
-    runs-on: windows-2022
-    strategy:
-      fail-fast: false
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'pip'
-
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pyinstaller PyQt6 PyQt6-WebEngine markdown
-
-      - name: Download KaTeX resources
-        run: python markdown_editor_pkg\download_katex.py
-
-      - name: Download Prism.js resources
-        run: python markdown_editor_pkg\download_prism.py
-
-      - name: Build with PyInstaller (onedir)
-        run: |
-          pyinstaller --clean --noconfirm markdown-editor.spec
-
-      - name: Upload Windows artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: markdown-editor-windows
-          path: |
-            dist/markdown-editor/
-            dist/markdown-editor.exe
-          retention-days: 14
-          if-no-files-found: warn
-
-  # ─── Сборка .deb пакета ────────────────────────────────────────────
-  build-deb:
-    if: github.event.inputs.mode == 'all' || github.event.inputs.mode == 'deb' || startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'pip'
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libgl1-mesa-dev \
-            libxkbcommon-x11-0 \
-            libxcb-cursor0 \
-            libegl1-mesa-dev \
-            libwebp-dev \
-            libfontconfig1 \
-            libfreetype6 \
-            libx11-xcb1 \
-            libxcb-icccm4 \
-            libxcb-image0 \
-            libxcb-keysyms1 \
-            libxcb-randr0 \
-            libxcb-render-util0 \
-            libxcb-shape0 \
-            libxcb-xinerama0 \
-            libxcb-xfixes0
+          wget -O linuxdeploy https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-x86_64.AppImage
+          chmod +x linuxdeploy
+          sudo mv linuxdeploy /usr/local/bin/
 
       - name: Install Python dependencies
         run: |
@@ -176,122 +79,76 @@ jobs:
         run: |
           pyinstaller --clean --noconfirm markdown-editor.spec
 
-      - name: Get version
-        id: version
+      - name: Package Linux binary (tar.gz)
         run: |
-          python3 << 'PYEOF'
+          cd dist
+          tar -czf markdown-editor-linux-x86_64.tar.gz markdown-editor/
+
+      - name: Get version helper
+        id: getver
+        run: |
+          cat > /tmp/get_version.py << 'SCRIPTEND'
+          import sys
           try:
               from setuptools_scm import get_version
-              print(f"version={get_version()}")
+              print(get_version())
           except Exception:
-              print("version=0.0.0")
-          PYEOF
+              print("0.0.0")
+          SCRIPTEND
 
-      - name: Create .deb package
+      - name: Package Linux binary (DEB)
         run: |
-          export ARCH=$(dpkg --print-architecture)
-          export VERSION="${{ steps.version.outputs.version }}"
+          chmod +x scripts/package_deb.sh
+          mkdir -p dist/deb
+          VERSION="${GITHUB_REF_NAME}"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION=$(python3 /tmp/get_version.py)
+          fi
+          VERSION="${VERSION#v}"
+          ./scripts/package_deb.sh dist/markdown-editor dist/deb "$VERSION"
 
-          # Create deb structure
-          rm -rf deb-build
-          mkdir -p deb-build/markdown-editor/DEBIAN
-          mkdir -p deb-build/markdown-editor/opt/markdown-editor
-          mkdir -p deb-build/markdown-editor/usr/share/applications
-          mkdir -p deb-build/markdown-editor/usr/share/pixmaps
+      - name: Package Linux binary (AppImage)
+        run: |
+          chmod +x scripts/package_appimage.sh
+          mkdir -p dist/appimage
+          VERSION="${GITHUB_REF_NAME}"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION=$(python3 /tmp/get_version.py)
+          fi
+          VERSION="${VERSION#v}"
+          ./scripts/package_appimage.sh dist/markdown-editor dist/appimage "$VERSION"
 
-          # Copy application files
-          cp -r dist/markdown-editor/* deb-build/markdown-editor/opt/markdown-editor/
-
-          # Create control, desktop, and icon files using Python
-          python3 << 'PYEOF'
-          import os
-          from setuptools_scm import get_version
-          version = get_version()
-          arch = os.environ.get("ARCH", "amd64")
-
-          # control file
-          with open("deb-build/markdown-editor/DEBIAN/control", "w") as f:
-              f.write("\n".join([
-                  "Package: markdown-editor",
-                  f"Version: {version}",
-                  "Section: utils",
-                  "Priority: optional",
-                  f"Architecture: {arch}",
-                  "Depends: libgl1, libxkbcommon-x11-0, libegl1, libxcb-cursor0, libfontconfig1, libfreetype6",
-                  "Maintainer: afaist <afaist@github.com>",
-                  "Description: Простой редактор Markdown с предпросмотром и поддержкой LaTeX",
-                  "  Markdown-редактор с live-предпросмотром, поддержкой LaTeX-формул (KaTeX),",
-                  "  синтаксическим выделением (Prism.js) и экспортом в PDF/HTML.",
-              ]) + "\n")
-
-          # .desktop file
-          with open("deb-build/markdown-editor/usr/share/applications/markdown-editor.desktop", "w") as f:
-              f.write("\n".join([
-                  "[Desktop Entry]",
-                  "Name=Markdown Editor",
-                  "Comment=Markdown editor with preview and LaTeX support",
-                  "Exec=/opt/markdown-editor/markdown-editor",
-                  "Icon=markdown-editor",
-                  "Terminal=false",
-                  "Type=Application",
-                  "Categories=Utility;TextEditor;",
-                  "MimeType=text/markdown;text/x-markdown;",
-              ]) + "\n")
-
-          # XPM icon
-          with open("deb-build/markdown-editor/usr/share/pixmaps/markdown-editor.xpm", "w") as f:
-              f.write("\n".join([
-                  '/* XPM */',
-                  'static char * markdown_editor_xpm[] = {',
-                  '"16 16 3 1"',
-                  '"   c None"',
-                  '". c #000000"',
-                  '"+ c #CCCCCC"',
-                  '"                "',
-                  '"   ++++++++    "',
-                  '"  +...........+"',
-                  '"  +.+++++++.  +"',
-                  '"  +.+....+.+  +"',
-                  '"  +.+....+.+  +"',
-                  '"  +.+....+.+  +"',
-                  '"  +.+....+.+  +"',
-                  '"  +.+++++++.  +"',
-                  '"  +...........+"',
-                  '"  +++++++++++ +"',
-                  '"  +++++++++++ +"',
-                  '"  +++++++++++ +"',
-                  '"  +++++++++++ +"',
-                  '"   ++++++++++ "',
-                  '"                "',
-                  '};',
-              ]) + "\n")
-          PYEOF
-
-          # Build deb
-          dpkg-deb --build \
-            --root-owner-group \
-            deb-build/markdown-editor \
-            "dist/markdown-editor_${VERSION}_${ARCH}.deb"
-
-          echo "DEB_FILE=markdown-editor_${VERSION}_${ARCH}.deb" >> $GITHUB_ENV
-
-      - name: Upload .deb artifact
+      - name: Upload Linux artifact (tar.gz)
         uses: actions/upload-artifact@v4
         with:
-          name: markdown-editor-deb
-          path: dist/markdown-editor_*.deb
-          retention-days: 14
-          if-no-files-found: error
+          name: markdown-editor-linux-x86_64
+          path: dist/markdown-editor-linux-x86_64.tar.gz
+          retention-days: 30
 
-  # ─── Сборка AppImage ───────────────────────────────────────────────
-  build-appimage:
-    if: github.event.inputs.mode == 'all' || github.event.inputs.mode == 'appimage' || startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
+      - name: Upload Linux artifact (DEB)
+        uses: actions/upload-artifact@v4
+        with:
+          name: markdown-editor-linux-x86_64-deb
+          path: dist/deb/*.deb
+          retention-days: 30
+
+      - name: Upload Linux artifact (AppImage)
+        uses: actions/upload-artifact@v4
+        with:
+          name: markdown-editor-linux-x86_64-appimage
+          path: dist/appimage/*.appimage
+          retention-days: 30
+
+  # ─── Windows сборка ────────────────────────────────────────────────
+  build-windows:
+    if: github.event.inputs.mode == 'all' || github.event.inputs.mode == 'windows' || startsWith(github.ref, 'refs/tags/')
+    name: Build Windows (x86_64)
+    runs-on: windows-2022
+    timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -299,232 +156,68 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libgl1-mesa-dev \
-            libxkbcommon-x11-0 \
-            libxcb-cursor0 \
-            libegl1-mesa-dev \
-            libwebp-dev \
-            libfontconfig1 \
-            libfreetype6 \
-            libx11-xcb1 \
-            libxcb-icccm4 \
-            libxcb-image0 \
-            libxcb-keysyms1 \
-            libxcb-randr0 \
-            libxcb-render-util0 \
-            libxcb-shape0 \
-            libxcb-xinerama0 \
-            libxcb-xfixes0 \
-            libfuse2
-
-      - name: Install linuxdeploy + Qt plugin
-        run: |
-          wget -O linuxdeploy https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-x86_64.AppImage
-          chmod +x linuxdeploy
-          sudo mv linuxdeploy /usr/local/bin/
-
-          wget -O linuxdeploy-plugin-qt https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/latest/download/linuxdeploy-plugin-qt-x86_64.AppImage
-          chmod +x linuxdeploy-plugin-qt
-          sudo mv linuxdeploy-plugin-qt /usr/local/bin/
-
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller PyQt6 PyQt6-WebEngine markdown setuptools_scm
 
       - name: Download KaTeX resources
-        run: python markdown_editor_pkg/download_katex.py
+        run: python markdown_editor_pkg\download_katex.py
 
       - name: Download Prism.js resources
-        run: python markdown_editor_pkg/download_prism.py
+        run: python markdown_editor_pkg\download_prism.py
 
-      - name: Build with PyInstaller (onedir)
+      - name: Build with PyInstaller
         run: |
           pyinstaller --clean --noconfirm markdown-editor.spec
 
-      - name: Prepare AppImage structure
+      - name: Package Windows binary
         run: |
-          APP_NAME="markdown-editor"
+          Compress-Archive -Path dist\markdown-editor -DestinationPath dist\markdown-editor-win-x86_64.zip
 
-          # Write helper script
-          cat > /tmp/_prepare_appimage.py << 'SCRIPTEOF'
-          import os
-          from pathlib import Path
-          import shutil
-
-          app_name = os.environ.get("APP_NAME", "markdown-editor")
-
-          # Get version
-          try:
-              from importlib.metadata import version
-              app_version = version("markdown-editor")
-          except Exception:
-              try:
-                  from setuptools_scm import get_version
-                  app_version = get_version()
-              except Exception:
-                  app_version = "dev"
-
-          os.environ["APP_VERSION"] = app_version
-
-          appdir = Path("appimage-build") / f"{app_name}.appdir"
-          appdir.mkdir(parents=True, exist_ok=True)
-          (appdir / "usr" / "bin").mkdir(parents=True, exist_ok=True)
-          (appdir / "usr" / "lib").mkdir(parents=True, exist_ok=True)
-          (appdir / "usr" / "share" / "applications").mkdir(parents=True, exist_ok=True)
-          (appdir / "usr" / "share" / "icons" / "hicolor" / "256x256" / "apps").mkdir(parents=True, exist_ok=True)
-          (appdir / "usr" / "share" / "metainfo").mkdir(parents=True, exist_ok=True)
-
-          # Copy application files
-          src = Path("dist") / app_name
-          for item in src.iterdir():
-              if item.is_dir():
-                  shutil.copytree(item, appdir / "usr" / "bin" / item.name, dirs_exist_ok=True)
-              else:
-                  shutil.copy2(item, appdir / "usr" / "bin")
-
-          # Desktop file
-          desktop = appdir / "usr" / "share" / "applications" / f"{app_name}.desktop"
-          desktop.write_text("[Desktop Entry]\n")
-          with open(desktop, "a") as f:
-              f.write(f"Name={app_name.replace('-', ' ').title()}\n")
-              f.write("Name[ru]=Редактор Markdown\n")
-              f.write("Comment=A simple Markdown editor with preview and LaTeX support\n")
-              f.write("Comment[ru]=Простой редактор Markdown с предпросмотром и поддержкой LaTeX\n")
-              f.write(f"Exec={app_name}\n")
-              f.write(f"Icon={app_name}\n")
-              f.write("Terminal=false\n")
-              f.write("Type=Application\n")
-              f.write("Categories=Utility;TextEditor;\n")
-              f.write("MimeType=text/markdown;text/x-markdown;\n")
-              f.write("Keywords=markdown;latex;editor;\n")
-
-          # Icon
-          icon_src = Path("icon.png")
-          if icon_src.exists():
-              shutil.copy2(icon_src, appdir / "usr" / "share" / "icons" / "hicolor" / "256x256" / "apps" / f"{app_name}.png")
-
-          # Metainfo (AppStream) - write line by line to avoid YAML issues
-          metainfo = appdir / "usr" / "share" / "metainfo" / f"{app_name}.metainfo.xml"
-          lines = [
-              '<?xml version="1.0" encoding="UTF-8"?>',
-              '<component type="desktop-application">',
-              f'  <id>{app_name}</id>',
-              f'  <name>{app_name.replace("-", " ").title()}</name>',
-              '  <summary>Простой редактор Markdown с предпросмотром и поддержкой LaTeX</summary>',
-              '  <description>',
-              '    <p>Markdown-редактор с live-предпросмотром, поддержкой LaTeX-формул (KaTeX),',
-              '    синтаксическим выделением (Prism.js) и экспортом в PDF/HTML.</p>',
-              '  </description>',
-              '  <url type="homepage">https://github.com/afaist/markdown_editor</url>',
-              '  <provides>',
-              f'    <binary>{app_name}</binary>',
-              '  </provides>',
-              f'  <launchable type="desktop-id">{app_name}.desktop</launchable>',
-              '</component>',
-          ]
-          metainfo.write_text("\n".join(lines) + "\n")
-          SCRIPTEOF
-
-          python3 /tmp/_prepare_appimage.py
-
-      - name: Build AppImage
-        run: |
-          export APPIMAGE_EXTRACT_AND_RUN=1
-
-          linuxdeploy \
-            --appdir "appimage-build/markdown-editor.appdir" \
-            --desktop-file "appimage-build/markdown-editor.appdir/usr/share/applications/markdown-editor.desktop" \
-            --icon-file "appimage-build/markdown-editor.appdir/usr/share/icons/hicolor/256x256/apps/markdown-editor.png" \
-            --executable "appimage-build/markdown-editor.appdir/usr/bin/markdown-editor" \
-            --plugin qt \
-            --output appimage
-
-          # Rename to consistent name
-          if [ -f "markdown-editor-${APP_VERSION}-x86_64.AppImage" ]; then
-            mv "markdown-editor-${APP_VERSION}-x86_64.AppImage" "dist/markdown-editor-x86_64.appimage"
-          elif [ -f "markdown-editor-x86_64.AppImage" ]; then
-            mv "markdown-editor-x86_64.AppImage" "dist/markdown-editor-x86_64.appimage"
-          fi
-
-          rm -rf appimage-build
-
-      - name: Upload AppImage artifact
+      - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
-          name: markdown-editor-appimage
-          path: dist/markdown-editor-x86_64.appimage
-          retention-days: 14
-          if-no-files-found: error
+          name: markdown-editor-win-x86_64
+          path: dist/markdown-editor-win-x86_64.zip
+          retention-days: 30
 
   # ─── Создание релиза ───────────────────────────────────────────────
-  create-release:
-    needs: [build-linux, build-windows, build-deb, build-appimage]
-    if: >-
-      (startsWith(github.ref, 'refs/tags/') && always()) ||
-      (github.event_name == 'workflow_dispatch' && always())
+  release:
+    name: Create Release
+    needs: [build-linux, build-windows]
     runs-on: ubuntu-24.04
-    permissions:
-      contents: write
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
 
     steps:
-      - name: Download Linux artifact
+      - name: Download Linux artifact (tar.gz)
         uses: actions/download-artifact@v4
         with:
-          name: markdown-editor-linux
-          path: release/linux/
+          name: markdown-editor-linux-x86_64
+          path: release/
+
+      - name: Download Linux artifact (DEB)
+        uses: actions/download-artifact@v4
+        with:
+          name: markdown-editor-linux-x86_64-deb
+          path: release/
+
+      - name: Download Linux artifact (AppImage)
+        uses: actions/download-artifact@v4
+        with:
+          name: markdown-editor-linux-x86_64-appimage
+          path: release/
 
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
         with:
-          name: markdown-editor-windows
-          path: release/windows/
-
-      - name: Download .deb artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: markdown-editor-deb
-          path: release/deb/
-
-      - name: Download AppImage artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: markdown-editor-appimage
-          path: release/appimage/
-
-      - name: Create tarball for Linux
-        run: |
-          cd release/linux
-          tar -czf ../markdown-editor-linux-x86_64.tar.gz markdown-editor/
-
-      - name: Create zip for Windows
-        run: |
-          cd release/windows
-          zip -r ../markdown-editor-windows-x86_64.zip markdown-editor/
-
-      - name: Get version from tag
-        id: version
-        run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          else
-            echo "VERSION=dev-$(date +%Y%m%d)" >> $GITHUB_OUTPUT
-          fi
+          name: markdown-editor-win-x86_64
+          path: release/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            release/markdown-editor-linux-x86_64.tar.gz
-            release/markdown-editor-windows-x86_64.zip
-            release/deb/*.deb
-            release/appimage/*.appimage
+          files: release/*
           draft: false
-          prerelease: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          prerelease: false
           generate_release_notes: true
-          name: "Markdown Editor ${{ steps.version.outputs.VERSION }}"
-          tag_name: ${{ steps.version.outputs.VERSION }}

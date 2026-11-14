@@ -7,7 +7,7 @@
 #
 # Требования:
 #   pip install pyinstaller PyQt6 PyQt6-WebEngine markdown
-#   sudo apt-get install -y linuxdeploy linuxdeploy-plugin-qt
+#   sudo apt-get install -y linuxdeploy patchelf
 #
 # Ссылки:
 #   https://appimage.org/
@@ -49,10 +49,12 @@ check_dependencies() {
         log_error "  wget -O linuxdeploy https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-x86_64.AppImage"
         log_error "  chmod +x linuxdeploy"
         log_error "  sudo mv linuxdeploy /usr/local/bin/"
-        log_error ""
-        log_error "  wget -O linuxdeploy-plugin-qt https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/latest/download/linuxdeploy-plugin-qt-x86_64.AppImage"
-        log_error "  chmod +x linuxdeploy-plugin-qt"
-        log_error "  sudo mv linuxdeploy-plugin-qt /usr/local/bin/"
+        exit 1
+    fi
+
+    if ! command -v patchelf &>/dev/null; then
+        log_error "patchelf не найден. Установите:"
+        log_error "  sudo apt-get install -y patchelf"
         exit 1
     fi
 
@@ -76,17 +78,13 @@ build_appimage() {
 
     local app_name="markdown-editor"
     local app_version
-    app_version=$(python3 -c "
+    app_version=$(python3 -c '
 try:
-    from importlib.metadata import version
-    print(version('markdown-editor'))
+    from setuptools_scm import get_version
+    print(get_version())
 except Exception:
-    try:
-        from setuptools_scm import get_version
-        print(get_version())
-    except Exception:
-        print('0.0.0')
-" 2>/dev/null || echo "dev")
+    print("0.0.0")
+')
 
     # Шаг 1: Сборка PyInstaller (onedir)
     log_info "Шаг 1/3: Сборка PyInstaller (onedir)..."
@@ -105,6 +103,69 @@ except Exception:
 
     # Копируем собранные файлы
     cp -r dist/${app_name}/* "$appimage_dir/${app_name}.appdir/usr/bin/"
+
+    # Копируем Qt6 библиотеки из pip-пакета
+    log_info "Копирование Qt6 библиотек..."
+    python3 -c '
+import os
+from pathlib import Path
+import shutil
+import PyQt6
+import PyQt6.QtWebEngineCore
+
+appdir = Path("appimage-build") / "markdown-editor.appdir"
+pyqt6_base = Path(PyQt6.__file__).parent
+qt_lib_dir = appdir / "usr" / "lib" / "qt6"
+qt_lib_dir.mkdir(parents=True, exist_ok=True)
+
+# Qt lib
+qt6_lib = pyqt6_base / "Qt" / "lib"
+if qt6_lib.exists():
+    for item in qt6_lib.iterdir():
+        if item.is_dir():
+            shutil.copytree(item, qt_lib_dir / item.name, dirs_exist_ok=True)
+        else:
+            shutil.copy2(item, qt_lib_dir)
+
+# Qt plugins
+qt6_plugins = pyqt6_base / "Qt" / "plugins"
+if qt6_plugins.exists():
+    for plugin_subdir in qt6_plugins.iterdir():
+        if plugin_subdir.is_dir():
+            target = qt_lib_dir / "plugins" / plugin_subdir.name
+            target.mkdir(parents=True, exist_ok=True)
+            for pfile in plugin_subdir.iterdir():
+                if pfile.is_file():
+                    shutil.copy2(pfile, target)
+
+# Qt qml
+qt6_qml = pyqt6_base / "Qt" / "qml"
+if qt6_qml.exists():
+    for item in qt6_qml.iterdir():
+        if item.is_dir():
+            shutil.copytree(item, qt_lib_dir / "qml" / item.name, dirs_exist_ok=True)
+        else:
+            shutil.copy2(item, qt_lib_dir / "qml")
+
+# Qt translations
+qt6_trans = pyqt6_base / "Qt" / "translations"
+if qt6_trans.exists():
+    shutil.copytree(qt6_trans, qt_lib_dir / "translations", dirs_exist_ok=True)
+
+# Qt bin (icudtl.dat, etc.)
+qt6_bin = pyqt6_base / "Qt" / "bin"
+if qt6_bin.exists():
+    for item in qt6_bin.iterdir():
+        if item.is_file():
+            shutil.copy2(item, qt_lib_dir / item.name)
+
+# PyQt6 _internal
+pyqt6_internal = pyqt6_base / "_internal"
+if pyqt6_internal.exists():
+    for item in pyqt6_internal.iterdir():
+        if item.is_file():
+            shutil.copy2(item, appdir / "usr" / "bin")
+'
 
     # Создаём .desktop файл
     cp markdown-editor.desktop "$appimage_dir/${app_name}.appdir/usr/share/applications/${app_name}.desktop"
@@ -140,6 +201,9 @@ EOF
     # Шаг 3: Сборка AppImage через linuxdeploy
     log_info "Шаг 3/3: Сборка AppImage..."
 
+    # Устанавливаем RPATH
+    patchelf --set-rpath '$ORIGIN/../lib/qt6:$ORIGIN' "$appimage_dir/${app_name}.appdir/usr/bin/${app_name}"
+
     export APPIMAGE_EXTRACT_AND_RUN=1
 
     linuxdeploy \
@@ -147,7 +211,6 @@ EOF
         --desktop-file "$appimage_dir/${app_name}.appdir/usr/share/applications/${app_name}.desktop" \
         --icon-file "$appimage_dir/${app_name}.appdir/usr/share/icons/hicolor/256x256/apps/${app_name}.png" \
         --executable "$appimage_dir/${app_name}.appdir/usr/bin/${app_name}" \
-        --plugin qt \
         --output appimage
 
     # Переименовываем в понятное имя
