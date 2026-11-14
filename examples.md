@@ -95,6 +95,7 @@ def hello(name: str = "World") -> str:
     """Приветственная функция."""
     return f"Hello, {name}!"
 
+
 class Calculator:
     def __init__(self):
         self.result = 0
@@ -105,6 +106,7 @@ class Calculator:
 
     def clear(self) -> None:
         self.result = 0
+
 
 calc = Calculator()
 calc.add(10)
@@ -309,19 +311,21 @@ $$x_{1,2} = \frac{-b \pm \sqrt{D}}{2a}$$
 ```python
 import math
 
+
 def solve_quadratic(a, b, c):
     """Решает квадратное уравнение ax^2 + bx + c = 0."""
-    D = b**2 - 4*a*c
-    
+    D = b**2 - 4 * a * c
+
     if D > 0:
-        x1 = (-b + math.sqrt(D)) / (2*a)
-        x2 = (-b - math.sqrt(D)) / (2*a)
+        x1 = (-b + math.sqrt(D)) / (2 * a)
+        x2 = (-b - math.sqrt(D)) / (2 * a)
         return x1, x2
     elif D == 0:
-        x = -b / (2*a)
+        x = -b / (2 * a)
         return x
     else:
         return None  # Действительных корней нет
+
 
 # Пример
 roots = solve_quadratic(2, -5, 2)

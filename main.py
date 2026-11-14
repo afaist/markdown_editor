@@ -1,4 +1,3 @@
-
 """
 Markdown Editor - A simple Markdown editor with preview and LaTeX support.
 """

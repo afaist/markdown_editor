@@ -1,8 +1,6 @@
 """download_katex.py — Загрузка ресурсов KaTeX."""
 
-import io
 import os
-import sys
 import urllib.error
 import urllib.request
 
