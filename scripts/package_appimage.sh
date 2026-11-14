@@ -100,7 +100,21 @@ sed -i 's|Exec=/opt/markdown-editor/markdown-editor|Exec=markdown-editor|' \
 
 # Icon
 if [ -f "icon.png" ]; then
-    cp icon.png "$APPDIR/usr/share/icons/hicolor/256x256/apps/${APP_NAME}.png"
+    python3 -c '
+from PIL import Image
+import shutil
+src = Image.open("icon.png")
+# Resize to 256x256 square
+src.thumbnail((256, 256), Image.LANCZOS)
+# Ensure square by center-cropping if needed
+w, h = src.size
+if w != h:
+    x = (w - h) // 2 if w > h else 0
+    y = (h - w) // 2 if h > w else 0
+    src = src.crop((x, y, x + min(w,h), y + min(w,h)))
+    src = src.resize((256, 256), Image.LANCZOS)
+src.save("appimage-build/markdown-editor.appdir/usr/share/icons/hicolor/256x256/apps/markdown-editor.png")
+'
 fi
 
 # Metainfo
