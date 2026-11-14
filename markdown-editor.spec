@@ -47,6 +47,9 @@ if locales_dir.is_dir():
     for qm in locales_dir.glob("*.qm"):
         datas.append((str(qm), "locales"))
 
+# Include runtime hook for GIO (prevent system module conflicts)
+runtime_hooks = [str(Path("runtime_hook_gio.py"))]
+
 
 a = Analysis(
     ['main.py'],
@@ -56,7 +59,7 @@ a = Analysis(
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
-    runtime_hooks=[],
+    runtime_hooks=runtime_hooks,
     excludes=[],
     noarchive=False,
     optimize=0,
