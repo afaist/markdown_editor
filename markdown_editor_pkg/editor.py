@@ -59,6 +59,7 @@ class MarkdownEditorPyQt(QMainWindow):
         последнюю сессию.
         """
         super().__init__()
+        logger.info("Initializing MarkdownEditorPyQt")
         self.setWindowTitle(tr("Markdown Editor (PyQt6)"))
 
         # Виджеты (заполняются UIBuilder)
@@ -128,17 +129,29 @@ class MarkdownEditorPyQt(QMainWindow):
         self.close_handler = CloseHandler(self)
 
         # Инициализация
-        self.init_ui()
+        try:
+            self.init_ui()
+        except Exception:
+            logger.critical("Failed to initialize UI", exc_info=True)
+            raise
 
         # Подменяю ссылку на statusbar в file_ops
         self.file_io._statusbar = self._statusbar_ref
         self.file_export._statusbar = self._statusbar_ref
 
         # Загрузка настроек (темы, шрифт)
-        self._load_settings()
+        try:
+            self._load_settings()
+        except Exception:
+            logger.warning("Failed to load settings, using defaults", exc_info=True)
 
         # Загрузка последней сессии
-        self.session_handler.load_session()
+        try:
+            self.session_handler.load_session()
+        except Exception:
+            logger.warning("Failed to load session", exc_info=True)
+
+        logger.info("Editor initialization complete")
 
     # ─── Публичный API компонентов (обёртки) ───────────────────────────
 
@@ -206,7 +219,10 @@ class MarkdownEditorPyQt(QMainWindow):
     # Обработчики событий
     def on_text_change(self) -> None:
         """Обработка изменения текста (делегирование)."""
-        self.event_handler.on_text_change()
+        try:
+            self.event_handler.on_text_change()
+        except Exception:
+            logger.exception("Error on text change")
 
     def update_file_status(self) -> None:
         """Обновить статус файла (делегирование)."""
@@ -214,7 +230,10 @@ class MarkdownEditorPyQt(QMainWindow):
 
     def update_preview(self) -> None:
         """Обновить предпросмотр (делегирование)."""
-        self.event_handler.update_preview()
+        try:
+            self.event_handler.update_preview()
+        except Exception:
+            logger.exception("Error updating preview")
 
     def update_char_count(self) -> None:
         """Обновить счётчики (делегирование)."""
@@ -379,8 +398,14 @@ class MarkdownEditorPyQt(QMainWindow):
     # Закрытие
     def closeEvent(self, event_: QCloseEvent | None) -> None:  # type: ignore[reportIncompatibleMethodOverride]
         """Обработчик закрытия окна: проверка чистоты и сохранение сессии."""
+        logger.info("Closing editor, current_file=%s", self._file_state.current_file)
         self.scroll_sync.stop_timers()
-        self.close_handler.on_close(event_)
+        try:
+            self.close_handler.on_close(event_)
+        except Exception:
+            logger.critical("Error during close", exc_info=True)
+            if event_ is not None:
+                event_.accept()
 
     # ─── Обратная совместимость (для старых тестов) ─────────────────────
 

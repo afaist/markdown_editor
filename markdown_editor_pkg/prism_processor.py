@@ -63,7 +63,6 @@ class PrismJSProcessor:
         """Встроить Prism.js CSS и JS в HTML-документ."""
         prism_css = self.get_prism_css_path(theme_name)
         prism_css_path = os.path.join(base_dir, prism_css) if base_dir else prism_css
-        prism_js_path = os.path.join(base_dir, self.PRISM_JS) if base_dir else self.PRISM_JS
 
         # Собираем пути к компонентам
         components_paths = []

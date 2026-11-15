@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import Qt
@@ -17,6 +19,11 @@ from PyQt6.QtWidgets import (
 
 from markdown_editor_pkg import __version__
 from markdown_editor_pkg.i18n import tr
+
+logger = logging.getLogger(__name__)
+
+# Log directory for user reference
+LOG_DIR = Path.home() / ".local" / "share" / "markdown_editor"
 
 if TYPE_CHECKING:
     from markdown_editor_pkg.editor import MarkdownEditorPyQt
@@ -67,6 +74,23 @@ class HelpHandler:
         credits.setTextFormat(Qt.TextFormat.RichText)
         credits.setOpenExternalLinks(True)
         layout.addWidget(credits)
+
+        # Log file path for bug reports
+        try:
+            log_files = sorted(LOG_DIR.glob("markdown_editor_*.log"), reverse=True)
+            if log_files:
+                log_label = QLabel(
+                    tr('Log file: <a href="{}">{}</a>').format(
+                        log_files[0].as_uri(), str(log_files[0])
+                    )
+                )
+                log_label.setWordWrap(True)
+                log_label.setTextFormat(Qt.TextFormat.RichText)
+                log_label.setOpenExternalLinks(True)
+                log_label.setStyleSheet("color: #666; font-size: 10px;")
+                layout.addWidget(log_label)
+        except Exception:
+            logger.debug("Could not determine log file path")
 
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
         buttons.accepted.connect(dialog.accept)

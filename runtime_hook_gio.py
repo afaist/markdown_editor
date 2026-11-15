@@ -1,4 +1,5 @@
 """Runtime hook to prevent GIO from loading system modules that conflict with bundled GLib."""
+
 import os
 
 # Prevent GIO from loading system GIO modules (gvfs, etc.) which may have
