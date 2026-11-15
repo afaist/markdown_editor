@@ -28,12 +28,6 @@ pyinstaller --version >nul 2>&1 || (
     pip install pyinstaller
 )
 
-REM Проверяем ресурсы
-if not exist "markdown_editor_pkg\katex" (
-    echo [WARN] Папка katex не найдена. Скачиваю ресурсы...
-    python markdown_editor_pkg\download_katex.py
-)
-
 if not exist "markdown_editor_pkg\prism" (
     echo [WARN] Папка prism не найдена. Скачиваю ресурсы...
     python markdown_editor_pkg\download_prism.py

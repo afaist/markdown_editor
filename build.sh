@@ -41,12 +41,6 @@ check_dependencies() {
         pip3 install --user pyinstaller
     fi
 
-    # Проверяем, что ресурсы katex и prism существуют
-    if [ ! -d "markdown_editor_pkg/katex" ]; then
-        log_warn "Папка katex не найдена. Скачиваю ресурсы..."
-        python3 markdown_editor_pkg/download_katex.py
-    fi
-
     if [ ! -d "markdown_editor_pkg/prism" ]; then
         log_warn "Папка prism не найдена. Скачиваю ресурсы..."
         python3 markdown_editor_pkg/download_prism.py

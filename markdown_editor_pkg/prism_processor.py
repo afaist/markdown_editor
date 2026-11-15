@@ -5,6 +5,8 @@ from __future__ import annotations
 import os
 from typing import ClassVar
 
+from markdown_editor_pkg.resource_path import get_base_dir
+
 
 class PrismJSProcessor:
     """Управление ресурсами и интеграцией Prism.js для подсветки кода.
@@ -47,6 +49,16 @@ class PrismJSProcessor:
         """Получить список путей к компонентам Prism.js."""
         return [f"prism/components/prism-{lang}.min.js" for lang in self.PRISM_LANGUAGES]
 
+    def _read_file(self, rel_path: str) -> str:
+        """Прочитать файл по относительному пути от base_dir."""
+        base = get_base_dir()
+        full = os.path.join(base, rel_path) if base else rel_path
+        try:
+            with open(full, encoding="utf-8") as f:
+                return f.read()
+        except FileNotFoundError:
+            return ""
+
     def inject_prism(self, html: str, theme_name: str, base_dir: str) -> str:
         """Встроить Prism.js CSS и JS в HTML-документ."""
         prism_css = self.get_prism_css_path(theme_name)
@@ -59,9 +71,10 @@ class PrismJSProcessor:
             comp_path = os.path.join(base_dir, comp) if base_dir else comp
             components_paths.append(comp_path)
 
-        # Генерируем скрипты компонентов
+        # Читаем содержимое файлов и инлайним их
+        prism_js_content = self._read_file(self.PRISM_JS)
         component_scripts = "\n".join(
-            f'<script src="file://{path}"></script>' for path in components_paths
+            self._read_file(comp) for comp in self.get_prism_js_components()
         )
 
         # Вставляем CSS перед закрывающим </head>
@@ -69,11 +82,11 @@ class PrismJSProcessor:
         if "<head>" in html:
             html = html.replace("<head>", f"<head>\n    {head_css}", 1)
 
-        # Вставляем JS перед закрывающим </body>
+        # Вставляем инлайненный JS перед закрывающим </body>
         prism_inject = f"""
-<script src="file://{prism_js_path}"></script>
-{component_scripts}
 <script>
+{prism_js_content}
+{component_scripts}
     document.addEventListener("DOMContentLoaded", function() {{
         Prism.highlightAll();
     }});

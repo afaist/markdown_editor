@@ -31,4 +31,3 @@ window.MathJax = {
   }
 };
 </script>
-<script src="file:__MATHJAX_JS_PATH__"></script>

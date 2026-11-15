@@ -18,6 +18,19 @@ hiddenimports = [
 tmp_ret = collect_all('markdown_editor_pkg')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
+# Collect prism/ and mathjax/ as data files (not Python packages)
+for root, dirs, files in os.walk('markdown_editor_pkg/prism'):
+    for f in files:
+        src = os.path.join(root, f)
+        dst = os.path.relpath(os.path.dirname(src), 'markdown_editor_pkg')
+        datas.append((src, os.path.join('markdown_editor_pkg', dst)))
+
+for root, dirs, files in os.walk('markdown_editor_pkg/mathjax'):
+    for f in files:
+        src = os.path.join(root, f)
+        dst = os.path.relpath(os.path.dirname(src), 'markdown_editor_pkg')
+        datas.append((src, os.path.join('markdown_editor_pkg', dst)))
+
 # Collect ALL PyQt6 submodules and dynamic libraries
 hiddenimports += collect_submodules('PyQt6')
 datas += collect_data_files('PyQt6', subdir='')

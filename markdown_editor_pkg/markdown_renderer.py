@@ -10,6 +10,7 @@ import markdown
 from markdown_editor_pkg.callout_processor import CalloutProcessor
 from markdown_editor_pkg.latex_processor import LaTeXProcessor, StrikethroughProcessor
 from markdown_editor_pkg.prism_processor import PrismJSProcessor
+from markdown_editor_pkg.resource_path import get_base_dir
 from markdown_editor_pkg.themes import ThemesManager
 
 # ─── Шаблоны из файлов ────────────────────────────────────────────────────
@@ -28,23 +29,33 @@ def _read_template(filename: str) -> str:
         return ""
 
 
+def _read_mathjax_lib() -> str:
+    """Прочитать MathJax библиотеку из файловой системы."""
+    base = get_base_dir()
+    path = os.path.join(base, "mathjax/tex-mml-chtml.js") if base else "mathjax/tex-mml-chtml.js"
+    try:
+        with open(path, encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        return ""
+
+
 _PRINT_STYLES_TEMPLATE: str = ""
 _MATHJAX_SETUP_JS: str = ""
 _PAGE_NUMBERING_JS: str = ""
+_MATHJAX_LIB_JS: str = ""
 
 try:
     _PRINT_STYLES_TEMPLATE = _read_template("print_styles.css")
     _MATHJAX_SETUP_JS = _read_template("mathjax_setup.js")
     _PAGE_NUMBERING_JS = _read_template("page_numbering.js")
+    _MATHJAX_LIB_JS = _read_mathjax_lib()
 except Exception:
     pass
 
 
 class MarkdownRenderer:
     """Конвертирует Markdown-текст в полный HTML-документ с LaTeX и темами."""
-
-    # Шаблоны путей к MathJax
-    MATHJAX_JS = "mathjax/tex-mml-chtml.js"
 
     def __init__(self, themes: ThemesManager):
         """Инициализация рендерера Markdown.
@@ -79,12 +90,13 @@ class MarkdownRenderer:
         theme_css = self.themes.get_preview_css()
         print_styles = _PRINT_STYLES_TEMPLATE.format(theme_css=theme_css)
 
-        mathjax_js = self._resolve_path(base_dir, self.MATHJAX_JS)
-
         show_headers, header_text, footer_text = self._parse_headers(headers)
         header_html, footer_html = self._build_header_footer(show_headers, header_text, footer_text)
 
-        mathjax_setup_code = _MATHJAX_SETUP_JS.replace("__MATHJAX_JS_PATH__", mathjax_js)
+        # Инлайним MathJax библиотеку + setup (file:// не работает в QWebEngineView)
+        mathjax_setup_code = _MATHJAX_SETUP_JS
+        mathjax_lib_code = f"<script>\n{_MATHJAX_LIB_JS}\n</script>" if _MATHJAX_LIB_JS else ""
+        mathjax_code = f"{mathjax_setup_code}\n{mathjax_lib_code}"
         page_numbering_js = self._build_page_numbering_js(show_headers)
 
         full_html = self._build_html_document(
@@ -93,7 +105,7 @@ class MarkdownRenderer:
             print_styles,
             header_html,
             footer_html,
-            mathjax_setup_code,
+            mathjax_code,
             page_numbering_js,
         )
 
@@ -134,13 +146,6 @@ class MarkdownRenderer:
         return self.callout_processor.process(html)
 
     # ─── Сборка HTML ────────────────────────────────────────────────────
-
-    @staticmethod
-    def _resolve_path(base_dir: str, rel_path: str) -> str:
-        """Резолвит относительный путь относительно base_dir."""
-        if base_dir:
-            return os.path.join(base_dir, rel_path)
-        return rel_path
 
     @staticmethod
     def _parse_headers(headers: dict | None) -> tuple[bool, str, str]:
