@@ -163,12 +163,14 @@ class TestMarkdownRendererHelpers:
     def test_resolve_path_no_base(self):
         """Путь без base_dir остаётся относительным."""
         import os
+
         result = os.path.join("", "mathjax/tex-mml-chtml.js") if "" else "mathjax/tex-mml-chtml.js"
         assert result == "mathjax/tex-mml-chtml.js"
 
     def test_resolve_path_with_base(self):
         """Путь с base_dir объединяется через os.path.join."""
         import os
+
         result = os.path.join("/base", "mathjax/tex-mml-chtml.js")
         assert result == "/base/mathjax/tex-mml-chtml.js"
 
