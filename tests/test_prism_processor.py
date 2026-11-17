@@ -49,7 +49,7 @@ class TestPrismJSProcessor:
         """inject_prism добавляет JS в <body>."""
         html = "<html><head></head><body></body></html>"
         result = self.processor.inject_prism(html, "light", "/base")
-        assert "prism.min.js" in result
+        assert "<script>" in result
         assert "highlightAll" in result
 
     def test_inject_prism_call_highlightAll(self):

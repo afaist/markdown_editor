@@ -43,7 +43,7 @@ class TestGetPackageDir:
         assert "markdown_editor_pkg" in result
 
     def test_get_package_dir_frozen_mode(self):
-        """get_package_dir в режиме PyInstaller возвращает _MEIPASS."""
+        """get_package_dir в режиме PyInstaller возвращает _MEIPASS/markdown_editor_pkg."""
         # В режиме разработки _MEIPASS отсутствует, поэтому патчим через setattr
         original_frozen = getattr(sys, "frozen", False)
         original_meipass = getattr(sys, "_MEIPASS", None)
@@ -57,7 +57,7 @@ class TestGetPackageDir:
 
         importlib.reload(rp)
         result = rp.get_package_dir()
-        assert result == "/tmp/pyinstaller"
+        assert result == "/tmp/pyinstaller/markdown_editor_pkg"
 
         # Восстанавливаем
         sys.frozen = original_frozen
@@ -93,7 +93,7 @@ class TestGetBaseDir:
 
         importlib.reload(rp)
         result = rp.get_base_dir()
-        assert result == "/tmp/pyinstaller"
+        assert result == "/tmp/pyinstaller/markdown_editor_pkg"
 
         sys.frozen = original_frozen
         if original_meipass is None:

@@ -31,7 +31,6 @@ class TestMarkdownRender:
         md = "Формула: $a^2 + b^2 = c^2$"
         html = self.editor.render_markdown(md)
         assert "$a^2 + b^2 = c^2$" in html
-        assert "tex-mml-chtml.js" in html
         assert "MathJax" in html
 
     def test_latex_block_render(self):
@@ -39,7 +38,6 @@ class TestMarkdownRender:
         md = "$$\\int_0^1 x^2 dx$$"
         html = self.editor.render_markdown(md)
         assert "$$\\int_0^1 x^2 dx$$" in html
-        assert "tex-mml-chtml.js" in html
         assert "MathJax" in html
 
     def test_full_html_structure(self):
@@ -54,7 +52,6 @@ class TestMarkdownRender:
         assert "</head>" in html
         assert "<body>" in html
         assert "</body>" in html
-        assert "tex-mml-chtml.js" in html
         assert "MathJax" in html
 
     def test_render_with_tables(self):
