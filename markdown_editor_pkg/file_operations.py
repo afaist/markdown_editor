@@ -134,6 +134,7 @@ class FileIO:
         """Сохранить файл под новым именем через диалог QFileDialog.
 
         Устанавливает новый путь в _state.current_file и вызывает save_file().
+        Автоматически добавляет расширение .md, если оно не указано.
         """
         filepath, _ = QFileDialog.getSaveFileName(
             self._editor,
@@ -142,6 +143,8 @@ class FileIO:
             "Markdown files (*.md);;Text files (*.txt);;All files (*)",
         )
         if filepath:
+            if not filepath.lower().endswith(".md"):
+                filepath += ".md"
             self._state.current_file = filepath
             self.save_file()
 
