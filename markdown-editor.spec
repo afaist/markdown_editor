@@ -36,11 +36,16 @@ hiddenimports += collect_submodules('PyQt6')
 datas += collect_data_files('PyQt6', subdir='')
 
 # Collect all Qt6 data files (translations, plugins, etc.)
-qt6_base = sysconfig.get_config_var('DESTLIBDIR')
-if qt6_base:
-    # Collect Qt plugins (platforms, webengine, etc.)
+# Find PyQt6 package directory via importlib (works cross-platform)
+import importlib.util
+spec = importlib.util.find_spec('PyQt6')
+pyqt6_base = os.path.dirname(spec.origin) if spec else None
+if pyqt6_base:
+    # Qt6 is inside PyQt6/Qt6/
+    qt6_base = os.path.join(pyqt6_base, 'Qt6')
+    # Collect Qt plugins (platforms, webengine_dtls, etc.)
     for plugin_type in ['platforms', 'webengine_dtls', 'xcbglintegrations']:
-        plugin_dir = os.path.join(qt6_base, 'PyQt6', 'Qt6', 'plugins', plugin_type)
+        plugin_dir = os.path.join(qt6_base, 'plugins', plugin_type)
         if os.path.isdir(plugin_dir):
             for f in os.listdir(plugin_dir):
                 filepath = os.path.join(plugin_dir, f)
