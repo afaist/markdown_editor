@@ -35,6 +35,7 @@ DEFAULTS: dict[str, Any] = {
     "window_width": 1400,
     "window_height": 800,
     "disable_gpu": False,
+    "show_line_numbers": False,
 }
 
 

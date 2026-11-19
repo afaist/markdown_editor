@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from PyQt6.QtCore import QUrl
 
 from markdown_editor_pkg.i18n import tr
+from markdown_editor_pkg.markdown_validator import MarkdownValidator
 from markdown_editor_pkg.resource_path import get_base_dir
 
 if TYPE_CHECKING:
@@ -100,6 +101,32 @@ class EventHandler:
                 char_lbl.setText(tr("Characters: {count}").format(count=len(text)))
             if word_lbl is not None:
                 word_lbl.setText(tr("Words: {count}").format(count=len(text.split())))
+
+    def update_validation(self) -> None:
+        """Обновить статус валидации Markdown."""
+        text = self.editor.editor.toPlainText()
+        if not text.strip():
+            if self.editor.validation_label is not None:
+                self.editor.validation_label.setText("")
+                self.editor.validation_label.setStyleSheet("")
+                self.editor.validation_label.setToolTip("")
+                self.editor.validation_label._validation_report = None  # type: ignore[attr-defined]
+            return
+
+        validator = MarkdownValidator()
+        report = validator.validate(text)
+
+        if self.editor.validation_label is not None:
+            if report.is_valid:
+                self.editor.validation_label.setText(report.summary)
+                self.editor.validation_label.setStyleSheet("color: #228822; font-weight: normal;")
+            else:
+                self.editor.validation_label.setText(report.summary)
+                self.editor.validation_label.setStyleSheet("color: #cc0000; font-weight: bold;")
+
+            # Сохраняем отчёт и показываем tooltip с деталями
+            self.editor.validation_label._validation_report = report  # type: ignore[attr-defined]
+            # Tooltip показывается автоматически при наведении
 
     def on_cursor_position_changed(self) -> None:
         """Синхронизация предпросмотра с позицией курсора в редакторе.

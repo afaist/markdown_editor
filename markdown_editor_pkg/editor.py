@@ -25,6 +25,7 @@ from markdown_editor_pkg.file_operations import EditorState, FileExport, FileIO
 from markdown_editor_pkg.i18n import tr
 from markdown_editor_pkg.latex_processor import LaTeXProcessor
 from markdown_editor_pkg.markdown_renderer import MarkdownRenderer
+from markdown_editor_pkg.markdown_validator import MarkdownValidator
 from markdown_editor_pkg.resource_path import get_base_dir
 from markdown_editor_pkg.scroll_sync import ScrollSyncManager
 from markdown_editor_pkg.text_insertions import TextInsertions
@@ -72,6 +73,7 @@ class MarkdownEditorPyQt(QMainWindow):
         self.file_name_label: QLabel | None = None
         self.char_count_label: QLabel | None = None
         self.word_count_label: QLabel | None = None
+        self.validation_label: QLabel | None = None
         self.font_combo: QComboBox | None = None
         self.font_size_label: QLabel | None = None
         self.font_increase_btn: QPushButton | None = None
@@ -92,6 +94,7 @@ class MarkdownEditorPyQt(QMainWindow):
         self.theme_manager = ThemesManager()
         self.renderer = MarkdownRenderer(themes=self.theme_manager)
         self.latex_processor = LaTeXProcessor()
+        self.validator = MarkdownValidator()
         # EditorState — единый контекст состояния файлов
         self._file_state = EditorState()
 
@@ -196,6 +199,11 @@ class MarkdownEditorPyQt(QMainWindow):
             if font_idx >= 0:
                 self.font_combo.setCurrentIndex(font_idx)
 
+        # Номера строк
+        show_ln = settings.get("show_line_numbers", False)
+        # mypy: set_show_line_numbers is on MarkdownTextEdit, not base QTextEdit
+        self.editor.set_show_line_numbers(bool(show_ln))  # type: ignore[attr-defined]
+
         # Размер окна
         from PyQt6.QtGui import QGuiApplication
 
@@ -239,6 +247,10 @@ class MarkdownEditorPyQt(QMainWindow):
         """Обновить счётчики (делегирование)."""
         self.event_handler.update_char_count()
 
+    def update_validation(self) -> None:
+        """Обновить статус валидации Markdown (делегирование)."""
+        self.event_handler.update_validation()
+
     def on_cursor_position_changed(self) -> None:
         """Синхронизация предпросмотра с позицией курсора (делегирование)."""
         self.event_handler.on_cursor_position_changed()
@@ -281,6 +293,17 @@ class MarkdownEditorPyQt(QMainWindow):
 
     def _reset_font(self) -> None:
         self.theme_font_handler.reset_font()
+
+    # Номера строк
+    def _toggle_line_numbers(self, action) -> None:  # type: ignore[reportUnknownParameterType]
+        """Переключает отображение номеров строк и сохраняет настройку."""
+        from markdown_editor_pkg.settings import Settings
+
+        new_val = not action.isChecked()
+        action.setChecked(new_val)
+        # mypy: set_show_line_numbers is on MarkdownTextEdit, not base QTextEdit
+        self.editor.set_show_line_numbers(new_val)  # type: ignore[attr-defined]
+        Settings().set("show_line_numbers", new_val)
 
     # Emoji
     def _show_emoji_picker(self) -> None:

@@ -35,6 +35,65 @@ if TYPE_CHECKING:
     from markdown_editor_pkg.editor import MarkdownEditorPyQt
 
 
+class ValidationLabel(QLabel):
+    """QLabel с поддержкой клика для показа деталей валидации."""
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._validation_report = None  # type: ignore[attr-defined]
+
+    def mousePressEvent(self, event) -> None:  # type: ignore[override]
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._show_validation_dialog()
+        super().mousePressEvent(event)
+
+    def _show_validation_dialog(self) -> None:
+        report = getattr(self, "_validation_report", None)
+        if report is None:
+            return
+
+        from PyQt6.QtWidgets import QDialog, QDialogButtonBox, QLabel, QTextEdit, QVBoxLayout
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle(tr("Markdown Validation"))
+        dialog.setMinimumSize(500, 400)
+
+        layout = QVBoxLayout(dialog)
+
+        title = QLabel(tr("Validation Report"))
+        title.setStyleSheet("font-weight: bold; font-size: 14px;")
+        layout.addWidget(title)
+
+        summary_parts: list[str] = []
+        if report.error_count:
+            summary_parts.append(f"{tr('Errors')}: {report.error_count}")
+        if report.warning_count:
+            summary_parts.append(f"{tr('Warnings')}: {report.warning_count}")
+        if report.info_count:
+            summary_parts.append(f"{tr('Info')}: {report.info_count}")
+        if not summary_parts:
+            summary_parts.append(tr("No issues found"))
+
+        summary_label = QLabel(", ".join(summary_parts))
+        summary_label.setStyleSheet("color: #555;")
+        layout.addWidget(summary_label)
+
+        text_edit = QTextEdit()
+        text_edit.setReadOnly(True)
+        text_edit.setPlainText(report.details_text)
+        text_edit.setStyleSheet(
+            "font-family: monospace; font-size: 11px; padding: 8px; "
+            "background: #f8f8f8; border: 1px solid #ddd; border-radius: 4px;"
+        )
+        layout.addWidget(text_edit)
+
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
+        button_box.accepted.connect(dialog.accept)
+        layout.addWidget(button_box)
+
+        dialog.exec()
+
+
 class UIBuilder:
     """Создаёт основной UI: сплиттер, редактор, предпросмотр, статусбар."""
 
@@ -116,6 +175,9 @@ class UIBuilder:
 
         char_count_label = QLabel(tr("Characters: 0"))
         word_count_label = QLabel(tr("Words: 0"))
+        validation_label = ValidationLabel("")
+        validation_label.setMinimumWidth(200)
+        validation_label.setToolTip(tr("Click to see details"))
         file_name_label = QLabel("")
         file_name_label.setMinimumWidth(250)
         theme_label = QLabel(f"{tr('Themes')}: {tr('editor')} - Light, {tr('preview')} - Light")
@@ -124,11 +186,13 @@ class UIBuilder:
         statusbar.addPermanentWidget(file_name_label)
         statusbar.addPermanentWidget(char_count_label)
         statusbar.addPermanentWidget(word_count_label)
+        statusbar.addPermanentWidget(validation_label)
         statusbar.addPermanentWidget(theme_label)
 
         self._editor.file_name_label = file_name_label  # type: ignore[attr-defined]
         self._editor.char_count_label = char_count_label  # type: ignore[attr-defined]
         self._editor.word_count_label = word_count_label  # type: ignore[attr-defined]
+        self._editor.validation_label = validation_label  # type: ignore[attr-defined]
         self._editor.theme_label = theme_label  # type: ignore[attr-defined]
 
     def _connect_signals(self, parent: QMainWindow) -> None:
@@ -136,6 +200,7 @@ class UIBuilder:
         parent.editor.textChanged.connect(parent.on_text_change)  # type: ignore[attr-defined]
         parent.editor.textChanged.connect(parent.update_char_count)  # type: ignore[attr-defined]
         parent.editor.textChanged.connect(parent.update_file_status)  # type: ignore[attr-defined]
+        parent.editor.textChanged.connect(parent.update_validation)  # type: ignore[attr-defined]
 
 
 class ToolbarBuilder:
@@ -493,6 +558,20 @@ class MenuBuilder:
         assert view_menu is not None
 
         self._add_action(view_menu, tr("Refresh Preview"), parent.update_preview)
+        view_menu.addSeparator()
+
+        # Line numbers
+        self._line_numbers_action = QAction(tr("Show Line Numbers"), parent)
+        self._line_numbers_action.setCheckable(True)
+        from markdown_editor_pkg.settings import Settings
+
+        settings = Settings()
+        show_ln = bool(settings.get("show_line_numbers", False))
+        self._line_numbers_action.setChecked(show_ln)
+        self._line_numbers_action.triggered.connect(
+            lambda: parent._toggle_line_numbers(self._line_numbers_action)  # type: ignore[attr-defined]
+        )
+        view_menu.addAction(self._line_numbers_action)
         view_menu.addSeparator()
 
         # Preview themes
