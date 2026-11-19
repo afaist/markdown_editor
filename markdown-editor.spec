@@ -31,26 +31,9 @@ for root, dirs, files in os.walk('markdown_editor_pkg/mathjax'):
         dst = os.path.relpath(os.path.dirname(src), 'markdown_editor_pkg')
         datas.append((src, os.path.join('markdown_editor_pkg', dst)))
 
-# Collect ALL PyQt6 submodules and dynamic libraries
-hiddenimports += collect_submodules('PyQt6')
-datas += collect_data_files('PyQt6', subdir='')
-
-# Collect all Qt6 data files (translations, plugins, etc.)
-# Find PyQt6 package directory via importlib (works cross-platform)
-import importlib.util
-spec = importlib.util.find_spec('PyQt6')
-pyqt6_base = os.path.dirname(spec.origin) if spec else None
-if pyqt6_base:
-    # Qt6 is inside PyQt6/Qt6/
-    qt6_base = os.path.join(pyqt6_base, 'Qt6')
-    # Collect Qt plugins (platforms, webengine_dtls, etc.)
-    for plugin_type in ['platforms', 'webengine_dtls', 'xcbglintegrations']:
-        plugin_dir = os.path.join(qt6_base, 'plugins', plugin_type)
-        if os.path.isdir(plugin_dir):
-            for f in os.listdir(plugin_dir):
-                filepath = os.path.join(plugin_dir, f)
-                if os.path.isfile(filepath):
-                    binaries.append((filepath, os.path.join('PyQt6', 'Qt6', 'plugins', plugin_type)))
+# Collect ALL PyQt6 files (submodules + binaries including Qt plugins)
+tmp_ret = collect_all('PyQt6')
+datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
 # Include libpython shared library (required when building with pyenv)
 libpython = sysconfig.get_config_var('LIBPL')
@@ -65,8 +48,11 @@ if locales_dir.is_dir():
     for qm in locales_dir.glob("*.qm"):
         datas.append((str(qm), "locales"))
 
-# Include runtime hook for GIO (prevent system module conflicts)
-runtime_hooks = [str(Path("runtime_hook_gio.py"))]
+# Include runtime hooks
+runtime_hooks = [
+    str(Path("runtime_hook_gio.py")),
+    str(Path("runtime_hook_qt_plugins.py")),
+]
 
 
 a = Analysis(
