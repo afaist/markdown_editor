@@ -2,6 +2,7 @@
 
 import os
 import sys
+import tempfile
 
 # Set environment BEFORE importing anything else
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
@@ -11,6 +12,13 @@ os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = (
 )
 os.environ["QTWEBENGINE_SETTINGS"] = '{"enable_gpu": "false"}'
 os.environ["QT_LOGGING_RULES"] = "qt.webengine.*=false"
+
+# Configure QtWebEngine storage paths to avoid dialogs
+_temp_storage = tempfile.mkdtemp(prefix="qt_webengine_")
+os.makedirs(_temp_storage, exist_ok=True)
+os.environ["QTWEBENGINE_DIR_PATH"] = _temp_storage
+os.environ["QTWEBENGINE_PACKAGES_PATH"] = _temp_storage
+os.environ["QTWEBENGINE_CACHE_PATH"] = _temp_storage
 
 # Import QtWebEngineWidgets first to satisfy Qt requirements
 # Import QApplication after QtWebEngineWidgets
