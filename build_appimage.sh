@@ -212,6 +212,18 @@ EOF
 
     export APPIMAGE_EXTRACT_AND_RUN=1
 
+    # Скачиваем новый runtime с glib 2.74+ (Ubuntu 22.04) для совместимости
+    local runtime_url="https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
+    local runtime_file="linuxdeploy-x86_64.AppImage"
+    if [ ! -f "$runtime_file" ]; then
+        log_info "Скачивание AppImage runtime..."
+        wget -q -O "$runtime_file" "$runtime_url"
+        chmod +x "$runtime_file"
+    fi
+
+    # Указываем новый runtime через переменную окружения (glib 2.74+)
+    export APPIMAGE_RUNTIME="$runtime_file"
+
     linuxdeploy \
         --appdir "$appimage_dir/${app_name}.appdir" \
         --desktop-file "$appimage_dir/${app_name}.appdir/usr/share/applications/${app_name}.desktop" \
