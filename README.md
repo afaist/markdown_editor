@@ -8,7 +8,7 @@ A simple and functional Markdown editor with real-time preview and LaTeX formula
 
 Markdown Editor is a desktop application for creating and editing Markdown documents with instant preview. It supports inline and block LaTeX formulas via KaTeX, multiple themes, HTML and PDF export, GitHub Callouts, strikethrough text, task lists, and numerous formatting tools.
 
-**Version:** 1.0.33  
+**Version:** 1.1.1  
 **Technologies:** Python 3.12+, PyQt6, QtWebEngine, KaTeX, Python-Markdown, Prism.js
 
 ## ✨ Features
@@ -18,7 +18,7 @@ Markdown Editor is a desktop application for creating and editing Markdown docum
 - 📐 **LaTeX Formulas** — support for inline (`$...$`) and block (`$$...$$`) formulas via KaTeX
 - 📤 **Export** — save in HTML and PDF formats with customizable headers/footers
 - 🖼️ **Images** — insert images via file selection dialog
-- 🎨 **Themes** — three themes for preview and three themes for editor (light, dark, high-contrast)
+- 🎨 **Themes** — eight themes for preview and eight themes for editor (light, dark, contrast, monokai, dracula, one-dark, github-dark, solarized-dark)
 - 💾 **Auto-save** — automatic file saving every 3 seconds after changes
 - 🔍 **Find and Replace** — dialog for searching and replacing text
 - 📊 **Statistics** — character and word counters in the status bar
@@ -36,6 +36,9 @@ Markdown Editor is a desktop application for creating and editing Markdown docum
 - ⚙️ **Settings** — centralized settings storage (language, theme, font) with JSON persistence in `~/.markdown_editor_config.json`
 - 🖥️ **Resource Path Resolution** — correct resource path handling (katex/, prism/) in both development mode and PyInstaller-built binary
 - 😀 **Emoji Picker** — searchable emoji picker with categories and grid display, accessible via toolbar
+- 📏 **Line Numbers** — toggleable line numbers in the editor, rendered in a dedicated left panel
+- ✅ **Markdown Validation** — syntax validation with detailed error/warning/info report dialog
+- 🖥️ **QPlainTextEdit** — editor based on QPlainTextEdit for better performance with large files and native line number support
 
 ## 🚀 Installation
 
@@ -220,8 +223,9 @@ All formatting tools with hotkeys are available in the **Markdown** menu:
 **View:**
 
 - Refresh Preview
+- Show Line Numbers
 - Theme: light / dark / high-contrast
-- Editor Theme: light / dark / high-contrast
+- Editor Theme: light / dark / contrast / monokai / dracula / one-dark / github-dark / solarized-dark
 - Increase Font (`Ctrl + +`)
 - Decrease Font (`Ctrl + -`)
 - Reset Font (`Ctrl + 0`)
@@ -277,7 +281,7 @@ markdown_editor/
 │   ├── editor_events.py         # EventHandler — event handlers
 │   ├── editor_find.py           # FindReplaceHandler — find and replace
 │   ├── editor_help.py           # HelpHandler — help information
-│   ├── editor_keypress.py       # MarkdownTextEdit — custom QTextEdit
+│   ├── editor_keypress.py       # MarkdownTextEdit — custom QPlainTextEdit with line numbers
 │   ├── editor_markdown_menu.py  # MarkdownMenuBuilder — formatting menu
 │   ├── editor_pdf.py            # PDFHandler — PDF export processing
 │   ├── editor_session.py        # SessionHandler — session save/load
@@ -365,14 +369,14 @@ markdown_editor/
 19. **PDFHandler** (`editor_pdf.py`) — PDF export processing.
 20. **HelpHandler** (`editor_help.py`) — help information (About).
 21. **CloseHandler** (`editor_close.py`) — window close handling.
-22. **MarkdownTextEdit** (`editor_keypress.py`) — custom `QTextEdit` with custom keyboard handling.
+22. **MarkdownTextEdit** (`editor_keypress.py`) — custom `QPlainTextEdit` with line numbers, auto-continuation of lists/quotes, and custom keyboard handling.
 23. **HeaderFooterDialog** (`header_footer_dialog.py`) — PDF header/footer settings dialog.
 24. **Settings** (`settings.py`) — centralized settings storage (JSON-backed): language, theme, font, font size, last file.
 25. **i18n** (`i18n.py`) — internationalization module: `setup_translator()`, `load_language()`, `tr()`, `get_available_languages()`. Supports `en` and `ru`.
 26. **i18n_build** (`i18n_build.py`) — CLI for Qt translation workflow: `lupdate`, `lrelease`, `all`.
 27. **EmojiPickerDialog** (`emoji_picker.py`) — emoji picker dialog with categories, grid display, and search.
 28. **resource_path** (`resource_path.py`) — helper for resolving resource paths (works in both development mode and PyInstaller binary).
-29. **Editor** — `QTextEdit` (`MarkdownTextEdit`) with the current theme's highlighting.
+29. **Editor** — `QPlainTextEdit` (`MarkdownTextEdit`) with the current theme's highlighting.
 30. **Preview** — `QWebEngineView` for displaying HTML.
 31. **Export** — `export_to_pdf()` uses `QWebEngineView.page().printToPdf()` for PDF generation.
 
