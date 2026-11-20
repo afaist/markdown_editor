@@ -149,11 +149,39 @@ class MarkdownValidator:
                 )
             )
 
+    def _is_inside_latex_block(self, lines: list[str], line_index: int) -> bool:
+        """Проверяет, находится ли строка внутри блочного LaTeX $$...$$.
+
+        Args:
+            lines: Список строк текста.
+            line_index: Индекс проверяемой строки (0-based).
+
+        Returns:
+            True если строка внутри $$ блока и должна быть пропущена.
+        """
+        if line_index < 0 or line_index >= len(lines):
+            return False
+
+        in_latex = False
+        for i in range(line_index + 1):
+            stripped = lines[i].strip()
+            if stripped == "$$":
+                in_latex = not in_latex
+
+        return in_latex
+
     def _check_unclosed_inline_formatting(self, lines: list[str], report: ValidationReport) -> None:
         """Проверка незакрытых inline-форматов: **_, __/, ~~/, `."""
         for i, line in enumerate(lines, start=1):
+            stripped = line.strip()
             # Пропускаем строки внутри блоков кода
             if self._is_inside_code_block(lines, i - 1):
+                continue
+            # Пропускаем строки внутри блочного LaTeX $$...$$
+            if self._is_inside_latex_block(lines, i - 1):
+                continue
+            # Пропускаем строки, содержащие маркеры $$
+            if "$$" in line:
                 continue
 
             # Проверка одиночных `
@@ -278,7 +306,12 @@ class MarkdownValidator:
     def _check_unclosed_links(self, lines: list[str], report: ValidationReport) -> None:
         """Проверка незакрытых квадратных скобок ссылок."""
         for i, line in enumerate(lines, start=1):
+            stripped = line.strip()
+            if stripped == "$$":
+                continue
             if self._is_inside_code_block(lines, i - 1):
+                continue
+            if self._is_inside_latex_block(lines, i - 1):
                 continue
 
             # Считаем [ и ] (без учёта ![])
@@ -396,7 +429,12 @@ class MarkdownValidator:
         }
 
         for i, line in enumerate(lines, start=1):
+            stripped = line.strip()
+            if stripped == "$$":
+                continue
             if self._is_inside_code_block(lines, i - 1):
+                continue
+            if self._is_inside_latex_block(lines, i - 1):
                 continue
 
             # Находим HTML-теги
