@@ -151,6 +151,18 @@ echo "[OK] RPATH настроен"
 echo "[INFO] Сборка AppImage через linuxdeploy..."
 export APPIMAGE_EXTRACT_AND_RUN=1
 
+# Скачиваем новый runtime с glib 2.74+ (Ubuntu 22.04) для совместимости
+RUNTIME_URL="https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
+RUNTIME_FILE="linuxdeploy-x86_64.AppImage"
+if [ ! -f "$RUNTIME_FILE" ]; then
+    echo "[INFO] Скачивание AppImage runtime..."
+    wget -q -O "$RUNTIME_FILE" "$RUNTIME_URL"
+    chmod +x "$RUNTIME_FILE"
+fi
+
+# Используем новый runtime с glib 2.74+ через переменную окружения
+export APPIMAGE_RUNTIME="$RUNTIME_FILE"
+
 linuxdeploy \
     --appdir "$APPDIR" \
     --desktop-file "$APPDIR/usr/share/applications/${APP_NAME}.desktop" \
