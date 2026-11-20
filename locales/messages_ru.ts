@@ -818,6 +818,61 @@ LaTeX and Markdown support.</source>
         <translation>Включить ускорение GPU</translation>
     </message>
     <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="575"/>
+        <source>Show Line Numbers</source>
+        <translation>Показывать номера строк</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="57"/>
+        <source>Errors</source>
+        <translation>Ошибки</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="59"/>
+        <source>Warnings</source>
+        <translation>Предупреждения</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="61"/>
+        <source>Info</source>
+        <translation>Информация</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="63"/>
+        <source>No issues found</source>
+        <translation>Проблем не найдено</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="70"/>
+        <source>No issues found.</source>
+        <translation>Проблем не найдено.</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="79"/>
+        <source>Error</source>
+        <translation>Ошибка</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="80"/>
+        <source>Warning</source>
+        <translation>Предупреждение</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="81"/>
+        <source>Info</source>
+        <translation>Информация</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="89"/>
+        <source>line</source>
+        <translation>строка</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="91"/>
+        <source>char</source>
+        <translation>символ</translation>
+    </message>
+    <message>
         <location filename="../markdown_editor_pkg/editor.py" line="421"/>
         <source>GPU Acceleration Changed</source>
         <translation>Настройки GPU изменены</translation>
@@ -826,6 +881,26 @@ LaTeX and Markdown support.</source>
         <location filename="../markdown_editor_pkg/editor.py" line="422"/>
         <source>GPU acceleration setting changed. The application must be restarted for changes to take effect.</source>
         <translation>Настройка ускорения GPU изменена. Для применения изменений необходимо перезапустить приложение.</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="58"/>
+        <source>Markdown Validation</source>
+        <translation>Проверка Markdown</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="63"/>
+        <source>Validation Report</source>
+        <translation>Отчёт проверки</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="145"/>
+        <source>Unclosed code block starting at line {num}</source>
+        <translation>Незакрытый блок кода, начиная со строки {num}</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="180"/>
+        <source>OK</source>
+        <translation>ОК</translation>
     </message>
 </context>
 </TS>

@@ -699,12 +699,62 @@ LaTeX and Markdown support.</source>
     <message>
         <location filename="../markdown_editor_pkg/editor.py" line="421"/>
         <source>GPU Acceleration Changed</source>
-        <translation type="unfinished"></translation>
+        <translation>GPU Acceleration Changed</translation>
     </message>
     <message>
         <location filename="../markdown_editor_pkg/editor.py" line="422"/>
         <source>GPU acceleration setting changed. The application must be restarted for changes to take effect.</source>
-        <translation type="unfinished"></translation>
+        <translation>GPU acceleration setting changed. The application must be restarted for changes to take effect.</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="575"/>
+        <source>Show Line Numbers</source>
+        <translation>Show Line Numbers</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="57"/>
+        <source>Errors</source>
+        <translation>Errors</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="59"/>
+        <source>Warnings</source>
+        <translation>Warnings</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="61"/>
+        <source>Info</source>
+        <translation>Info</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="63"/>
+        <source>No issues found</source>
+        <translation>No issues found</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="70"/>
+        <source>No issues found.</source>
+        <translation>No issues found.</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="79"/>
+        <source>Error</source>
+        <translation>Error</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="80"/>
+        <source>Warning</source>
+        <translation>Warning</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="89"/>
+        <source>line</source>
+        <translation>line</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="91"/>
+        <source>char</source>
+        <translation>char</translation>
     </message>
 </context>
 </TS>
