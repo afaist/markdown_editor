@@ -26,6 +26,7 @@ from markdown_editor_pkg.i18n import tr
 from markdown_editor_pkg.latex_processor import LaTeXProcessor
 from markdown_editor_pkg.markdown_renderer import MarkdownRenderer
 from markdown_editor_pkg.markdown_validator import MarkdownValidator
+from markdown_editor_pkg.recent_files import RecentFilesManager
 from markdown_editor_pkg.resource_path import get_base_dir
 from markdown_editor_pkg.scroll_sync import ScrollSyncManager
 from markdown_editor_pkg.text_insertions import TextInsertions
@@ -98,8 +99,15 @@ class MarkdownEditorPyQt(QMainWindow):
         # EditorState — единый контекст состояния файлов
         self._file_state = EditorState()
 
+        # Менеджер недавно открытых файлов
+        self.recent_files_manager = RecentFilesManager()
+
         self.file_io = FileIO(
-            editor=self, statusbar=None, renderer=self.renderer, state=self._file_state
+            editor=self,
+            statusbar=None,
+            renderer=self.renderer,
+            state=self._file_state,
+            recent_files=self.recent_files_manager,
         )
         self.file_export = FileExport(
             editor=self, statusbar=None, renderer=self.renderer, state=self._file_state

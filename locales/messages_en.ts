@@ -756,5 +756,25 @@ LaTeX and Markdown support.</source>
         <source>char</source>
         <translation>char</translation>
     </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="480"/>
+        <source>Open Recent</source>
+        <translation>Open Recent</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="480"/>
+        <source>No recent files</source>
+        <translation>No recent files</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="480"/>
+        <source>Clear Recent</source>
+        <translation>Clear Recent</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="480"/>
+        <source>Failed to open file</source>
+        <translation>Failed to open file</translation>
+    </message>
 </context>
 </TS>

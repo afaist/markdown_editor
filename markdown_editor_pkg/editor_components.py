@@ -476,6 +476,10 @@ class MenuBuilder:
             parent.file_ops.open_file,
             QKeySequence.StandardKey.Open,
         )
+        # Open Recent submenu
+        self._recent_files_menu = QMenu(tr("Open Recent"), file_menu)
+        file_menu.addMenu(self._recent_files_menu)
+        self._update_recent_files_menu(parent)
         self._add_action(
             file_menu,
             tr("Save"),
@@ -710,6 +714,50 @@ class MenuBuilder:
         self._add_action(help_menu, tr("About"), parent._show_about)
         self._add_action(help_menu, tr("Keyboard Shortcuts"), parent._show_shortcuts)
         self._add_action(help_menu, tr("Markdown Help"), parent._show_markdown_help)
+
+    def _update_recent_files_menu(self, parent: MarkdownEditorPyQt) -> None:
+        """Обновить подменю Open Recent списками файлов."""
+        from markdown_editor_pkg.recent_files import MAX_RECENT
+
+        self._recent_files_menu.clear()
+        recent = parent.recent_files_manager.get()
+
+        if not recent:
+            no_files_action = QAction(tr("No recent files"), self._recent_files_menu)
+            no_files_action.setEnabled(False)
+            self._recent_files_menu.addAction(no_files_action)
+            # Очистить разделитель если есть
+            return
+
+        for _idx, filepath in enumerate(recent[:MAX_RECENT]):
+            # Показываем короткое имя файла + полный путь в подсказке
+            from pathlib import Path
+
+            display = Path(filepath).name
+            action = QAction(display, self._recent_files_menu)
+            action.setToolTip(filepath)
+            action.setData(filepath)
+
+            def _make_open_callback(path: str) -> Callable[[], None]:
+                def _open() -> None:
+                    try:
+                        parent.file_ops._on_file_opened(path)
+                    except Exception as e:
+                        parent.file_ops._error_msg(
+                            tr("Error"), f"{tr('Failed to open file')}: {e!s}"
+                        )
+
+                return _open
+
+            action.triggered.connect(_make_open_callback(filepath))
+            self._recent_files_menu.addAction(action)
+
+        # Разделитель и пункт очистки
+        self._recent_files_menu.addSeparator()
+        clear_action = QAction(tr("Clear Recent"), self._recent_files_menu)
+        clear_action.triggered.connect(parent.recent_files_manager.clear)
+        clear_action.triggered.connect(lambda: self._update_recent_files_menu(parent))
+        self._recent_files_menu.addAction(clear_action)
 
     @staticmethod
     def _add_action(

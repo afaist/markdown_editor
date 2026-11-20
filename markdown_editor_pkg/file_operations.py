@@ -46,6 +46,7 @@ class FileIO:
         statusbar,
         renderer: MarkdownRenderer,
         state: EditorState,
+        recent_files=None,
     ):
         """Инициализация обработчика файловых операций.
 
@@ -54,11 +55,13 @@ class FileIO:
             statusbar: Ссылка на QStatusBar для сообщений.
             renderer: Экземпляр MarkdownRenderer для рендеринга.
             state: Экземпляр EditorState для управления состоянием.
+            recent_files: Экземпляр RecentFilesManager для отслеживания открытых файлов.
         """
         self._editor = editor
         self._statusbar = statusbar
         self._renderer = renderer
         self._state = state
+        self._recent_files = recent_files
 
     # ─── Вспомогательные методы ─────────────────────────────────────────
 
@@ -88,6 +91,8 @@ class FileIO:
         self._editor.update_file_status()
         self._status_msg(f"Файл открыт: {filepath}")
         self._editor.save_last_session(filepath)
+        if self._recent_files is not None:
+            self._recent_files.add(filepath)
 
     # ─── Открытие / Сохранение ─────────────────────────────────────────
 

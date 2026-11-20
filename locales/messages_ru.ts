@@ -902,5 +902,25 @@ LaTeX and Markdown support.</source>
         <source>OK</source>
         <translation>ОК</translation>
     </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="480"/>
+        <source>Open Recent</source>
+        <translation>Недавние файлы</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="480"/>
+        <source>No recent files</source>
+        <translation>Нет недавних файлов</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="480"/>
+        <source>Clear Recent</source>
+        <translation>Очистить список</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="480"/>
+        <source>Failed to open file</source>
+        <translation>Не удалось открыть файл</translation>
+    </message>
 </context>
 </TS>

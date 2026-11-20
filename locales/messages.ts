@@ -4,28 +4,28 @@
 <context>
     <name></name>
     <message>
-        <location filename="../markdown_editor_pkg/editor.py" line="64"/>
+        <location filename="../markdown_editor_pkg/editor.py" line="65"/>
         <location filename="../markdown_editor_pkg/editor_help.py" line="54"/>
         <source>Markdown Editor (PyQt6)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor.py" line="351"/>
+        <location filename="../markdown_editor_pkg/editor.py" line="359"/>
         <source>Language Changed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor.py" line="352"/>
+        <location filename="../markdown_editor_pkg/editor.py" line="360"/>
         <source>Language changed. Some UI elements will update after restart.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor.py" line="362"/>
+        <location filename="../markdown_editor_pkg/editor.py" line="370"/>
         <source>GPU Acceleration Changed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor.py" line="365"/>
+        <location filename="../markdown_editor_pkg/editor.py" line="373"/>
         <source>GPU acceleration setting changed. The application must be restarted for changes to take effect.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -309,13 +309,13 @@
     </message>
     <message>
         <location filename="../markdown_editor_pkg/editor_components.py" line="305"/>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="495"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="499"/>
         <source>Export to PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../markdown_editor_pkg/editor_components.py" line="306"/>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="494"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="498"/>
         <source>Export to HTML</source>
         <translation type="unfinished"></translation>
     </message>
@@ -331,7 +331,7 @@
     </message>
     <message>
         <location filename="../markdown_editor_pkg/editor_components.py" line="325"/>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="650"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="654"/>
         <source>Reset Font</source>
         <translation type="unfinished"></translation>
     </message>
@@ -374,226 +374,241 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="481"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="480"/>
+        <source>Open Recent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="485"/>
         <location filename="../markdown_editor_pkg/editor_help.py" line="123"/>
         <location filename="../markdown_editor_pkg/editor_close.py" line="47"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="485"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="489"/>
         <source>Save As...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="489"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="493"/>
         <location filename="../markdown_editor_pkg/editor_help.py" line="124"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="496"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="500"/>
         <source>PDF Export Settings...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="500"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="504"/>
         <location filename="../markdown_editor_pkg/editor_help.py" line="125"/>
         <source>Exit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="507"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="511"/>
         <location filename="../markdown_editor_pkg/editor_help.py" line="129"/>
         <source>Edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="512"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="516"/>
         <location filename="../markdown_editor_pkg/editor_help.py" line="131"/>
         <source>Undo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="518"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="522"/>
         <location filename="../markdown_editor_pkg/editor_help.py" line="132"/>
         <source>Redo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="525"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="529"/>
         <location filename="../markdown_editor_pkg/editor_help.py" line="133"/>
         <source>Cut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="531"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="535"/>
         <location filename="../markdown_editor_pkg/editor_help.py" line="134"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="537"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="541"/>
         <location filename="../markdown_editor_pkg/editor_help.py" line="135"/>
         <source>Paste</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="544"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="548"/>
         <location filename="../markdown_editor_pkg/editor_help.py" line="136"/>
         <location filename="../markdown_editor_pkg/find_replace.py" line="34"/>
         <source>Find and Replace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="551"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="555"/>
         <source>Insert Image...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="557"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="561"/>
         <location filename="../markdown_editor_pkg/editor_help.py" line="140"/>
         <source>View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="560"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="564"/>
         <source>Refresh Preview</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="564"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="568"/>
         <source>Show Line Numbers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="578"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="582"/>
         <source>Theme: Light</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="579"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="583"/>
         <source>Theme: Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="580"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="584"/>
         <source>Theme: Contrast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="582"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="586"/>
         <source>Theme: Monokai</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="583"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="587"/>
         <source>Theme: Dracula</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="584"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="588"/>
         <source>Theme: One Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="586"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="590"/>
         <source>Theme: GitHub Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="589"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="593"/>
         <source>Theme: Solarized Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="596"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="600"/>
         <source>Editor Theme: Light</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="600"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="604"/>
         <source>Editor Theme: Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="604"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="608"/>
         <source>Editor Theme: Contrast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="610"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="614"/>
         <source>Editor Theme: Monokai</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="615"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="619"/>
         <source>Editor Theme: Dracula</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="620"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="624"/>
         <source>Editor Theme: One Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="625"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="629"/>
         <source>Editor Theme: GitHub Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="630"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="634"/>
         <source>Editor Theme: Solarized Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="638"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="642"/>
         <source>Increase Font</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="644"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="648"/>
         <source>Decrease Font</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="661"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="665"/>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="687"/>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="697"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="691"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="701"/>
         <source>Disable GPU acceleration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="687"/>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="697"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="691"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="701"/>
         <source>Enable GPU acceleration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="707"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="711"/>
         <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="710"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="714"/>
         <location filename="../markdown_editor_pkg/editor_help.py" line="49"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="711"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="715"/>
         <location filename="../markdown_editor_pkg/editor_help.py" line="107"/>
         <source>Keyboard Shortcuts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/editor_components.py" line="712"/>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="716"/>
         <location filename="../markdown_editor_pkg/editor_help.py" line="251"/>
         <source>Markdown Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="726"/>
+        <source>No recent files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="757"/>
+        <source>Clear Recent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -917,6 +932,7 @@ Development assisted by &lt;a href=&quot;{}&quot;&gt;GigaCode&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="747"/>
         <location filename="../markdown_editor_pkg/markdown_validator.py" line="79"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
@@ -932,62 +948,62 @@ Development assisted by &lt;a href=&quot;{}&quot;&gt;GigaCode&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/markdown_validator.py" line="198"/>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="226"/>
         <source>Odd number of backticks (</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/markdown_validator.py" line="200"/>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="228"/>
         <source>) at char {char}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/markdown_validator.py" line="231"/>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="259"/>
         <source>Unclosed {name} marker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/markdown_validator.py" line="246"/>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="274"/>
         <source>Empty image placeholder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/markdown_validator.py" line="255"/>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="283"/>
         <source>Empty link</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/markdown_validator.py" line="264"/>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="292"/>
         <source>Link without URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/markdown_validator.py" line="273"/>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="301"/>
         <source>Image without URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/markdown_validator.py" line="293"/>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="326"/>
         <source>Unclosed link bracket [ at line {num}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/markdown_validator.py" line="319"/>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="352"/>
         <source>Mixed list markers ({prev} and {curr}) at line {num}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/markdown_validator.py" line="351"/>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="384"/>
         <source>{count} line(s) with trailing whitespace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/markdown_validator.py" line="374"/>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="407"/>
         <source>{count} consecutive blank lines</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../markdown_editor_pkg/markdown_validator.py" line="423"/>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="461"/>
         <source>Unclosed HTML tag &lt;{tag}&gt; at line {num}</source>
         <translation type="unfinished"></translation>
     </message>
