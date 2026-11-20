@@ -1,23 +1,16 @@
 """Область отображения номеров строк слева от текста + автопродолжение списков.
 
 Содержит:
-- LineNumberArea — панель с номерами строк
-- MarkdownTextEdit — QTextEdit с номерами строк и автопродолжением списков
+- MarkdownTextEdit — QPlainTextEdit с номерами строк и автопродолжением списков
 """
 
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING
 
-from PyQt6.QtCore import QMargins, QRect, QSize, Qt
-from PyQt6.QtGui import QKeyEvent, QPainter
-from PyQt6.QtWidgets import QTextEdit
-
-if TYPE_CHECKING:
-    from PyQt6.QtGui import QTextBlock
-
-# ─── Паттерны для автопродолжения ────────────────────────────────────────────
+from PyQt6.QtCore import QRect, QSize, Qt
+from PyQt6.QtGui import QColor, QKeyEvent, QPainter
+from PyQt6.QtWidgets import QPlainTextEdit, QWidget
 
 _UNORDERED_LIST_RE = re.compile(r"^(\s*)([-*+])\s")
 _ORDERED_LIST_RE = re.compile(r"^(\s*)(\d+)\.\s")
@@ -51,7 +44,7 @@ def _is_empty_list_item(line: str) -> tuple[bool, str, str] | None:
 
 
 def _is_empty_blockquote(line: str) -> tuple[bool, str] | None:
-    """Проверяет, содержит ли строка только маркер цитаты без текста."""
+    """Проверяет, содержит ли строку только маркер цитаты без текста."""
     m = _BLOCKQUOTE_RE.match(line)
     if m:
         prefix = m.group(2)
@@ -74,83 +67,41 @@ def _get_heading_info(line: str) -> bool:
     return _HEADING_RE.match(line) is not None
 
 
-class LineNumberArea(QTextEdit):
+class LineNumberArea(QWidget):
     """Панель с номерами строк, отображаемая слева от текста."""
 
-    def __init__(self, editor: QTextEdit, parent: QTextEdit | None = None) -> None:
+    def __init__(self, editor: QPlainTextEdit) -> None:
         """Инициализация области номеров строк.
 
         Args:
-            editor: QTextEdit, к которому привязана область номеров строк.
-            parent: Родительский виджет.
+            editor: QPlainTextEdit, к которому привязана область номеров строк.
         """
-        super().__init__(parent)
+        super().__init__(editor)
         self._editor = editor
-        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
-        self.setStyleSheet(
-            "background-color: #f5f5f5; "
-            "color: #888888; "
-            "font-family: Consolas, 'Courier New', monospace; "
-            "font-size: 11px;"
-        )
 
-    def sizeHint(self) -> QSize:  # type: ignore[name-defined]
+    def sizeHint(self) -> QSize:  # type: ignore[override]
         """Возвращает рекомендуемый размер области номеров строк."""
-        return QRect(0, 0, self._editor.line_number_area_width(), 0).size()  # type: ignore[attr-defined]
+        # mypy: line_number_area_width is on MarkdownTextEdit, not QPlainTextEdit
+        return QSize(self._editor.line_number_area_width(), 0)  # type: ignore[attr-defined]
 
     def paintEvent(self, event) -> None:  # type: ignore[override]
         """Перерисовывает номера строк."""
-        painter = QPainter(self)
-        painter.fillRect(event.rect(), Qt.GlobalColor.white)
-
-        # mypy: QTextEdit.firstVisibleBlock() not in stubs
-        block: QTextBlock = self._editor.firstVisibleBlock()  # type: ignore[attr-defined]
-        line_number = block.blockNumber() + 1
-        height = self._editor.fontMetrics().height()
-
-        while block.isValid():
-            # mypy: isHidden() is Qt-specific, not in stubs
-            if block.isVisible() and not block.isHidden():  # type: ignore[attr-defined]
-                # Выравнивание по правому краю
-                text = str(line_number)
-                painter.setPen(Qt.GlobalColor.darkGray)
-                # mypy: verticalScrollBar() can be None
-                sb = self._editor.verticalScrollBar()
-                sb_value = sb.value() if sb is not None else 0
-                # mypy: textCursor().block() can be None
-                cursor_block = self._editor.textCursor().block()
-                painter.drawText(
-                    4,
-                    int(
-                        self.y()
-                        + self._editor.fontMetrics().height() * line_number
-                        - sb_value
-                        - cursor_block.position()
-                    ),
-                    self.width() - 8,
-                    height,
-                    Qt.AlignmentFlag.AlignRight,
-                    text,
-                )
-            else:
-                # Пропускаем скрытые блоки
-                pass
-
-            block = block.next()
-            line_number += 1
-
-        painter.end()
+        # mypy: line_number_area_paint_event is on MarkdownTextEdit, not QPlainTextEdit
+        self._editor.line_number_area_paint_event(event)  # type: ignore[attr-defined]
 
 
-class MarkdownTextEdit(QTextEdit):
-    """QTextEdit с автопродолжением списков, цитат, заголовков и номерами строк.
+class MarkdownTextEdit(QPlainTextEdit):
+    """QPlainTextEdit с автопродолжением списков, цитат, заголовков и номерами строк.
 
     При нажатии Enter на пустом элементе списка или цитаты завершает
     список/цитату. На строке с маркером — продолжает с тем же маркером.
+
+    Номера строк реализованы через отдельный виджет LineNumberArea,
+    который накладывается слева на область viewport (viewport margin).
     """
 
     def __init__(self, parent=None) -> None:
-        """Инициализация кастомного QTextEdit.
+        """Инициализация кастомного QPlainTextEdit.
 
         Args:
             parent: Родительский виджет.
@@ -162,35 +113,28 @@ class MarkdownTextEdit(QTextEdit):
 
     def _connect_line_number_signals(self) -> None:
         """Подключает сигналы для обновления области номеров строк."""
-        try:
-            # mypy: Qt signals not in stubs
-            self.blockCountChanged.connect(self._update_line_number_area_width)  # type: ignore[attr-defined]
-        except AttributeError:
-            pass
-        try:
-            self.updateRequest.connect(self._update_line_number_area)  # type: ignore[attr-defined]
-        except AttributeError:
-            pass
+        self.blockCountChanged.connect(self._update_line_number_area_width)
+        self.updateRequest.connect(self._update_line_number_area)
 
     def line_number_area_width(self) -> int:
         """Возвращает ширину области номеров строк."""
         if not self._show_line_numbers:
             return 0
-        doc = self.document()
-        if doc is None:
-            return 0
-        digits = max(1, len(str(doc.blockCount())))
-        space = 3 + self.fontMetrics().horizontalAdvance(str(digits)) + 10
+        digits = 1
+        max_num = max(1, self.blockCount())
+        while max_num >= 10:
+            max_num //= 10
+            digits += 1
+        space = 3 + self.fontMetrics().horizontalAdvance("9") * digits + 10
         return space
 
-    def _update_line_number_area_width(self) -> None:
+    def _update_line_number_area_width(self, _=0) -> None:
         """Обновляет ширину области номеров строк."""
         adjustment = self.line_number_area_width()
-        vp = self.viewport()
-        if vp is not None and adjustment != vp.width():
-            self.setViewportMargins(QMargins(adjustment, 0, 0, 0))  # type: ignore[attr-defined]
+        if adjustment != self.viewportMargins().left():
+            self.setViewportMargins(adjustment, 0, 0, 0)
 
-    def _update_line_number_area(self, rect: QRect, dy: int) -> None:  # type: ignore[reportUnknownVariableType]
+    def _update_line_number_area(self, rect: QRect, dy: int) -> None:
         """Перерисовывает область номеров строк при изменении содержимого."""
         if self._line_number_area is None:
             return
@@ -198,7 +142,7 @@ class MarkdownTextEdit(QTextEdit):
             self._line_number_area.scroll(0, dy)
         else:
             self._line_number_area.update(
-                0, int(rect.top()), self._line_number_area.width(), int(rect.height())
+                0, rect.y(), self._line_number_area.width(), rect.height()
             )
 
         vp = self.viewport()
@@ -218,13 +162,24 @@ class MarkdownTextEdit(QTextEdit):
 
         if show:
             if self._line_number_area is None:
-                self._line_number_area = LineNumberArea(self, self)
+                self._line_number_area = LineNumberArea(self)
             self._update_line_number_area_width()
+            self._update_line_number_area_geometry()
+            self._line_number_area.show()
+            self._line_number_area.update()
         else:
             if self._line_number_area is not None:
                 self._line_number_area.deleteLater()
                 self._line_number_area = None
             self._update_line_number_area_width()
+
+    def _update_line_number_area_geometry(self) -> None:
+        """Обновляет геометрию области номеров строк."""
+        if self._line_number_area is not None:
+            cr = self.contentsRect()
+            self._line_number_area.setGeometry(
+                QRect(cr.left(), cr.top(), self.line_number_area_width(), cr.height())
+            )
 
     def is_show_line_numbers(self) -> bool:
         """Возвращает True если номера строк включены."""
@@ -233,11 +188,43 @@ class MarkdownTextEdit(QTextEdit):
     def resizeEvent(self, event) -> None:  # type: ignore[override]
         """Обработка изменения размера редактора."""
         super().resizeEvent(event)
-        if self._line_number_area is not None:
-            cr = self.contentsRect()
-            self._line_number_area.setGeometry(
-                QRect(cr.left(), cr.top(), self.line_number_area_width(), cr.height())
-            )
+        self._update_line_number_area_geometry()
+
+    def line_number_area_paint_event(self, event) -> None:
+        """Отрисовка номеров строк в LineNumberArea."""
+        painter = QPainter(self._line_number_area)  # type: ignore[arg-type]
+        painter.fillRect(event.rect(), QColor("#f0f0f0"))
+
+        block = self.firstVisibleBlock()
+        block_number = block.blockNumber()
+        top = round(self.blockBoundingGeometry(block).translated(self.contentOffset()).top())
+        bottom = top + round(self.blockBoundingRect(block).height())
+
+        # Получаем цвет текста из палитры
+        palette = self.palette()
+        # mypy: color() not in stubs
+        dim_color = palette.color(palette.ColorRole.Midlight)  # type: ignore[attr-defined]
+
+        painter.setPen(dim_color)
+
+        while block.isValid() and top <= event.rect().bottom():
+            if block.isVisible() and bottom >= event.rect().top():
+                number = str(block_number + 1)
+                painter.drawText(
+                    0,
+                    top,
+                    self._line_number_area.width() - 5,  # type: ignore[union-attr]
+                    round(self.blockBoundingRect(block).height()),
+                    Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter,
+                    number,
+                )
+
+            block = block.next()
+            top = bottom
+            bottom = top + round(self.blockBoundingRect(block).height())
+            block_number += 1
+
+        painter.end()
 
     def keyPressEvent(self, e: QKeyEvent | None) -> None:
         """Обработка нажатия клавиш с автопродолжением списков и цитат.
@@ -265,12 +252,9 @@ class MarkdownTextEdit(QTextEdit):
 
         if empty_list is not None:
             # Пустой элемент списка — завершаем список
-            # Удаляем маркер с текущей строки (оставляем строку пустой)
-            # Удаляем: от начала строки до конца маркера
             cursor.movePosition(cursor.MoveOperation.StartOfLine)
             cursor.movePosition(cursor.MoveOperation.EndOfLine, cursor.MoveMode.KeepAnchor)
             cursor.removeSelectedText()
-            # Вставляем пустую строку и не добавляем маркер
             cursor.insertText("\n")
             return True
 
@@ -279,7 +263,6 @@ class MarkdownTextEdit(QTextEdit):
 
         if empty_bq is not None:
             # Пустая цитата — завершаем цитату
-            # Удаляем маркер цитаты с текущей строки
             cursor.movePosition(cursor.MoveOperation.StartOfLine)
             cursor.movePosition(cursor.MoveOperation.EndOfLine, cursor.MoveMode.KeepAnchor)
             cursor.removeSelectedText()
@@ -300,22 +283,17 @@ class MarkdownTextEdit(QTextEdit):
         if list_info:
             indent, marker = list_info
             if bq_info:
-                # Цитата + список: > - элемент
                 prefix_parts.append(f"{bq_info[1]}{marker}")
             else:
                 prefix_parts.append(f"{indent}{marker}")
         elif bq_info:
-            # Только цитата
             prefix_parts.append(f"{bq_info[1]}")
 
         prefix = "".join(prefix_parts)
 
-        # Разрываем текущую строку — это создаст новую строку и переместит курсор
         cursor.insertText("\n")
-        # Вставляем префикс в начало новой строки
         cursor.insertText(prefix)
 
-        # Для заголовка — ещё одна пустая строка
         if heading_info:
             cursor.insertText("\n")
 

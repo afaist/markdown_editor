@@ -15,7 +15,7 @@ def test_line_numbers_toggle_on():
     widget = MarkdownTextEdit()
     widget.set_show_line_numbers(True)
     assert widget.is_show_line_numbers() is True
-    assert widget._line_number_area is not None
+    assert widget.line_number_area_width() > 0
     widget.deleteLater()
 
 
@@ -25,7 +25,7 @@ def test_line_numbers_toggle_off():
     widget.set_show_line_numbers(True)
     widget.set_show_line_numbers(False)
     assert widget.is_show_line_numbers() is False
-    assert widget._line_number_area is None
+    assert widget.line_number_area_width() == 0
     widget.deleteLater()
 
 
@@ -33,9 +33,10 @@ def test_line_numbers_toggle_same_state_noop():
     """Повторное переключение в то же состояние — noop."""
     widget = MarkdownTextEdit()
     widget.set_show_line_numbers(True)
-    area = widget._line_number_area
+    width1 = widget.line_number_area_width()
     widget.set_show_line_numbers(True)  # Повторно включаем
-    assert widget._line_number_area is area  # Тот же объект
+    width2 = widget.line_number_area_width()
+    assert width1 == width2
     widget.deleteLater()
 
 

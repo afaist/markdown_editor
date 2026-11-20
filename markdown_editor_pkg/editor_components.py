@@ -142,7 +142,7 @@ class UIBuilder:
         text_edit.setFont(QFont("Consolas", 11))
         self._editor.theme_manager.set_editor_theme("light", text_edit, persist=False)
         editor_layout.addWidget(text_edit)
-        self._editor.editor = text_edit  # type: ignore[attr-defined]
+        self._editor.editor = text_edit  # type: ignore[assignment]
 
         splitter.addWidget(editor_frame)
 
@@ -569,7 +569,7 @@ class MenuBuilder:
         show_ln = bool(settings.get("show_line_numbers", False))
         self._line_numbers_action.setChecked(show_ln)
         self._line_numbers_action.triggered.connect(
-            lambda: parent._toggle_line_numbers(self._line_numbers_action)  # type: ignore[attr-defined]
+            lambda checked: parent._toggle_line_numbers(checked)
         )
         view_menu.addAction(self._line_numbers_action)
         view_menu.addSeparator()

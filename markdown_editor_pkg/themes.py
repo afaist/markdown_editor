@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import ClassVar
 
 from PyQt6.QtGui import QFont
-from PyQt6.QtWidgets import QTextEdit
+from PyQt6.QtWidgets import QPlainTextEdit, QTextEdit
 
 from markdown_editor_pkg.themes_loader import load_editor_themes, load_preview_themes
 
@@ -134,13 +134,17 @@ class ThemesManager:
         return self.editor_theme
 
     def set_editor_theme(
-        self, theme_name: str, text_edit: QTextEdit | None = None, *, persist: bool = True
+        self,
+        theme_name: str,
+        text_edit: QTextEdit | QPlainTextEdit | None = None,
+        *,
+        persist: bool = True,
     ) -> None:
-        """Установить тему редактора и применить стиль к QTextEdit.
+        """Установить тему редактора и применить стиль к QTextEdit/QPlainTextEdit.
 
         Args:
             theme_name: Имя темы.
-            text_edit: Виджет QTextEdit для применения стиля.
+            text_edit: Виджет QTextEdit/QPlainTextEdit для применения стиля.
             persist: Сохранять ли тему в Settings (по True).
         """
         if theme_name in self._get_editor_styles():
@@ -177,14 +181,19 @@ class ThemesManager:
         self._font_size = max(self.MIN_FONT_SIZE, min(self.MAX_FONT_SIZE, value))
 
     def set_font(
-        self, family: str, size: int, text_edit: QTextEdit | None, *, persist: bool = True
+        self,
+        family: str,
+        size: int,
+        text_edit: QTextEdit | QPlainTextEdit | None,
+        *,
+        persist: bool = True,
     ) -> None:
-        """Установить шрифт и размер для QTextEdit.
+        """Установить шрифт и размер для QTextEdit/QPlainTextEdit.
 
         Args:
             family: Семейство шрифта.
             size: Размер шрифта.
-            text_edit: Виджет QTextEdit для применения шрифта.
+            text_edit: Виджет QTextEdit/QPlainTextEdit для применения шрифта.
             persist: Сохранять ли шрифт в Settings (по True).
         """
         if persist:
@@ -198,7 +207,7 @@ class ThemesManager:
             font = QFont(family, size)
             text_edit.setFont(font)
 
-    def increase_font(self, text_edit: QTextEdit | None) -> int:
+    def increase_font(self, text_edit: QTextEdit | QPlainTextEdit | None) -> int:
         """Увеличить размер шрифта на 1. Возвращает новый размер."""
         if self.font_size < self.MAX_FONT_SIZE:
             self.font_size += 1
@@ -207,7 +216,7 @@ class ThemesManager:
             text_edit.setFont(font)
         return self.font_size
 
-    def decrease_font(self, text_edit: QTextEdit | None) -> int:
+    def decrease_font(self, text_edit: QTextEdit | QPlainTextEdit | None) -> int:
         """Уменьшить размер шрифта на 1. Возвращает новый размер."""
         if self.font_size > self.MIN_FONT_SIZE:
             self.font_size -= 1
@@ -216,7 +225,7 @@ class ThemesManager:
             text_edit.setFont(font)
         return self.font_size
 
-    def reset_font_to_default(self, text_edit: QTextEdit | None) -> None:
+    def reset_font_to_default(self, text_edit: QTextEdit | QPlainTextEdit | None) -> None:
         """Сбросить шрифт и размер к значениям по умолчанию."""
         self._font_family = self.DEFAULT_FONTS[0]
         self._font_size = self.DEFAULT_FONT_SIZE

@@ -156,52 +156,52 @@ class TestEditorStyle:
         self.tm = ThemesManager()
 
     def test_get_editor_style_light(self):
-        """Светлая тема редактора содержит QTextEdit, background-color: #ffffff."""
+        """Светлая тема редактора содержит QPlainTextEdit, background-color: #ffffff."""
         self.tm.editor_theme = "light"
         style = self.tm.get_editor_style()
-        assert "QTextEdit" in style
+        assert "QPlainTextEdit" in style
         assert "#ffffff" in style
 
     def test_get_editor_style_dark(self):
-        """Тёмная тема редактора содержит QTextEdit, background-color: #1e1e1e."""
+        """Тёмная тема редактора содержит QPlainTextEdit, background-color: #1e1e1e."""
         self.tm.editor_theme = "dark"
         style = self.tm.get_editor_style()
-        assert "QTextEdit" in style
+        assert "QPlainTextEdit" in style
         assert "#1e1e1e" in style
 
     def test_get_editor_style_monokai(self):
-        """Тема Monokai редактора содержит QTextEdit, background-color: #272822."""
+        """Тема Monokai редактора содержит QPlainTextEdit, background-color: #272822."""
         self.tm.editor_theme = "monokai"
         style = self.tm.get_editor_style()
-        assert "QTextEdit" in style
+        assert "QPlainTextEdit" in style
         assert "#272822" in style
 
     def test_get_editor_style_dracula(self):
-        """Тема Dracula редактора содержит QTextEdit, background-color: #282A36."""
+        """Тема Dracula редактора содержит QPlainTextEdit, background-color: #282A36."""
         self.tm.editor_theme = "dracula"
         style = self.tm.get_editor_style()
-        assert "QTextEdit" in style
+        assert "QPlainTextEdit" in style
         assert "#282A36" in style
 
     def test_get_editor_style_one_dark(self):
-        """Тема One Dark редактора содержит QTextEdit, background-color: #282C34."""
+        """Тема One Dark редактора содержит QPlainTextEdit, background-color: #282C34."""
         self.tm.editor_theme = "one-dark"
         style = self.tm.get_editor_style()
-        assert "QTextEdit" in style
+        assert "QPlainTextEdit" in style
         assert "#282C34" in style
 
     def test_get_editor_style_github_dark(self):
-        """Тема GitHub Dark редактора содержит QTextEdit, background-color: #0D1117."""
+        """Тема GitHub Dark редактора содержит QPlainTextEdit, background-color: #0D1117."""
         self.tm.editor_theme = "github-dark"
         style = self.tm.get_editor_style()
-        assert "QTextEdit" in style
+        assert "QPlainTextEdit" in style
         assert "#0D1117" in style
 
     def test_get_editor_style_solarized_dark(self):
-        """Тема Solarized Dark редактора содержит QTextEdit, background-color: #002B36."""
+        """Тема Solarized Dark редактора содержит QPlainTextEdit, background-color: #002B36."""
         self.tm.editor_theme = "solarized-dark"
         style = self.tm.get_editor_style()
-        assert "QTextEdit" in style
+        assert "QPlainTextEdit" in style
         assert "#002B36" in style
 
 

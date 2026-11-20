@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QCloseEvent
-from PyQt6.QtWidgets import QMainWindow
+from PyQt6.QtWidgets import QMainWindow, QPlainTextEdit
 
 from markdown_editor_pkg.editor_close import CloseHandler
 from markdown_editor_pkg.editor_components import MenuBuilder, ToolbarBuilder, UIBuilder
@@ -64,7 +64,7 @@ class MarkdownEditorPyQt(QMainWindow):
         self.setWindowTitle(tr("Markdown Editor (PyQt6)"))
 
         # Виджеты (заполняются UIBuilder)
-        self.editor: QTextEdit
+        self.editor: QTextEdit | QPlainTextEdit
         self.preview: QWebEngineView
         self.splitter: QSplitter
         self.editor_frame: QFrame
@@ -201,8 +201,8 @@ class MarkdownEditorPyQt(QMainWindow):
 
         # Номера строк
         show_ln = settings.get("show_line_numbers", False)
-        # mypy: set_show_line_numbers is on MarkdownTextEdit, not base QTextEdit
-        self.editor.set_show_line_numbers(bool(show_ln))  # type: ignore[attr-defined]
+        # mypy: set_show_line_numbers is on MarkdownTextEdit, not base QTextEdit/QPlainTextEdit
+        self.editor.set_show_line_numbers(bool(show_ln))  # type: ignore[union-attr]
 
         # Размер окна
         from PyQt6.QtGui import QGuiApplication
@@ -295,15 +295,16 @@ class MarkdownEditorPyQt(QMainWindow):
         self.theme_font_handler.reset_font()
 
     # Номера строк
-    def _toggle_line_numbers(self, action) -> None:  # type: ignore[reportUnknownParameterType]
-        """Переключает отображение номеров строк и сохраняет настройку."""
+    def _toggle_line_numbers(self, checked: bool) -> None:
+        """Обработчик сигнала triggered(bool) от QAction.
+
+        Аргумент checked — уже новое состояние, устанавливаем его напрямую.
+        """
+        # mypy: set_show_line_numbers is on MarkdownTextEdit, not base QTextEdit/QPlainTextEdit
+        self.editor.set_show_line_numbers(checked)  # type: ignore[union-attr]
         from markdown_editor_pkg.settings import Settings
 
-        new_val = not action.isChecked()
-        action.setChecked(new_val)
-        # mypy: set_show_line_numbers is on MarkdownTextEdit, not base QTextEdit
-        self.editor.set_show_line_numbers(new_val)  # type: ignore[attr-defined]
-        Settings().set("show_line_numbers", new_val)
+        Settings().set("show_line_numbers", checked)
 
     # Emoji
     def _show_emoji_picker(self) -> None:
