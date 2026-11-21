@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import logging
+import os
+import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
+from PyQt6.QtCore import Qt, QUrl
+from PyQt6.QtGui import QDesktopServices, QFont
 from PyQt6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
@@ -42,6 +44,26 @@ class HelpHandler:
             editor: Ссылка на основной объект MarkdownEditorPyQt.
         """
         self.editor = editor
+
+    @staticmethod
+    def _open_markdown_guide(url: str) -> None:
+        """Открыть внешнюю ссылку в системном браузере, подавив stderr."""
+        QDesktopServices.openUrl(QUrl(url))
+
+    @staticmethod
+    def _open_url_silent(url: str) -> None:
+        """Открыть URL через xdg-open с подавлением вывода браузера."""
+        if os.name == "posix":
+            try:
+                subprocess.Popen(
+                    ["xdg-open", url],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                return
+            except OSError:
+                pass
+        QDesktopServices.openUrl(QUrl(url))
 
     def show_about(self) -> None:
         """Показать диалог «О программе» с информацией и ссылкой на GigaCode."""
@@ -363,7 +385,10 @@ class HelpHandler:
         )
         link_label.setWordWrap(True)
         link_label.setTextFormat(Qt.TextFormat.RichText)
-        link_label.setOpenExternalLinks(True)
+        link_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
+        link_label.linkActivated.connect(  # type: ignore[attr-defined]
+            lambda url: HelpHandler._open_url_silent(url),
+        )
         layout.addWidget(link_label)
 
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
