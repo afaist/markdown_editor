@@ -104,12 +104,12 @@ except Exception:
     local orig_bin="$appimage_dir/${app_name}.appdir/usr/bin/${app_name}"
     if [ -f "$orig_bin" ]; then
         mv "$orig_bin" "${orig_bin}.bin"
-        cat > "$orig_bin" << 'WRAPPER'
+        cat > "$orig_bin" << WRAPPER
 #!/bin/bash
 # Обёртка для предотвращения конфликтов системных GIO-модулей
 export QT_QPA_PLATFORMTHEME=none
 export GIO_EXTRA_MODULES=""
-exec "$(dirname "$0")/${app_name}.bin" "$@"
+exec "\$(dirname "\$0")/${app_name}.bin" "\$@"
 WRAPPER
         chmod +x "$orig_bin"
         log_info "Обёртка создана"
