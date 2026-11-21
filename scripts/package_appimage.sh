@@ -27,7 +27,30 @@ mkdir -p "$APPDIR/usr/share/icons/hicolor/256x256/apps"
 mkdir -p "$APPDIR/usr/share/metainfo"
 
 # Копируем собранные файлы
+echo "[INFO] Подготовка бинарника..."
 cp -r "$SOURCE_DIR"/* "$APPDIR/usr/bin/"
+
+# Переименовываем оригинальный бинарник и создаём обёртку
+# Обёртка устанавливает переменные окружения для предотвращения конфликтов
+# системных GIO-модулей (glib version mismatch между дистрибутивами)
+ORIG_BIN="$APPDIR/usr/bin/${APP_NAME}"
+if [ -f "$ORIG_BIN" ]; then
+    mv "$ORIG_BIN" "${ORIG_BIN}.bin"
+    cat > "$ORIG_BIN" << 'WRAPPER'
+#!/bin/bash
+# Обёртка для предотвращения конфликтов системных GIO-модулей
+# AppImage собран на Ubuntu 24.04 (glib 2.80), запускается на системах
+# с glib 2.74 — системный libgvfsdbus.so ищет символы, которых нет.
+# Отключаем загрузку системных GIO-модулей Qt.
+export QT_QPA_PLATFORMTHEME=none
+export GIO_EXTRA_MODULES=""
+exec "$(dirname "$0")/${APP_NAME}.bin" "$@"
+WRAPPER
+    chmod +x "$ORIG_BIN"
+    echo "[OK] Обёртка создана"
+else
+    echo "[WARN] Бинарник не найден: $ORIG_BIN"
+fi
 echo "[OK] Файлы скопированы"
 
 # Копируем Qt6 библиотеки из pip-пакета

@@ -98,6 +98,23 @@ except Exception:
     # Копируем собранные файлы
     cp -r dist/${app_name}/* "$appimage_dir/${app_name}.appdir/usr/bin/"
 
+    # Создаём обёртку для предотвращения конфликтов системных GIO-модулей
+    # AppImage собран на Ubuntu 24.04 (glib 2.80), запускается на системах
+    # с glib 2.74 — системный libgvfsdbus.so ищет символы, которых нет.
+    local orig_bin="$appimage_dir/${app_name}.appdir/usr/bin/${app_name}"
+    if [ -f "$orig_bin" ]; then
+        mv "$orig_bin" "${orig_bin}.bin"
+        cat > "$orig_bin" << 'WRAPPER'
+#!/bin/bash
+# Обёртка для предотвращения конфликтов системных GIO-модулей
+export QT_QPA_PLATFORMTHEME=none
+export GIO_EXTRA_MODULES=""
+exec "$(dirname "$0")/${app_name}.bin" "$@"
+WRAPPER
+        chmod +x "$orig_bin"
+        log_info "Обёртка создана"
+    fi
+
     # Копируем Qt6 библиотеки из pip-пакета
     log_info "Копирование Qt6 библиотек..."
     python3 -c '
