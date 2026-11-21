@@ -109,7 +109,9 @@ except Exception:
         cat > "$orig_bin" << WRAPPER
 #!/bin/bash
 # Обёртка для предотвращения конфликтов системных GIO/GVFS модулей
-# GIO_USE_VFS=local — не загружать GVFS (избегает конфликтов GLib символов)
+# LD_PRELOAD — перехватывает dlopen GIO-модулей (предотвращает загрузку
+# libgvfsdbus.so с несовместимыми символами GLib)
+# GIO_USE_VFS=local — не загружать GVFS
 # GIO_EXTRA_MODULES="" — отключить GIO-модули Qt
 # QT_QPA_PLATFORMTHEME=none — отключить тему интеграции (GTK/Qt конфликт)
 export GIO_USE_VFS=local
@@ -119,8 +121,8 @@ _APPDIR="\$(dirname "\$(readlink -f "\$0")")"
 # Если бинарник в корне AppImage — бин.ар в usr/bin/
 # Если бинарник уже в usr/bin/ — бин.ар в той же директории
 case "\$_APPDIR" in
-    */usr/bin) exec "\$_APPDIR/${app_name}.bin" "\$@" ;;
-    *)         exec "\$_APPDIR/usr/bin/${app_name}.bin" "\$@" ;;
+    */usr/bin) exec LD_PRELOAD="\$_APPDIR/libgio_preload.so" "\$_APPDIR/markdown-editor.bin" "\$@" ;;
+    *)         exec LD_PRELOAD="\$_APPDIR/libgio_preload.so" "\$_APPDIR/usr/bin/markdown-editor.bin" "\$@" ;;
 esac
 WRAPPER
         chmod +x "$orig_bin"
@@ -129,6 +131,11 @@ WRAPPER
 
     # Копируем Qt6 библиотеки из pip-пакета
     log_info "Копирование Qt6 библиотек..."
+
+    # Компилируем LD_PRELOAD для перехвата dlopen GIO-модулей
+    # Это предотвращает загрузку libgvfsdbus.so с несовместимыми символами GLib
+    log_info "Компиляция LD_PRELOAD для GIO..."
+    gcc -shared -fPIC -o "${appimage_dir}/${app_name}.appdir/usr/bin/libgio_preload.so" ld_preload_gio.c -ldl 2>/dev/null || log_warn "Не удалось скомпилировать GIO LD_PRELOAD"
     python3 -c '
 import os
 from pathlib import Path

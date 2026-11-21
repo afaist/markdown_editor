@@ -41,7 +41,9 @@ if [ -f "$ORIG_BIN" ]; then
     cat > "$ORIG_BIN" << WRAPPER
 #!/bin/bash
 # Обёртка для предотвращения конфликтов системных GIO/GVFS модулей
-# GIO_USE_VFS=local — не загружать GVFS (избегает конфликтов GLib символов)
+# LD_PRELOAD — перехватывает dlopen GIO-модулей (предотвращает загрузку
+# libgvfsdbus.so с несовместимыми символами GLib)
+# GIO_USE_VFS=local — не загружать GVFS
 # GIO_EXTRA_MODULES="" — отключить GIO-модули Qt
 # QT_QPA_PLATFORMTHEME=none — отключить тему интеграции (GTK/Qt конфликт)
 export GIO_USE_VFS=local
@@ -51,8 +53,8 @@ _APPDIR="\$(dirname "\$(readlink -f "\$0")")"
 # Если бинарник в корне AppImage — бин.ар в usr/bin/
 # Если бинарник уже в usr/bin/ — бин.ар в той же директории
 case "\$_APPDIR" in
-    */usr/bin) exec "\$_APPDIR/${APP_NAME}.bin" "\$@" ;;
-    *)         exec "\$_APPDIR/usr/bin/${APP_NAME}.bin" "\$@" ;;
+    */usr/bin) exec LD_PRELOAD="\$_APPDIR/libgio_preload.so" "\$_APPDIR/${APP_NAME}.bin" "\$@" ;;
+    *)         exec LD_PRELOAD="\$_APPDIR/libgio_preload.so" "\$_APPDIR/usr/bin/${APP_NAME}.bin" "\$@" ;;
 esac
 WRAPPER
     chmod +x "$ORIG_BIN"
@@ -133,6 +135,10 @@ cp markdown-editor.desktop "$APPDIR/usr/share/applications/${APP_NAME}.desktop"
 sed -i 's|Exec=/opt/markdown-editor/markdown-editor|Exec=markdown-editor|' \
     "$APPDIR/usr/share/applications/${APP_NAME}.desktop"
 echo "[OK] Desktop файл создан"
+
+# Компилируем LD_PRELOAD для перехвата dlopen GIO-модулей
+echo "[INFO] Компиляция GIO LD_PRELOAD..."
+gcc -shared -fPIC -o "$APPDIR/usr/bin/libgio_preload.so" ld_preload_gio.c -ldl 2>/dev/null || echo "[WARN] Не удалось скомпилировать GIO LD_PRELOAD"
 
 # Icon — resize to 256x256 square
 if [ -f "icon.png" ]; then
