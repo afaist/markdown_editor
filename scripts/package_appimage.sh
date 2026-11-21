@@ -37,19 +37,19 @@ ORIG_BIN="$APPDIR/usr/bin/${APP_NAME}"
 if [ -f "$ORIG_BIN" ]; then
     mv "$ORIG_BIN" "${ORIG_BIN}.bin"
     # Обёртка использует readlink -f для определения пути к AppImage.
-    # linuxdeploy может разместить AppRun в корне или в usr/bin/,
-    # поэтому поднимаемся на уровень выше при необходимости.
+    # Бинарник всегда в usr/bin/ относительно AppImage root.
     cat > "$ORIG_BIN" << WRAPPER
 #!/bin/bash
 # Обёртка для предотвращения конфликтов системных GIO-модулей
 export QT_QPA_PLATFORMTHEME=none
 export GIO_EXTRA_MODULES=""
 _APPDIR="\$(dirname "\$(readlink -f "\$0")")"
-# Если AppRun внутри usr/bin/ — поднимаемся на уровень выше
+# Если бинарник в корне AppImage — бин.ар в usr/bin/
+# Если бинарник уже в usr/bin/ — бин.ар в той же директории
 case "\$_APPDIR" in
-    */usr/bin) _APPDIR="\$(dirname "\$_APPDIR")" ;;
+    */usr/bin) exec "\$_APPDIR/${APP_NAME}.bin" "\$@" ;;
+    *)         exec "\$_APPDIR/usr/bin/${APP_NAME}.bin" "\$@" ;;
 esac
-exec "\$_APPDIR/usr/bin/${APP_NAME}.bin" "\$@"
 WRAPPER
     chmod +x "$ORIG_BIN"
     echo "[OK] Обёртка создана"
