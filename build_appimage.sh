@@ -117,13 +117,9 @@ except Exception:
 export GIO_USE_VFS=local
 export GIO_EXTRA_MODULES=""
 export QT_QPA_PLATFORMTHEME=none
-_APPDIR="\$(dirname "\$(readlink -f "\$0")")"
-# Если бинарник в корне AppImage — бин.ар в usr/bin/
-# Если бинарник уже в usr/bin/ — бин.ар в той же директории
-case "\$_APPDIR" in
-    */usr/bin) export LD_PRELOAD="\$_APPDIR/libgio_preload.so"; exec "\$_APPDIR/markdown-editor.bin" "\$@" ;;
-    *)         export LD_PRELOAD="\$_APPDIR/libgio_preload.so"; exec "\$_APPDIR/usr/bin/markdown-editor.bin" "\$@" ;;
-esac
+# libgio_preload.so всегда лежит рядом с этим скриптом
+export LD_PRELOAD="\$(dirname "\$(readlink -f "\$0")")/libgio_preload.so"
+exec "\$(dirname "\$(readlink -f "\$0")")/${app_name}.bin" "\$@"
 WRAPPER
         chmod +x "$orig_bin"
         log_info "Обёртка создана"
@@ -135,7 +131,15 @@ WRAPPER
     # Компилируем LD_PRELOAD для перехвата dlopen GIO-модулей
     # Это предотвращает загрузку libgvfsdbus.so с несовместимыми символами GLib
     log_info "Компиляция LD_PRELOAD для GIO..."
-    gcc -shared -fPIC -o "${appimage_dir}/${app_name}.appdir/usr/bin/libgio_preload.so" ld_preload_gio.c -ldl 2>/dev/null || log_warn "Не удалось скомпилировать GIO LD_PRELOAD"
+    if ! gcc -shared -fPIC -o "${appimage_dir}/${app_name}.appdir/usr/bin/libgio_preload.so" ld_preload_gio.c -ldl; then
+        log_error "Не удалось скомпилировать GIO LD_PRELOAD"
+        exit 1
+    fi
+    if [ ! -f "${appimage_dir}/${app_name}.appdir/usr/bin/libgio_preload.so" ]; then
+        log_error "libgio_preload.so не создан"
+        exit 1
+    fi
+    log_info "GIO LD_PRELOAD скомпилирован"
     python3 -c '
 import os
 from pathlib import Path

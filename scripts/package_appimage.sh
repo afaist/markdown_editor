@@ -49,13 +49,9 @@ if [ -f "$ORIG_BIN" ]; then
 export GIO_USE_VFS=local
 export GIO_EXTRA_MODULES=""
 export QT_QPA_PLATFORMTHEME=none
-_APPDIR="\$(dirname "\$(readlink -f "\$0")")"
-# Если бинарник в корне AppImage — бин.ар в usr/bin/
-# Если бинарник уже в usr/bin/ — бин.ар в той же директории
-case "\$_APPDIR" in
-    */usr/bin) export LD_PRELOAD="\$_APPDIR/libgio_preload.so"; exec "\$_APPDIR/${APP_NAME}.bin" "\$@" ;;
-    *)         export LD_PRELOAD="\$_APPDIR/libgio_preload.so"; exec "\$_APPDIR/usr/bin/${APP_NAME}.bin" "\$@" ;;
-esac
+# libgio_preload.so всегда лежит рядом с этим скриптом
+export LD_PRELOAD="\$(dirname "\$(readlink -f "\$0")")/libgio_preload.so"
+exec "\$(dirname "\$(readlink -f "\$0")")/${APP_NAME}.bin" "\$@"
 WRAPPER
     chmod +x "$ORIG_BIN"
     echo "[OK] Обёртка создана"
@@ -138,7 +134,15 @@ echo "[OK] Desktop файл создан"
 
 # Компилируем LD_PRELOAD для перехвата dlopen GIO-модулей
 echo "[INFO] Компиляция GIO LD_PRELOAD..."
-gcc -shared -fPIC -o "$APPDIR/usr/bin/libgio_preload.so" ld_preload_gio.c -ldl 2>/dev/null || echo "[WARN] Не удалось скомпилировать GIO LD_PRELOAD"
+if ! gcc -shared -fPIC -o "$APPDIR/usr/bin/libgio_preload.so" ld_preload_gio.c -ldl; then
+    echo "[ERROR] Не удалось скомпилировать GIO LD_PRELOAD"
+    exit 1
+fi
+if [ ! -f "$APPDIR/usr/bin/libgio_preload.so" ]; then
+    echo "[ERROR] libgio_preload.so не создан"
+    exit 1
+fi
+echo "[OK] GIO LD_PRELOAD скомпилирован"
 
 # Icon — resize to 256x256 square
 if [ -f "icon.png" ]; then
