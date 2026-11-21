@@ -37,22 +37,25 @@ datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
 # collect_all('PyQt6') only processes the PyQt6/ Python package.
 # The Qt binaries (plugins, icudtl.dat, Qt6Core.dll, etc.) live in
-# PyQt6/Qt/ which is a sibling directory and must be collected explicitly.
+# a sibling directory — name changed from Qt/ to Qt6/ in PyQt6 >= 6.8.
 import importlib.util
 _pyqt6_spec = importlib.util.find_spec('PyQt6')
 _pyqt6_base = os.path.dirname(_pyqt6_spec.origin) if _pyqt6_spec else None
 if _pyqt6_base:
-    qt_base = os.path.join(_pyqt6_base, 'Qt')
-    if os.path.isdir(qt_base):
-        for root, dirs, files in os.walk(qt_base):
-            for f in files:
-                src = os.path.join(root, f)
-                rel = os.path.relpath(src, _pyqt6_base)
-                dst = os.path.join('PyQt6', os.path.dirname(rel))
-                if f.endswith(('.dll', '.exe', '.so', '.dylib', '.a')):
-                    binaries.append((src, dst))
-                else:
-                    datas.append((src, dst))
+    for qt_dir_name in ('Qt6', 'Qt'):
+        qt_base = os.path.join(_pyqt6_base, qt_dir_name)
+        if os.path.isdir(qt_base):
+            # Walk all subdirectories (plugins, lib, bin, translations, etc.)
+            for root, dirs, files in os.walk(qt_base):
+                for f in files:
+                    src = os.path.join(root, f)
+                    rel = os.path.relpath(src, _pyqt6_base)
+                    dst = os.path.join('PyQt6', qt_dir_name, os.path.dirname(rel))
+                    if f.endswith(('.dll', '.exe', '.so', '.dylib', '.a')):
+                        binaries.append((src, dst))
+                    else:
+                        datas.append((src, dst))
+            break  # only one of Qt/ or Qt6/ exists
 
 # Include libpython shared library (required when building with pyenv)
 libpython = sysconfig.get_config_var('LIBPL')
