@@ -173,7 +173,6 @@ class MarkdownValidator:
     def _check_unclosed_inline_formatting(self, lines: list[str], report: ValidationReport) -> None:
         """Проверка незакрытых inline-форматов: **_, __/, ~~/, `."""
         for i, line in enumerate(lines, start=1):
-            stripped = line.strip()
             # Пропускаем строки внутри блоков кода
             if self._is_inside_code_block(lines, i - 1):
                 continue
