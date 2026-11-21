@@ -1,7 +1,9 @@
 """Runtime hook to prevent GIO from loading system modules that conflict with bundled GLib."""
 
 import os
+import sys
 
-# Prevent GIO from loading system GIO modules (gvfs, etc.) which may have
-# incompatible GLib symbols (e.g., g_variant_builder_init_static)
-os.environ["GIO_EXTRA_MODULES"] = ""
+# GIO is a Linux-specific D-Bus/GVfs subsystem. On Windows this is irrelevant
+# and may cause unnecessary warnings in Qt's plugin loader.
+if sys.platform != "win32":
+    os.environ["GIO_EXTRA_MODULES"] = ""

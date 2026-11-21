@@ -36,12 +36,17 @@ cp -r "$SOURCE_DIR"/* "$APPDIR/usr/bin/"
 ORIG_BIN="$APPDIR/usr/bin/${APP_NAME}"
 if [ -f "$ORIG_BIN" ]; then
     mv "$ORIG_BIN" "${ORIG_BIN}.bin"
+    # Обёртка использует /proc/self/exe для надёжного определения пути к AppImage.
+    # linuxdeploy размещает обёртку в корне AppImage, а бинарник — в usr/bin/,
+    # поэтому dirname "$0" не работает — бинарник не в той же директории.
     cat > "$ORIG_BIN" << WRAPPER
 #!/bin/bash
 # Обёртка для предотвращения конфликтов системных GIO-модулей
 export QT_QPA_PLATFORMTHEME=none
 export GIO_EXTRA_MODULES=""
-exec "\$(dirname "\$0")/${APP_NAME}.bin" "\$@"
+_APPIMAGE="\$(readlink -f "\$0")"
+_APPDIR="\$(dirname "\$_APPIMAGE")"
+exec "\$_APPDIR/usr/bin/${APP_NAME}.bin" "\$@"
 WRAPPER
     chmod +x "$ORIG_BIN"
     echo "[OK] Обёртка создана"

@@ -3,17 +3,16 @@
 import os
 import sys
 
-# In PyInstaller bundle, plugins are in the same directory as the executable
-# or in the bundled PyQt6/Qt6/plugins path
+# In PyInstaller bundle, PyQt6 is collected with its Qt subdirectory.
+# The structure is: bundle_dir/PyQt6/Qt/plugins/
 if getattr(sys, "frozen", False):
-    # sys._MEIPASS is for the temp extract dir during onefile mode
-    # For onefile mode, extract the bundle dir
     if hasattr(sys, "_MEIPASS"):
-        plugin_path = os.path.join(sys._MEIPASS, "PyQt6", "Qt6", "plugins")
+        # onefile mode: temp extract dir
+        plugin_path = os.path.join(sys._MEIPASS, "PyQt6", "Qt", "plugins")
     else:
-        # COLLECT mode (onedir): the exe is inside dist/markdown-editor/
-        # and PyQt6/Qt6/plugins/ is a sibling directory
+        # onedir (COLLECT) mode: exe is inside dist/markdown-editor/
         bundle_dir = os.path.dirname(sys.executable)
-        plugin_path = os.path.join(bundle_dir, "PyQt6", "Qt6", "plugins")
+        plugin_path = os.path.join(bundle_dir, "PyQt6", "Qt", "plugins")
 
-    os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = plugin_path
+    if os.path.isdir(plugin_path):
+        os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = plugin_path
