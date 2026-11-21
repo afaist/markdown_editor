@@ -53,8 +53,8 @@ _APPDIR="\$(dirname "\$(readlink -f "\$0")")"
 # Если бинарник в корне AppImage — бин.ар в usr/bin/
 # Если бинарник уже в usr/bin/ — бин.ар в той же директории
 case "\$_APPDIR" in
-    */usr/bin) exec LD_PRELOAD="\$_APPDIR/libgio_preload.so" "\$_APPDIR/${APP_NAME}.bin" "\$@" ;;
-    *)         exec LD_PRELOAD="\$_APPDIR/libgio_preload.so" "\$_APPDIR/usr/bin/${APP_NAME}.bin" "\$@" ;;
+    */usr/bin) export LD_PRELOAD="\$_APPDIR/libgio_preload.so"; exec "\$_APPDIR/${APP_NAME}.bin" "\$@" ;;
+    *)         export LD_PRELOAD="\$_APPDIR/libgio_preload.so"; exec "\$_APPDIR/usr/bin/${APP_NAME}.bin" "\$@" ;;
 esac
 WRAPPER
     chmod +x "$ORIG_BIN"
