@@ -104,16 +104,19 @@ except Exception:
     local orig_bin="$appimage_dir/${app_name}.appdir/usr/bin/${app_name}"
     if [ -f "$orig_bin" ]; then
         mv "$orig_bin" "${orig_bin}.bin"
-        # Обёртка использует /proc/self/exe для надёжного определения пути к AppImage.
-        # linuxdeploy размещает обёртку в корне AppImage, а бинарник — в usr/bin/,
-        # поэтому dirname "$0" не работает — бинарник не в той же директории.
+        # Обёртка использует readlink -f для определения пути к AppImage.
+        # linuxdeploy может разместить AppRun в корне или в usr/bin/,
+        # поэтому поднимаемся на уровень выше при необходимости.
         cat > "$orig_bin" << WRAPPER
 #!/bin/bash
 # Обёртка для предотвращения конфликтов системных GIO-модулей
 export QT_QPA_PLATFORMTHEME=none
 export GIO_EXTRA_MODULES=""
-_APPIMAGE="\$(readlink -f "\$0")"
-_APPDIR="\$(dirname "\$_APPIMAGE")"
+_APPDIR="\$(dirname "\$(readlink -f "\$0")")"
+# Если AppRun внутри usr/bin/ — поднимаемся на уровень выше
+case "\$_APPDIR" in
+    */usr/bin) _APPDIR="\$(dirname "\$_APPDIR")" ;;
+esac
 exec "\$_APPDIR/usr/bin/${app_name}.bin" "\$@"
 WRAPPER
         chmod +x "$orig_bin"
