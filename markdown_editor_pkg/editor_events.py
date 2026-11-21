@@ -1,9 +1,8 @@
 """Event handlers — editor event processing."""
 
 import os
+import urllib.parse
 from typing import TYPE_CHECKING
-
-from PyQt6.QtCore import QUrl
 
 from markdown_editor_pkg.i18n import tr
 from markdown_editor_pkg.markdown_validator import MarkdownValidator
@@ -82,8 +81,22 @@ class EventHandler:
             theme_name=self.editor.theme_manager.theme_name,
             base_dir=base_dir,
         )
-        base_url = QUrl.fromLocalFile(base_dir or ".")
-        self.editor.preview.setHtml(html, base_url)
+
+        # Вставляем <base> тег для корректного разрешения относительных путей
+        # (изображений, файлов и т.д.) относительно открытого markdown-файла
+        current_file = self.editor.current_file
+        if current_file:
+            file_dir = os.path.dirname(os.path.abspath(current_file))
+            # percent-encode кириллицу и спецсимволы для file:// URL
+            encoded_path = urllib.parse.quote(file_dir, safe="/")
+            base_href = f"file://{encoded_path}/"
+            base_tag = f'<base href="{base_href}">'
+        else:
+            base_tag = ""
+
+        html = html.replace("<head>", f"<head>\n{base_tag}", 1)
+
+        self.editor.preview.setHtml(html)
         # После обновления превью — синхронизируем прокрутку к курсору
         self.editor._scroll_preview_to_cursor()
         # Перезапускаем JS-трекер скролла

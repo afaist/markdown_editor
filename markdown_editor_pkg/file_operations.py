@@ -88,6 +88,7 @@ class FileIO:
         self._state.mark_clean()
         self._editor.update_preview()
         self._editor.update_char_count()
+        self._editor.update_validation()
         self._editor.update_file_status()
         self._status_msg(f"Файл открыт: {filepath}")
         self._editor.save_last_session(filepath)

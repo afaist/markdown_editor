@@ -11,8 +11,9 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QUrl
 from PyQt6.QtGui import QAction, QFont, QKeySequence
+from PyQt6.QtWebEngineCore import QWebEnginePage
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWidgets import (
     QComboBox,
@@ -24,6 +25,7 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QSplitter,
     QStatusBar,
+    QTextEdit,
     QToolBar,
     QVBoxLayout,
 )
@@ -33,6 +35,18 @@ from markdown_editor_pkg.i18n import tr
 
 if TYPE_CHECKING:
     from markdown_editor_pkg.editor import MarkdownEditorPyQt
+
+
+class PreviewPage(QWebEnginePage):
+    """Кастомная QWebEnginePage, разрешающая view-source: навигацию."""
+
+    def acceptNavigationRequest(self, *args) -> bool:  # type: ignore[reportIncompatibleMethodOverride]
+        # args: (self, url, nav_type, is_main_frame)
+        if len(args) >= 2 and isinstance(args[1], QUrl):
+            url = args[1]
+            if url.scheme() in ("view-source", "data"):
+                return True
+        return super().acceptNavigationRequest(*args)  # type: ignore[arg-type]
 
 
 class ValidationLabel(QLabel):
@@ -161,6 +175,9 @@ class UIBuilder:
         preview_layout.addWidget(preview_label)
 
         preview = QWebEngineView()
+        preview.setPage(PreviewPage(preview))
+        preview.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        preview.customContextMenuRequested.connect(self._on_preview_context_menu)  # type: ignore[attr-defined]
         preview_layout.addWidget(preview)
         self._editor.preview = preview  # type: ignore[attr-defined]
 
@@ -194,6 +211,32 @@ class UIBuilder:
         self._editor.word_count_label = word_count_label  # type: ignore[attr-defined]
         self._editor.validation_label = validation_label  # type: ignore[attr-defined]
         self._editor.theme_label = theme_label  # type: ignore[attr-defined]
+
+    def _on_preview_context_menu(self, pos) -> None:  # type: ignore[reportUnknownParameterType]
+        """Обработчик контекстного меню превью — добавляем 'View page source'."""
+        menu = QMenu(self._editor.preview)  # type: ignore[arg-type]
+
+        view_source_action = QAction(tr("View page source"), menu)
+        view_source_action.triggered.connect(self._show_page_source)
+        menu.addAction(view_source_action)
+
+        menu.exec(self._editor.preview.mapToGlobal(pos))  # type: ignore[arg-type]
+
+    def _show_page_source(self) -> None:
+        """Открыть исходный HTML предпросмотра в новом окне."""
+
+        def _callback(html_content: str) -> None:
+            window = QMainWindow(self._editor.preview)  # type: ignore[arg-type]
+            window.setWindowTitle(tr("Page Source"))
+            text_edit = QTextEdit()
+            text_edit.setReadOnly(True)
+            text_edit.setPlainText(html_content)
+            text_edit.setFont(QFont("Consolas", 10))
+            window.setCentralWidget(text_edit)
+            window.resize(800, 600)
+            window.show()
+
+        self._editor.preview.page().toHtml(_callback)  # type: ignore[union-attr,arg-type]
 
     def _connect_signals(self, parent: QMainWindow) -> None:
         """Подключить сигналы editor.textChanged."""

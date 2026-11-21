@@ -155,11 +155,11 @@ class MarkdownMenuBuilder:
             return
 
         for lang, label, shortcut in [
-            ("python", "Python", "Ctrl+Shift+C"),
-            ("bash", "Bash", "Ctrl+Shift+B"),
-            ("markdown", "Markdown", "Ctrl+Shift+M"),
-            ("cpp", "C++", "Ctrl+Shift+P"),
-            ("rust", "Rust", "Ctrl+Shift+R"),
+            ("python", tr("Python"), "Ctrl+Shift+C"),
+            ("bash", tr("Bash"), "Ctrl+Shift+B"),
+            ("markdown", tr("Markdown"), "Ctrl+Shift+M"),
+            ("cpp", tr("C++"), "Ctrl+Shift+P"),
+            ("rust", tr("Rust"), "Ctrl+Shift+R"),
         ]:
             a = QAction(label, parent)
             a.setShortcut(QKeySequence(shortcut))

@@ -603,11 +603,6 @@ LaTeX and Markdown support.</source>
     </message>
     <message>
         <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="141"/>
-        <source>Warning</source>
-        <translation>Предупреждение</translation>
-    </message>
-    <message>
-        <location filename="../markdown_editor_pkg/editor_markdown_menu.py" line="142"/>
         <source>Caution</source>
         <translation>Осторожно</translation>
     </message>
@@ -833,6 +828,11 @@ LaTeX and Markdown support.</source>
         <translation>Предупреждения</translation>
     </message>
     <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="80"/>
+        <source>Warning</source>
+        <translation>Предупреждение</translation>
+    </message>
+    <message>
         <location filename="../markdown_editor_pkg/markdown_validator.py" line="61"/>
         <source>Info</source>
         <translation>Информация</translation>
@@ -846,21 +846,6 @@ LaTeX and Markdown support.</source>
         <location filename="../markdown_editor_pkg/markdown_validator.py" line="70"/>
         <source>No issues found.</source>
         <translation>Проблем не найдено.</translation>
-    </message>
-    <message>
-        <location filename="../markdown_editor_pkg/markdown_validator.py" line="79"/>
-        <source>Error</source>
-        <translation>Ошибка</translation>
-    </message>
-    <message>
-        <location filename="../markdown_editor_pkg/markdown_validator.py" line="80"/>
-        <source>Warning</source>
-        <translation>Предупреждение</translation>
-    </message>
-    <message>
-        <location filename="../markdown_editor_pkg/markdown_validator.py" line="81"/>
-        <source>Info</source>
-        <translation>Информация</translation>
     </message>
     <message>
         <location filename="../markdown_editor_pkg/markdown_validator.py" line="89"/>
@@ -921,6 +906,101 @@ LaTeX and Markdown support.</source>
         <location filename="../markdown_editor_pkg/editor_components.py" line="480"/>
         <source>Failed to open file</source>
         <translation>Не удалось открыть файл</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_help.py" line="192"/>
+        <source>Python</source>
+        <translation>Python</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_help.py" line="193"/>
+        <source>Bash</source>
+        <translation>Bash</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_help.py" line="194"/>
+        <source>Markdown</source>
+        <translation>Markdown</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_help.py" line="195"/>
+        <source>C++</source>
+        <translation>C++</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_help.py" line="196"/>
+        <source>Rust</source>
+         <translation>Rust</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="219"/>
+        <source>View page source</source>
+        <translation>Показать исходный код страницы</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/editor_components.py" line="230"/>
+        <source>Page Source</source>
+        <translation>Исходный код страницы</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="226"/>
+        <source>Odd number of backticks (</source>
+        <translation>Нечётное число обратных кавычек (</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="228"/>
+        <source>) at char {char}</source>
+        <translation>) на символе {char}</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="259"/>
+        <source>Unclosed {name} marker</source>
+        <translation>Незакрытый маркер {name}</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="274"/>
+        <source>Empty image placeholder</source>
+        <translation>Пустой плейсхолдер изображения</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="283"/>
+        <source>Empty link</source>
+        <translation>Пустая ссылка</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="292"/>
+        <source>Link without URL</source>
+        <translation>Ссылка без URL</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="301"/>
+        <source>Image without URL</source>
+        <translation>Изображение без URL</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="326"/>
+        <source>Unclosed link bracket [ at line {num}</source>
+        <translation>Незакрытая скобка ссылки [ на строке {num}</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="351"/>
+        <source>Mixed list markers ({prev} and {curr}) at line {num}</source>
+        <translation>Смешанные маркеры списка ({prev} и {curr}) на строке {num}</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="384"/>
+        <source>{count} line(s) with trailing whitespace</source>
+        <translation>{count} строк(а) с пробелами в конце</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="407"/>
+        <source>{count} consecutive blank lines</source>
+        <translation>{count} пустых строк подряд</translation>
+    </message>
+    <message>
+        <location filename="../markdown_editor_pkg/markdown_validator.py" line="461"/>
+        <source>Unclosed HTML tag &lt;{tag}&gt; at line {num}</source>
+        <translation>Незакрытый HTML-тег &lt;{tag}&gt; на строке {num}</translation>
     </message>
 </context>
 </TS>

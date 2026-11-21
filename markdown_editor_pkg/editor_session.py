@@ -50,6 +50,7 @@ class SessionHandler:
                 self.editor.is_dirty = False
                 self.editor.update_preview()
                 self.editor.update_char_count()
+                self.editor.update_validation()
                 self.editor.update_file_status()
             except (OSError, UnicodeDecodeError):
                 logger.exception("Ошибка при загрузке сессии")

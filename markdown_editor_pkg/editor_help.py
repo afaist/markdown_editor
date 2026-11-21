@@ -189,11 +189,11 @@ class HelpHandler:
             (
                 tr("Code Blocks"),
                 [
-                    ("Python", "Ctrl+Shift+C"),
-                    ("Bash", "Ctrl+Shift+B"),
-                    ("Markdown", "Ctrl+Shift+M"),
-                    ("C++", "Ctrl+Shift+P"),
-                    ("Rust", "Ctrl+Shift+R"),
+                    (tr("Python"), "Ctrl+Shift+C"),
+                    (tr("Bash"), "Ctrl+Shift+B"),
+                    (tr("Markdown"), "Ctrl+Shift+M"),
+                    (tr("C++"), "Ctrl+Shift+P"),
+                    (tr("Rust"), "Ctrl+Shift+R"),
                 ],
             ),
             (
