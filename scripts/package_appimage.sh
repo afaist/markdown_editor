@@ -167,7 +167,7 @@ echo "[OK] Metainfo создан"
 # Устанавливаем RPATH
 echo "[INFO] Настройка RPATH..."
 RPATH_VAL='$ORIGIN/../lib/qt6:$ORIGIN'
-patchelf --set-rpath "$RPATH_VAL" "$APPDIR/usr/bin/${APP_NAME}" || true
+patchelf --set-rpath "$RPATH_VAL" "$APPDIR/usr/bin/${APP_NAME}.bin" || true
 echo "[OK] RPATH настроен"
 
 # Сборка AppImage
@@ -186,11 +186,12 @@ fi
 # Используем новый runtime с glib 2.74+ через переменную окружения
 export APPIMAGE_RUNTIME="$RUNTIME_FILE"
 
+# linuxdeploy требует ELF-бинарник для деплоя плагинов, поэтому используем .bin
 linuxdeploy \
     --appdir "$APPDIR" \
     --desktop-file "$APPDIR/usr/share/applications/${APP_NAME}.desktop" \
     --icon-file "$APPDIR/usr/share/icons/hicolor/256x256/apps/${APP_NAME}.png" \
-    --executable "$APPDIR/usr/bin/${APP_NAME}" \
+    --executable "$APPDIR/usr/bin/${APP_NAME}.bin" \
     --output appimage
 
 # Переименовываем — ищем любой .AppImage файл в текущей директории

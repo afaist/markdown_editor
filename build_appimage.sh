@@ -223,9 +223,9 @@ EOF
     # Шаг 3: Сборка AppImage через linuxdeploy
     log_info "Шаг 3/3: Сборка AppImage..."
 
-    # Устанавливаем RPATH
+    # Устанавливаем RPATH (для .bin — оригинального ELF-бинарника)
     RPATH_VAL='$ORIGIN/../lib/qt6:$ORIGIN'
-    patchelf --set-rpath "$RPATH_VAL" "$appimage_dir/${app_name}.appdir/usr/bin/${app_name}" || true
+    patchelf --set-rpath "$RPATH_VAL" "$appimage_dir/${app_name}.appdir/usr/bin/${app_name}.bin" || true
 
     export APPIMAGE_EXTRACT_AND_RUN=1
 
@@ -241,11 +241,12 @@ EOF
     # Указываем новый runtime через переменную окружения (glib 2.74+)
     export APPIMAGE_RUNTIME="$runtime_file"
 
+    # linuxdeploy требует ELF-бинарник для деплоя плагинов, поэтому используем .bin
     linuxdeploy \
         --appdir "$appimage_dir/${app_name}.appdir" \
         --desktop-file "$appimage_dir/${app_name}.appdir/usr/share/applications/${app_name}.desktop" \
         --icon-file "$appimage_dir/${app_name}.appdir/usr/share/icons/hicolor/256x256/apps/${app_name}.png" \
-        --executable "$appimage_dir/${app_name}.appdir/usr/bin/${app_name}" \
+        --executable "$appimage_dir/${app_name}.appdir/usr/bin/${app_name}.bin" \
         --output appimage
 
     # Переименовываем в понятное имя — ищем любой .AppImage файл
