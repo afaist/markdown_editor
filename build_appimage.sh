@@ -108,9 +108,13 @@ except Exception:
         # Бинарник всегда в usr/bin/ относительно AppImage root.
         cat > "$orig_bin" << WRAPPER
 #!/bin/bash
-# Обёртка для предотвращения конфликтов системных GIO-модулей
-export QT_QPA_PLATFORMTHEME=none
+# Обёртка для предотвращения конфликтов системных GIO/GVFS модулей
+# GIO_USE_VFS=local — не загружать GVFS (избегает конфликтов GLib символов)
+# GIO_EXTRA_MODULES="" — отключить GIO-модули Qt
+# QT_QPA_PLATFORMTHEME=none — отключить тему интеграции (GTK/Qt конфликт)
+export GIO_USE_VFS=local
 export GIO_EXTRA_MODULES=""
+export QT_QPA_PLATFORMTHEME=none
 _APPDIR="\$(dirname "\$(readlink -f "\$0")")"
 # Если бинарник в корне AppImage — бин.ар в usr/bin/
 # Если бинарник уже в usr/bin/ — бин.ар в той же директории
