@@ -53,7 +53,8 @@ os.environ["QT_LOGGING_RULES"] = "qt.webengine.services=false"
 # ── Force xcb platform to avoid GNOME xsettings schema errors ─────────────
 # GTK integration may fail with missing schema keys in newer GNOME versions.
 # xcb is more stable and doesn't depend on GTK settings.
-if "QT_QPA_PLATFORM" not in os.environ:
+# On Windows, let the runtime hook set the platform plugin.
+if "QT_QPA_PLATFORM" not in os.environ and os.name == "posix":
     os.environ["QT_QPA_PLATFORM"] = "xcb"
 
 # ── Suppress Chromium/Mesa stderr messages (GBM, GPUInfo, etc.) ──────────
