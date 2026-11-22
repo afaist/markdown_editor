@@ -127,7 +127,7 @@ WRAPPER
     # Копируем Qt6 библиотеки из pip-пакета
     log_info "Копирование Qt6 библиотек..."
 
-    # Компилируем LD_PRELOAD для перехвата dlopen GIO-модулей
+    # Компилируем LD_PRELOAD для перехвата g_module_open GIO-модулей
     # Это предотвращает загрузку libgvfsdbus.so с несовместимыми символами GLib
     log_info "Компиляция LD_PRELOAD для GIO..."
     if ! gcc -shared -fPIC -o "${appimage_dir}/${app_name}.appdir/usr/bin/libgio_preload.so" ld_preload_gio.c -ldl; then
