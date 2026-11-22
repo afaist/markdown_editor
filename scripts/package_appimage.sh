@@ -134,6 +134,7 @@ echo "[OK] Desktop файл создан"
 # Компилируем LD_PRELOAD для перехвата g_module_open GIO-модулей
 echo "[INFO] Компиляция GIO LD_PRELOAD..."
 GLIB_CFLAGS=""
+GLIB_LIBS=""
 if pkg-config --exists glib-2.0; then
     GLIB_CFLAGS="$(pkg-config --cflags glib-2.0)"
     GLIB_LIBS="$(pkg-config --libs glib-2.0)"
