@@ -131,9 +131,14 @@ sed -i 's|Exec=/opt/markdown-editor/markdown-editor|Exec=markdown-editor|' \
     "$APPDIR/usr/share/applications/${APP_NAME}.desktop"
 echo "[OK] Desktop файл создан"
 
-# Компилируем LD_PRELOAD для перехвата dlopen GIO-модулей
+# Компилируем LD_PRELOAD для перехвата g_module_open GIO-модулей
 echo "[INFO] Компиляция GIO LD_PRELOAD..."
-if ! gcc -shared -fPIC -o "$APPDIR/usr/bin/libgio_preload.so" ld_preload_gio.c -ldl; then
+GLIB_CFLAGS=""
+if pkg-config --exists glib-2.0; then
+    GLIB_CFLAGS="$(pkg-config --cflags glib-2.0)"
+    GLIB_LIBS="$(pkg-config --libs glib-2.0)"
+fi
+if ! gcc -shared -fPIC -o "$APPDIR/usr/bin/libgio_preload.so" ld_preload_gio.c $GLIB_CFLAGS $GLIB_LIBS; then
     echo "[ERROR] Не удалось скомпилировать GIO LD_PRELOAD"
     exit 1
 fi
