@@ -41,8 +41,7 @@ if [ -f "$ORIG_BIN" ]; then
     cat > "$ORIG_BIN" << WRAPPER
 #!/bin/bash
 # Обёртка для предотвращения конфликтов системных GIO/GVFS модулей
-# LD_PRELOAD — перехватывает dlopen GIO-модулей (предотвращает загрузку
-# libgvfsdbus.so с несовместимыми символами GLib)
+# LD_PRELOAD перехватывает g_module_open() и блокирует загрузку GIO-модулей
 # GIO_USE_VFS=local — не загружать GVFS
 # GIO_EXTRA_MODULES="" — отключить GIO-модули Qt
 # QT_QPA_PLATFORMTHEME=none — отключить тему интеграции (GTK/Qt конфликт)
