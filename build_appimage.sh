@@ -117,9 +117,12 @@ export GIO_USE_VFS=local
 export GIO_EXTRA_MODULES=""
 export QT_QPA_PLATFORMTHEME=none
 export QT_QPA_PLATFORM=xcb
-# libgio_preload.so всегда лежит рядом с этим скриптом
-export LD_PRELOAD="\$(dirname "\$(readlink -f "\$0")")/libgio_preload.so"
-exec "\$(dirname "\$(readlink -f "\$0")")/${app_name}.bin" "\$@"
+# readlink -f разрешает символьную ссылку AppRun -> usr/bin/\${app_name}
+# и даёт путь к реальному скрипту в usr/bin/
+_SCRIPT_DIR="\$(cd "\$(dirname "\$(readlink -f "\$0")")" && pwd)"
+# libgio_preload.so и ${app_name}.bin всегда лежат в одном каталоге
+export LD_PRELOAD="\${_SCRIPT_DIR}/libgio_preload.so"
+exec "\${_SCRIPT_DIR}/${app_name}.bin" "\$@"
 WRAPPER
         chmod +x "$orig_bin"
         log_info "Обёртка создана"

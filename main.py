@@ -75,8 +75,10 @@ if "QT_QPA_PLATFORM" not in os.environ and os.name == "posix":
 # 3. GIO_EXTRA_MODULES="" — prevent GIO from loading system GIO modules
 #
 # The AppImage bundles its own Qt6 libraries and plugins, so this is safe.
-os.environ["QT_QPA_PLATFORMTHEME"] = "none"
-os.environ["GIO_EXTRA_MODULES"] = ""
+# These settings are POSIX-specific and should not be set on Windows.
+if os.name == "posix":
+    os.environ["QT_QPA_PLATFORMTHEME"] = "none"
+    os.environ["GIO_EXTRA_MODULES"] = ""
 
 # ── Force stderr suppression on POSIX systems ──────────────────────────
 
