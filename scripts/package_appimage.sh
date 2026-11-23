@@ -41,13 +41,14 @@ if [ -f "$ORIG_BIN" ]; then
     cat > "$ORIG_BIN" << WRAPPER
 #!/bin/bash
 # Обёртка для предотвращения конфликтов системных GIO/GVFS модулей
-# LD_PRELOAD перехватывает g_module_open() и блокирует загрузку GIO-модулей
-# GIO_USE_VFS=local — не загружать GVFS
+# LD_PRELOAD перехватывает dlopen/g_module_open и блокирует загрузку GIO-модулей
+# GIO_USE_VFS=local — не загружать GVFS бэкенды
 # GIO_EXTRA_MODULES="" — отключить GIO-модули Qt
 # QT_QPA_PLATFORMTHEME=none — отключить тему интеграции (GTK/Qt конфликт)
 export GIO_USE_VFS=local
 export GIO_EXTRA_MODULES=""
 export QT_QPA_PLATFORMTHEME=none
+export QT_QPA_PLATFORM=xcb
 # libgio_preload.so всегда лежит рядом с этим скриптом
 export LD_PRELOAD="\$(dirname "\$(readlink -f "\$0")")/libgio_preload.so"
 exec "\$(dirname "\$(readlink -f "\$0")")/${APP_NAME}.bin" "\$@"
