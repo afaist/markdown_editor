@@ -77,7 +77,7 @@ class LineNumberArea(QWidget):
             editor: QPlainTextEdit, к которому привязана область номеров строк.
         """
         super().__init__(editor)
-        self._editor = editor
+        self._editor: QPlainTextEdit = editor
 
     def sizeHint(self) -> QSize:  # type: ignore[override]
         """Возвращает рекомендуемый размер области номеров строк."""
@@ -195,13 +195,18 @@ class MarkdownTextEdit(QPlainTextEdit):
         painter = QPainter(self._line_number_area)  # type: ignore[arg-type]
 
         # Получаем цвета из палитры для корректной работы на любой теме
-        palette = self._editor.palette()
+        palette = self.palette()
         # mypy: color() not in stubs
         bg_color = palette.color(palette.ColorRole.Window)  # type: ignore[attr-defined]
         text_color = palette.color(palette.ColorRole.Text)  # type: ignore[attr-defined]
 
         painter.fillRect(event.rect(), bg_color)
         painter.setPen(text_color)
+
+        block = self.firstVisibleBlock()
+        block_number = block.blockNumber()
+        top = round(self.blockBoundingGeometry(block).translated(self.contentOffset()).top())
+        bottom = top + round(self.blockBoundingRect(block).height())
 
         while block.isValid() and top <= event.rect().bottom():
             if block.isVisible() and bottom >= event.rect().top():
