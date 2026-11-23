@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 
 from PyQt6.QtCore import QRect, QSize, Qt
-from PyQt6.QtGui import QColor, QKeyEvent, QPainter
+from PyQt6.QtGui import QKeyEvent, QPainter
 from PyQt6.QtWidgets import QPlainTextEdit, QWidget
 
 _UNORDERED_LIST_RE = re.compile(r"^(\s*)([-*+])\s")
@@ -193,19 +193,15 @@ class MarkdownTextEdit(QPlainTextEdit):
     def line_number_area_paint_event(self, event) -> None:
         """Отрисовка номеров строк в LineNumberArea."""
         painter = QPainter(self._line_number_area)  # type: ignore[arg-type]
-        painter.fillRect(event.rect(), QColor("#f0f0f0"))
 
-        block = self.firstVisibleBlock()
-        block_number = block.blockNumber()
-        top = round(self.blockBoundingGeometry(block).translated(self.contentOffset()).top())
-        bottom = top + round(self.blockBoundingRect(block).height())
-
-        # Получаем цвет текста из палитры
-        palette = self.palette()
+        # Получаем цвета из палитры для корректной работы на любой теме
+        palette = self._editor.palette()
         # mypy: color() not in stubs
-        dim_color = palette.color(palette.ColorRole.Midlight)  # type: ignore[attr-defined]
+        bg_color = palette.color(palette.ColorRole.Window)  # type: ignore[attr-defined]
+        text_color = palette.color(palette.ColorRole.Text)  # type: ignore[attr-defined]
 
-        painter.setPen(dim_color)
+        painter.fillRect(event.rect(), bg_color)
+        painter.setPen(text_color)
 
         while block.isValid() and top <= event.rect().bottom():
             if block.isVisible() and bottom >= event.rect().top():

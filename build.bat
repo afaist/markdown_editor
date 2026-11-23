@@ -63,13 +63,12 @@ if "%MODE%"=="onedir" (
 echo [INFO] Запуск PyInstaller...
 pyinstaller --clean --noconfirm markdown-editor.spec
 
-if %ERRORLEVEL% EQU 0 (
-    echo [OK] Сборка завершена!
-    echo [INFO] Артефакты в: dist\
-) else (
+if errorlevel 1 (
     echo [ERROR] Сборка не удалась
     pause
     exit /b 1
 )
+echo [OK] Сборка завершена!
+echo [INFO] Артефакты в: dist\
 
 pause

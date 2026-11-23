@@ -22,14 +22,17 @@ def resource_path(relative: str) -> str:
     Returns:
         Абсолютный путь к ресурсу
     """
-    # PyInstaller создаёт временную папку и помещает туда все ресурсы
-    # sys._MEIPASS указывает на эту папку только в собранном приложении
-    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-        base_path = sys._MEIPASS
+    # PyInstaller режимы:
+    # - onefile: sys._MEIPASS указывает на временную распакованную папку
+    # - onedir: sys.frozen=True, но _MEIPASS отсутствует; файлы лежат рядом с exe
+    if getattr(sys, "frozen", False):
+        if hasattr(sys, "_MEIPASS"):
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.dirname(sys.executable)
     else:
         # Режим разработки: markdown_editor_pkg/ в проекте
-        package_dir = os.path.dirname(os.path.abspath(__file__))
-        base_path = package_dir
+        base_path = os.path.dirname(os.path.abspath(__file__))
 
     return os.path.join(base_path, relative)
 
@@ -38,9 +41,18 @@ def get_package_dir() -> str:
     """Возвращает путь к директории пакета markdown_editor_pkg.
 
     Работает как в режиме разработки, так и в собранном бинарнике.
+
+    PyInstaller режимы:
+    - onefile: sys._MEIPASS указывает на временную распакованную папку
+    - onedir: sys.frozen=True, но _MEIPASS отсутствует; файлы лежат рядом с exe
     """
-    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-        return os.path.join(sys._MEIPASS, "markdown_editor_pkg")
+    if getattr(sys, "frozen", False):
+        if hasattr(sys, "_MEIPASS"):
+            # onefile: распакованная временная директория
+            return os.path.join(sys._MEIPASS, "markdown_editor_pkg")
+        else:
+            # onedir: файлы лежат рядом с исполняемым файлом
+            return os.path.join(os.path.dirname(sys.executable), "markdown_editor_pkg")
     return os.path.dirname(os.path.abspath(__file__))
 
 
