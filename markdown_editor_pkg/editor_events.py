@@ -72,6 +72,42 @@ class EventHandler:
                 self.editor.file_name_label.setText("")
                 self.editor.file_name_label.setStyleSheet("color: #333333; font-weight: normal;")
 
+    @staticmethod
+    def _resolve_image_src(src: str, file_dir: str) -> str:
+        """Преобразовать относительный путь к изображению в file:// URL."""
+        src = src.strip().strip('"').strip("'")
+        if not src:
+            return src
+        # Абсолютные URL (http, https, data:) — не трогаем
+        if src.startswith(("http://", "https://", "data:", "mailto:", "file://")):
+            return src
+        # Абсолютный путь (Unix/Windows) — кодируем и делаем file://
+        if src.startswith("/") or (len(src) > 1 and src[1] == ":"):
+            encoded = urllib.parse.quote(src, safe="/:@!$&'()*+,;=-._")
+            return f"file://{encoded}"
+        # Относительный путь — разрешаем относительно директории markdown-файла
+        resolved = os.path.normpath(os.path.join(file_dir, src))
+        encoded = urllib.parse.quote(resolved, safe="/:@!$&'()*+,;=-._")
+        return f"file://{encoded}"
+
+    def _resolve_image_tags(self, html: str, file_dir: str) -> str:
+        """Заменить src у всех <img> на абсолютные file:// URL."""
+        import re
+
+        def replace_img_src(match: re.Match) -> str:
+            full_tag = match.group(0)
+            src_match = re.search(r'src=["\']([^"\']*)["\']', full_tag)
+            if src_match:
+                old_src = src_match.group(1)
+                new_src = self._resolve_image_src(old_src, file_dir)
+                if new_src != old_src:
+                    full_tag = full_tag.replace(f'src="{old_src}"', f'src="{new_src}"', 1).replace(
+                        f"src='{old_src}'", f"src='{new_src}'", 1
+                    )
+            return full_tag
+
+        return re.sub(r"<img[^>]+>", replace_img_src, html)
+
     def update_preview(self) -> None:
         """Обновить предпросмотр."""
         markdown_text = self.editor.editor.toPlainText()

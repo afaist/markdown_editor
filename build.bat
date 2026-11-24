@@ -36,16 +36,16 @@ if not exist "markdown_editor_pkg\prism" (
 echo [OK] Зависимости проверены
 
 REM ─── Сборка ────────────────────────────────────────────────────────────
-set MODE=%1
+set MODE=%~1
 if "%MODE%"=="" set MODE=onedir
 
 echo [INFO] Сборка в режиме: %MODE%
 
 set EXTRA_ARGS=
 if "%MODE%"=="onedir" (
-    echo [INFO] Режим: одна папка (рекомендуется для PyQt6-WebEngine)
+    echo [INFO] Режим: одна папка ^(рекомендуется для PyQt6-WebEngine^)
 ) else if "%MODE%"=="onefile" (
-    echo [WARN] Режим: один файл (медленнее старт, больше размер)
+    echo [WARN] Режим: один файл ^(медленнее старт, больше размер^)
 ) else if "%MODE%"=="clean" (
     echo [INFO] Очистка артефактов сборки...
     rmdir /s /q build dist 2>nul

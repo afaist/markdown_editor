@@ -62,33 +62,30 @@ class PrismJSProcessor:
     def inject_prism(self, html: str, theme_name: str, base_dir: str) -> str:
         """Встроить Prism.js CSS и JS в HTML-документ."""
         prism_css = self.get_prism_css_path(theme_name)
-        prism_css_path = os.path.join(base_dir, prism_css) if base_dir else prism_css
-
-        # Собираем пути к компонентам
-        components_paths = []
-        for comp in self.get_prism_js_components():
-            comp_path = os.path.join(base_dir, comp) if base_dir else comp
-            components_paths.append(comp_path)
 
         # Читаем содержимое файлов и инлайним их
+        prism_css_content = self._read_file(prism_css)
         prism_js_content = self._read_file(self.PRISM_JS)
         component_scripts = "\n".join(
             self._read_file(comp) for comp in self.get_prism_js_components()
         )
 
-        # Вставляем CSS перед закрывающим </head>
-        head_css = f'<link rel="stylesheet" href="file://{prism_css_path}">'
+        # Вставляем инлайн CSS перед закрывающим </head>
         if "<head>" in html:
-            html = html.replace("<head>", f"<head>\n    {head_css}", 1)
+            html = html.replace("</head>", f"<style>\n{prism_css_content}\n</style>\n</head>", 1)
 
         # Вставляем инлайненный JS перед закрывающим </body>
         prism_inject = f"""
 <script>
 {prism_js_content}
 {component_scripts}
-    document.addEventListener("DOMContentLoaded", function() {{
+    if (document.readyState === "loading") {{
+        document.addEventListener("DOMContentLoaded", function() {{
+            Prism.highlightAll();
+        }});
+    }} else {{
         Prism.highlightAll();
-    }});
+    }}
 </script>"""
 
         if "</body>" in html:

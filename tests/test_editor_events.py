@@ -182,6 +182,28 @@ class TestOnPreviewScroll:
         # Флаг устанавливается и сбрасывается в процессе
 
 
+class TestResolveImageTags:
+    """Тесты _resolve_image_tags()."""
+
+    def test_resolves_relative_image(self, markdown_editor):
+        """Относительный путь в src преобразуется."""
+        html = '<p><img alt="Alt" src="image.png" /></p>'
+        result = markdown_editor.event_handler._resolve_image_tags(html, "/home/user/docs")
+        assert 'src="file:///home/user/docs/image.png"' in result
+
+    def test_preserves_https_image(self, markdown_editor):
+        """HTTPS URL в src не изменяется."""
+        html = '<p><img alt="Alt" src="https://example.com/img.png" /></p>'
+        result = markdown_editor.event_handler._resolve_image_tags(html, "/home/user/docs")
+        assert 'src="https://example.com/img.png"' in result
+
+    def test_no_images_unchanged(self, markdown_editor):
+        """HTML без изображений не изменяется."""
+        html = "<p><h1>Test</h1></p>"
+        result = markdown_editor.event_handler._resolve_image_tags(html, "/home/user/docs")
+        assert result == html
+
+
 class TestConnect:
     """Тесты connect()."""
 

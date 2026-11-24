@@ -39,11 +39,12 @@ class TestPrismJSProcessor:
         assert any("prism-javascript.min.js" in c for c in components)
 
     def test_inject_prism_adds_css_to_head(self):
-        """inject_prism добавляет CSS в <head>."""
+        """inject_prism добавляет CSS в <head> как inline <style>."""
         html = "<html><head></head><body></body></html>"
         result = self.processor.inject_prism(html, "light", "/base")
-        assert "prism-okaidia.min.css" in result
-        assert "<link" in result
+        assert "<style>" in result
+        assert "code[class*=language-]" in result  # содержимое CSS Prism
+        assert "prism-okaidia" in result.lower() or ".token" in result  # тема okaidia
 
     def test_inject_prism_adds_js_to_body(self):
         """inject_prism добавляет JS в <body>."""
