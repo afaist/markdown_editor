@@ -118,19 +118,11 @@ class EventHandler:
             base_dir=base_dir,
         )
 
-        # Вставляем <base> тег для корректного разрешения относительных путей
-        # (изображений, файлов и т.д.) относительно открытого markdown-файла
+        # Преобразуем относительные пути изображений в абсолютные file:// URL
         current_file = self.editor.current_file
         if current_file:
             file_dir = os.path.dirname(os.path.abspath(current_file))
-            # percent-encode кириллицу и спецсимволы для file:// URL
-            encoded_path = urllib.parse.quote(file_dir, safe="/")
-            base_href = f"file://{encoded_path}/"
-            base_tag = f'<base href="{base_href}">'
-        else:
-            base_tag = ""
-
-        html = html.replace("<head>", f"<head>\n{base_tag}", 1)
+            html = self._resolve_image_tags(html, file_dir)
 
         self.editor.preview.setHtml(html)
         # После обновления превью — синхронизируем прокрутку к курсору
