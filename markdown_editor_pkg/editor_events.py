@@ -95,7 +95,7 @@ class EventHandler:
         import re
 
         def replace_img_src(match: re.Match) -> str:
-            full_tag = match.group(0)
+            full_tag: str = match.group(0)
             src_match = re.search(r'src=["\']([^"\']*)["\']', full_tag)
             if src_match:
                 old_src = src_match.group(1)

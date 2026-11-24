@@ -12,13 +12,15 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import Qt, QUrl
-from PyQt6.QtGui import QAction, QFont, QKeySequence
+from PyQt6.QtGui import QAction, QFont, QKeySequence, QTextCursor
 from PyQt6.QtWebEngineCore import QWebEnginePage
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWidgets import (
     QComboBox,
     QFrame,
+    QHBoxLayout,
     QLabel,
+    QLineEdit,
     QMainWindow,
     QMenu,
     QMenuBar,
@@ -28,6 +30,7 @@ from PyQt6.QtWidgets import (
     QTextEdit,
     QToolBar,
     QVBoxLayout,
+    QWidget,
 )
 
 from markdown_editor_pkg.editor_keypress import MarkdownTextEdit
@@ -228,15 +231,77 @@ class UIBuilder:
         def _callback(html_content: str) -> None:
             window = QMainWindow(self._editor.preview)  # type: ignore[arg-type]
             window.setWindowTitle(tr("Page Source"))
+
+            # Central widget with search bar + text edit
+            central = QWidget()
+            layout = QVBoxLayout(central)
+            layout.setContentsMargins(0, 0, 0, 0)
+            layout.setSpacing(0)
+
+            # Search bar
+            search_bar = QWidget()
+            search_layout = QHBoxLayout(search_bar)
+            search_layout.setContentsMargins(4, 4, 4, 4)
+            search_layout.setSpacing(4)
+
+            search_label = QLabel(tr("Find:"))
+            search_label.setStyleSheet("color: #cccccc;")
+            search_edit = QLineEdit()
+            search_edit.setPlaceholderText(tr("Search in source..."))
+            search_edit.setMinimumWidth(250)
+            search_btn = QPushButton(tr("Find"))
+            search_btn.setStyleSheet("QPushButton { padding: 2px 10px; }")
+            search_btn.clicked.connect(
+                lambda: self._find_in_source(text_edit, search_edit)  # type: ignore[union-attr]
+            )
+
+            search_layout.addWidget(search_label)
+            search_layout.addWidget(search_edit)
+            search_layout.addWidget(search_btn)
+            search_layout.addStretch()
+
+            # Text edit
             text_edit = QTextEdit()
             text_edit.setReadOnly(True)
             text_edit.setPlainText(html_content)
             text_edit.setFont(QFont("Consolas", 10))
-            window.setCentralWidget(text_edit)
+
+            layout.addWidget(search_bar)
+            layout.addWidget(text_edit)
+
+            window.setCentralWidget(central)
             window.resize(800, 600)
+
+            # Enter key triggers search
+            search_edit.returnPressed.connect(
+                lambda: self._find_in_source(text_edit, search_edit)  # type: ignore[union-attr]
+            )
+
             window.show()
 
         self._editor.preview.page().toHtml(_callback)  # type: ignore[union-attr,arg-type]
+
+    @staticmethod
+    def _find_in_source(text_edit: QTextEdit, search_edit: QLineEdit) -> None:
+        """Найти строку в QTextEdit."""
+        search_text = search_edit.text()
+        if not search_text:
+            return
+
+        cursor = text_edit.textCursor()
+        # Если текст выделен и совпадает с поиском — ищем дальше
+        if cursor.hasSelection() and cursor.selectedText() == search_text:
+            cursor = text_edit.textCursor()
+            cursor.setPosition(cursor.position() + len(search_text))
+            text_edit.setTextCursor(cursor)
+
+        found = text_edit.find(search_text)
+        if not found:
+            # С начала документа
+            cursor = text_edit.textCursor()
+            cursor.select(QTextCursor.SelectionType.Document)
+            text_edit.setTextCursor(cursor)
+            text_edit.find(search_text)
 
     def _connect_signals(self, parent: QMainWindow) -> None:
         """Подключить сигналы editor.textChanged."""

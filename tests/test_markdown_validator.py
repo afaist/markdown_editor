@@ -330,27 +330,21 @@ class TestStrongStyle:
         """Жирный текст с asterisk."""
         text = "This is **bold** text"
         report = MarkdownValidator().validate(text)
-        style_issues = [
-            i for i in report.issues if "Strong style" in i.message
-        ]
+        style_issues = [i for i in report.issues if "Strong style" in i.message]
         assert len(style_issues) == 0
 
     def test_underscore_bold(self):
         """Жирный текст с underscore."""
         text = "This is __bold__ text"
         report = MarkdownValidator().validate(text)
-        style_issues = [
-            i for i in report.issues if "Strong style" in i.message
-        ]
+        style_issues = [i for i in report.issues if "Strong style" in i.message]
         assert len(style_issues) >= 1
 
     def test_underscore_bold_at_line_start(self):
         """Жирный текст с underscore в начале строки."""
         text = "__Bold text__"
         report = MarkdownValidator().validate(text)
-        style_issues = [
-            i for i in report.issues if "Strong style" in i.message
-        ]
+        style_issues = [i for i in report.issues if "Strong style" in i.message]
         assert len(style_issues) >= 1
 
 
