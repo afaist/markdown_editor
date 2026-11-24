@@ -81,6 +81,7 @@ ignore = [
     "BLE001",    # blind exception (file_operations has user-facing error messages)
     "SIM105",    # contextlib.suppress (style preference)
     "SIM108",    # ternary operator (style preference)
+    "B905",      # zip without strict (not critical for this project)
 ]
 
 [tool.ruff.lint.per-file-ignores]

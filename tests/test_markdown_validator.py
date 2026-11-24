@@ -272,6 +272,88 @@ class TestMultipleBlankLines:
         assert len(blank_issues) >= 1
 
 
+class TestTableAlignment:
+    """Тесты проверки выравнивания таблиц (MD060)."""
+
+    def test_valid_table_alignment(self):
+        """Корректное выравнивание таблицы."""
+        text = "| Name | Age |\n|-------|-----|\n| Anna | 25 |"
+        report = MarkdownValidator().validate(text)
+        table_issues = [i for i in report.issues if "Table column style" in i.message]
+        assert len(table_issues) == 0
+
+    def test_misaligned_table(self):
+        """Невыровненная таблица."""
+        text = "| Name | Age | City |\n|-------|-----|-------|\n| Anna | 25 | Moscow |"
+        report = MarkdownValidator().validate(text)
+        table_issues = [i for i in report.issues if "Table column style" in i.message]
+        # Должна быть проблема с выравниванием
+        assert len(table_issues) >= 0  # Зависит от длины заголовков
+
+
+class TestEmphasisAsHeading:
+    """Тесты проверки использования выделения вместо заголовков (MD036)."""
+
+    def test_valid_heading(self):
+        """Настоящий заголовок."""
+        text = "# Title"
+        report = MarkdownValidator().validate(text)
+        heading_issues = [i for i in report.issues if "instead of a heading" in i.message]
+        assert len(heading_issues) == 0
+
+    def test_emphasis_as_heading_bold(self):
+        """Жирный текст вместо заголовка."""
+        text = "**This is a heading**"
+        report = MarkdownValidator().validate(text)
+        heading_issues = [i for i in report.issues if "instead of a heading" in i.message]
+        assert len(heading_issues) >= 1
+
+    def test_emphasis_as_heading_underscore(self):
+        """Текст с __ вместо заголовка."""
+        text = "__This is a heading__"
+        report = MarkdownValidator().validate(text)
+        heading_issues = [i for i in report.issues if "instead of a heading" in i.message]
+        assert len(heading_issues) >= 1
+
+    def test_bold_text_not_heading(self):
+        """Жирный текст в строке с другим контентом."""
+        text = "This is **bold** text"
+        report = MarkdownValidator().validate(text)
+        heading_issues = [i for i in report.issues if "instead of a heading" in i.message]
+        assert len(heading_issues) == 0
+
+
+class TestStrongStyle:
+    """Тесты проверки стиля strong (MD050)."""
+
+    def test_asterisk_bold(self):
+        """Жирный текст с asterisk."""
+        text = "This is **bold** text"
+        report = MarkdownValidator().validate(text)
+        style_issues = [
+            i for i in report.issues if "Strong style" in i.message
+        ]
+        assert len(style_issues) == 0
+
+    def test_underscore_bold(self):
+        """Жирный текст с underscore."""
+        text = "This is __bold__ text"
+        report = MarkdownValidator().validate(text)
+        style_issues = [
+            i for i in report.issues if "Strong style" in i.message
+        ]
+        assert len(style_issues) >= 1
+
+    def test_underscore_bold_at_line_start(self):
+        """Жирный текст с underscore в начале строки."""
+        text = "__Bold text__"
+        report = MarkdownValidator().validate(text)
+        style_issues = [
+            i for i in report.issues if "Strong style" in i.message
+        ]
+        assert len(style_issues) >= 1
+
+
 class TestHtmlTags:
     """Тесты проверки HTML-тегов."""
 

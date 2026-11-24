@@ -117,6 +117,9 @@ class MarkdownValidator:
         self._check_trailing_whitespace(lines, report)
         self._check_multiple_blank_lines(lines, report)
         self._check_html_tags(lines, report)
+        self._check_table_alignment(lines, report)
+        self._check_emphasis_as_heading(lines, report)
+        self._check_strong_style(lines, report)
 
         return report
 
@@ -463,6 +466,115 @@ class MarkdownValidator:
                     line=line_num,
                 )
             )
+
+    def _check_table_alignment(self, lines: list[str], report: ValidationReport) -> None:
+        """Проверка выравнивания столбцов в таблицах (MD060)."""
+        i = 0
+        while i < len(lines):
+            stripped = lines[i].strip()
+            # Проверяем, что это строка заголовка таблицы
+            if not stripped.startswith("|") or not stripped.endswith("|"):
+                i += 1
+                continue
+
+            # Следующая строка должна быть разделителем
+            if i + 1 >= len(lines):
+                i += 1
+                continue
+
+            separator = lines[i + 1].strip()
+            if not separator.startswith("|") or not separator.endswith("|"):
+                i += 1
+                continue
+
+            # Проверяем, что разделитель содержит двоеточия
+            if ":" not in separator:
+                i += 1
+                continue
+
+            # Парсим заголовок и разделитель
+            header_cells = [c.strip() for c in stripped.split("|")[1:-1]]
+            separator_cells = [c.strip() for c in separator.split("|")[1:-1]]
+
+            # Количество ячеек должно совпадать
+            if len(header_cells) != len(separator_cells):
+                i += 1
+                continue
+
+            # Проверяем выравнивание каждой ячейки
+            for j, (header, sep) in enumerate(zip(header_cells, separator_cells)):
+                # Разделитель должен содержать только -, :, и пробелы
+                stripped_sep = sep.replace(" ", "")
+                if not all(c in "-:" for c in stripped_sep):
+                    continue
+
+                # Проверяем, что длина разделителя достаточна
+                min_len = max(3, len(header) + 2)
+                if len(sep) < min_len:
+                    report.issues.append(
+                        MarkdownIssue(
+                            severity="warning",
+                            message=tr(
+                                "Table column style: column {num} does not align with header"
+                            ).format(num=j + 1),
+                            line=i + 1,
+                            char=separator.find(sep),
+                        )
+                    )
+                    break  # Одна проблема на строку разделителя
+
+            i += 2  # Пропускаем строку заголовка и разделителя
+
+    def _check_emphasis_as_heading(self, lines: list[str], report: ValidationReport) -> None:
+        """Проверка использования выделения вместо заголовков (MD036)."""
+        for i, line in enumerate(lines, start=1):
+            stripped = line.strip()
+
+            # Пропускаем строки внутри блоков кода
+            if self._is_inside_code_block(lines, i - 1):
+                continue
+            # Пропускаем строки внутри блочного LaTeX
+            if self._is_inside_latex_block(lines, i - 1):
+                continue
+            # Пропускаем настоящие заголовки
+            if stripped.startswith("#"):
+                continue
+            # Пропускаем пустые строки и разделители
+            if not stripped or stripped in ("---", "***", "___"):
+                continue
+
+            # Проверяем, является ли строка только **текст** или __текст__
+            # Без какого-либо другого контента
+            if re.match(r"^\*\*[^*]+\*\*$", stripped) or re.match(r"^__[^_]+__$", stripped):
+                report.issues.append(
+                    MarkdownIssue(
+                        severity="warning",
+                        message=tr("Emphasis used instead of a heading"),
+                        line=i,
+                    )
+                )
+
+    def _check_strong_style(self, lines: list[str], report: ValidationReport) -> None:
+        """Проверка стиля strong:建议使用 asterisk 而不是 underscore (MD050)."""
+        for i, line in enumerate(lines, start=1):
+            stripped = line.strip()
+
+            # Пропускаем строки внутри блоков кода
+            if self._is_inside_code_block(lines, i - 1):
+                continue
+            # Пропускаем строки внутри блочного LaTeX
+            if self._is_inside_latex_block(lines, i - 1):
+                continue
+
+            # Проверяем использование __ для bold
+            if re.search(r"__\w", stripped):
+                report.issues.append(
+                    MarkdownIssue(
+                        severity="warning",
+                        message=tr("Strong style: Expected asterisk, Actual underscore"),
+                        line=i,
+                    )
+                )
 
     # ─── Утилиты ────────────────────────────────────────────────────────
 
