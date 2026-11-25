@@ -12,6 +12,7 @@ hiddenimports = [
     'PyQt6.QtWebChannel', 'PyQt6.QtNetwork', 'PyQt6.QtOpenGL',
     'markdown', 'markdown.extensions.fenced_code',
     'markdown.extensions.tables', 'markdown.extensions.toc',
+    'markdown_editor_pkg.themes_data',
 ]
 
 # Collect all markdown_editor_pkg files
