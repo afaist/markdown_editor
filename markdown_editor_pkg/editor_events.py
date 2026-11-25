@@ -85,11 +85,12 @@ class EventHandler:
             return src
         # Абсолютный путь (Unix/Windows) — кодируем и делаем file://
         if src.startswith("/") or (len(src) > 1 and src[1] == ":"):
-            encoded = urllib.parse.quote(src, safe="/:@!$&'()*+,;=-._")
+            # ':' должна быть закодирована в file:// URL (особенно на Windows C:)
+            encoded = urllib.parse.quote(src, safe="/@!$&'()*+,;=-._")
             return f"file://{encoded}"
         # Относительный путь — разрешаем относительно директории markdown-файла
         resolved = os.path.normpath(os.path.join(file_dir, src))
-        encoded = urllib.parse.quote(resolved, safe="/:@!$&'()*+,;=-._")
+        encoded = urllib.parse.quote(resolved, safe="/@!$&'()*+,;=-._")
         return f"file://{encoded}"
 
     def _resolve_image_tags(self, html: str, file_dir: str) -> str:
@@ -120,14 +121,16 @@ class EventHandler:
             base_dir=base_dir,
         )
 
-        # Определяем baseUrl для разрешения относительных путей (изображения и т.д.)
+        # Определяем baseUrl для разрешения относительных путей (изображения, стили и т.д.)
+        # QWebEngineView.setHtml() принимает baseUrl как второй аргумент —
+        # он автоматически разрешит src="pk.webp" относительно этой директории.
+        # file:// URL не нужны и на Windows ломают пути (file:///C:/...).
         current_file = self.editor.current_file
         file_dir = ""
         if current_file:
             file_dir = os.path.dirname(os.path.abspath(current_file))
-            html = self._resolve_image_tags(html, file_dir)
 
-        base_url = QUrl.fromLocalFile(file_dir) if file_dir else QUrl()
+        base_url = QUrl.fromLocalFile(file_dir + '/') if file_dir else QUrl()
         self.editor.preview.setHtml(html, base_url)
         # После обновления превью — синхронизируем прокрутку к курсору
         self.editor._scroll_preview_to_cursor()
