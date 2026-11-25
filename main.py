@@ -95,6 +95,7 @@ from PyQt6.QtWidgets import QApplication, QMessageBox
 from markdown_editor_pkg import __version__
 from markdown_editor_pkg.editor import MarkdownEditorPyQt
 from markdown_editor_pkg.i18n import setup_translator
+from markdown_editor_pkg.log_cleaner import clean_old_logs
 
 # ── Global exception handler ─────────────────────────────────────────────
 
@@ -131,6 +132,9 @@ def main() -> None:
         os.dup2(_stderr_backup, 2)
         os.close(_stderr_backup)
         _stderr_backup = None
+
+    # Clean old log files
+    clean_old_logs(days=7)
 
     try:
         app = QApplication(sys.argv)
