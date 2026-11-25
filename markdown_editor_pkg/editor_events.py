@@ -4,6 +4,8 @@ import os
 import urllib.parse
 from typing import TYPE_CHECKING
 
+from PyQt6.QtCore import QUrl
+
 from markdown_editor_pkg.i18n import tr
 from markdown_editor_pkg.markdown_validator import MarkdownValidator
 from markdown_editor_pkg.resource_path import get_base_dir
@@ -118,13 +120,15 @@ class EventHandler:
             base_dir=base_dir,
         )
 
-        # Преобразуем относительные пути изображений в абсолютные file:// URL
+        # Определяем baseUrl для разрешения относительных путей (изображения и т.д.)
         current_file = self.editor.current_file
+        file_dir = ""
         if current_file:
             file_dir = os.path.dirname(os.path.abspath(current_file))
             html = self._resolve_image_tags(html, file_dir)
 
-        self.editor.preview.setHtml(html)
+        base_url = QUrl.fromLocalFile(file_dir) if file_dir else QUrl()
+        self.editor.preview.setHtml(html, base_url)
         # После обновления превью — синхронизируем прокрутку к курсору
         self.editor._scroll_preview_to_cursor()
         # Перезапускаем JS-трекер скролла
