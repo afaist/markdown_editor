@@ -130,7 +130,7 @@ class EventHandler:
         if current_file:
             file_dir = os.path.dirname(os.path.abspath(current_file))
 
-        base_url = QUrl.fromLocalFile(file_dir + '/') if file_dir else QUrl()
+        base_url = QUrl.fromLocalFile(file_dir + "/") if file_dir else QUrl()
         self.editor.preview.setHtml(html, base_url)
         # После обновления превью — синхронизируем прокрутку к курсору
         self.editor._scroll_preview_to_cursor()
