@@ -3,17 +3,33 @@
 from __future__ import annotations
 
 import importlib.resources
+import sys
+from pathlib import Path
 
 
 def _read_theme_file(package: str, filename: str) -> str:
-    """Read a theme file from the themes_data package."""
+    """Read a theme file from the themes_data package.
+
+    Works both in normal Python and PyInstaller frozen mode.
+    """
+    # Try importlib.resources first (normal mode)
     try:
-        # Python 3.9+
         with importlib.resources.files(package).joinpath(filename).open(encoding="utf-8") as f:
             return f.read()
-    except FileNotFoundError:
-        # Fallback: return empty string
-        return ""
+    except (FileNotFoundError, OSError):
+        pass
+
+    # Fallback for PyInstaller frozen mode: read directly from themes_data dir
+    try:
+        pkg = importlib.import_module(package)
+        pkg_dir = Path(pkg.__file__).parent
+        fpath = pkg_dir / filename
+        if fpath.exists():
+            return fpath.read_text(encoding="utf-8")
+    except (ImportError, OSError):
+        pass
+
+    return ""
 
 
 def load_preview_themes() -> dict[str, str]:
