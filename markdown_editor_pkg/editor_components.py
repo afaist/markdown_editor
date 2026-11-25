@@ -249,7 +249,7 @@ class UIBuilder:
             search_edit = QLineEdit()
             search_edit.setPlaceholderText(tr("Search in source..."))
             search_edit.setMinimumWidth(250)
-            search_btn = QPushButton(tr("Find"))
+            search_btn = QPushButton(tr("Find:"))
             search_btn.setStyleSheet("QPushButton { padding: 2px 10px; }")
             search_btn.clicked.connect(
                 lambda: self._find_in_source(text_edit, search_edit)  # type: ignore[union-attr]
