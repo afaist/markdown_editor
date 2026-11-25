@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import importlib.resources
-import sys
 from pathlib import Path
 
 
@@ -22,10 +21,12 @@ def _read_theme_file(package: str, filename: str) -> str:
     # Fallback for PyInstaller frozen mode: read directly from themes_data dir
     try:
         pkg = importlib.import_module(package)
-        pkg_dir = Path(pkg.__file__).parent
-        fpath = pkg_dir / filename
-        if fpath.exists():
-            return fpath.read_text(encoding="utf-8")
+        pkg_file = getattr(pkg, "__file__", None)
+        if pkg_file is not None:
+            pkg_dir = Path(pkg_file).parent
+            fpath = pkg_dir / filename
+            if fpath.exists():
+                return fpath.read_text(encoding="utf-8")
     except (ImportError, OSError):
         pass
 
