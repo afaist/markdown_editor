@@ -63,6 +63,11 @@ check_dependencies() {
         python3 markdown_editor_pkg/download_prism.py
     fi
 
+    if [ ! -f "markdown_editor_pkg/mathjax/tex-mml-chtml.js" ]; then
+        log_warn "MathJax не найден. Скачиваю..."
+        python3 markdown_editor_pkg/download_mathjax.py
+    fi
+
     log_success "Зависимости проверены"
 }
 

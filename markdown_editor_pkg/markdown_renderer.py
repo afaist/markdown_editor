@@ -40,8 +40,8 @@ def _read_mathjax_lib() -> str:
         return ""
 
 
-# MathJax загружается из CDN — это надёжнее, чем бандлить большой файл в PyInstaller
-_MATHJAX_CDN_URL = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+# MathJax загружается из локального файла
+_MATHJAX_LOCAL_PATH = "mathjax/tex-mml-chtml.js"
 
 
 _PRINT_STYLES_TEMPLATE: str = ""
@@ -97,9 +97,12 @@ class MarkdownRenderer:
         show_headers, header_text, footer_text = self._parse_headers(headers)
         header_html, footer_html = self._build_header_footer(show_headers, header_text, footer_text)
 
-        # Инлайним MathJax setup + CDN script (работает в любом окружении)
+        # Инлайним MathJax setup + local script
         mathjax_setup_code = _MATHJAX_SETUP_JS
-        mathjax_lib_code = f'<script src="{_MATHJAX_CDN_URL}"></script>'
+        if _MATHJAX_LIB_JS:
+            mathjax_lib_code = f'<script>\n{_MATHJAX_LIB_JS}\n</script>'
+        else:
+            mathjax_lib_code = f'<script src="{_MATHJAX_LOCAL_PATH}"></script>'
         mathjax_code = f"{mathjax_setup_code}\n{mathjax_lib_code}"
         page_numbering_js = self._build_page_numbering_js(show_headers)
 

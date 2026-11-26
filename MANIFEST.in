@@ -3,6 +3,9 @@
 # Ресурсы KaTeX
 recursive-include markdown_editor_pkg/katex *
 
+# Ресурсы MathJax
+recursive-include markdown_editor_pkg/mathjax *
+
 # Ресурсы Prism.js
 recursive-include markdown_editor_pkg/prism *
 

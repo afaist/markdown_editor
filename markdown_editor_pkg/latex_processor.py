@@ -1,5 +1,6 @@
 """Обработка LaTeX-формул в Markdown-тексте."""
 
+import html
 import re
 
 # Unicode → LaTeX-команды для математических символов
@@ -136,11 +137,11 @@ class LaTeXProcessor:
 
         return result
 
-    def restore_display(self, html: str) -> str:
+    def restore_display(self, html_text: str) -> str:
         """Восстановить блочные формулы из плейсхолдеров в HTML.
 
         Args:
-            html: HTML-текст с плейсхолдерами display-math-N.
+            html_text: HTML-текст с плейсхолдерами display-math-N.
 
         Returns:
             HTML с восстановленными $$...$$ формулами.
@@ -149,18 +150,20 @@ class LaTeXProcessor:
         def restore(match: re.Match) -> str:
             idx = int(match.group(1))
             if idx < len(self.display_math_cache):
-                return f"$${self.display_math_cache[idx]}$$"
+                # Декодируем HTML-сущности (markdown экранирует > и <)
+                formula = html.unescape(self.display_math_cache[idx])
+                return f"$${formula}$$"
             return str(match.group(0))
 
-        html = re.sub(r"<!--\s*display-math-(\d+)\s*-->", restore, html)
-        html = re.sub(r"&lt;!--\s*display-math-(\d+)\s*--&gt;", restore, html)
-        return html
+        html_text = re.sub(r"<!--\s*display-math-(\d+)\s*-->", restore, html_text)
+        html_text = re.sub(r"&lt;!--\s*display-math-(\d+)\s*--&gt;", restore, html_text)
+        return html_text
 
-    def restore_inline(self, html: str) -> str:
+    def restore_inline(self, html_text: str) -> str:
         """Восстановить встроенные формулы из плейсхолдеров в HTML.
 
         Args:
-            html: HTML-текст с плейсхолдерами inline-math-N.
+            html_text: HTML-текст с плейсхолдерами inline-math-N.
 
         Returns:
             HTML с восстановленными $...$ формулами.
@@ -169,12 +172,14 @@ class LaTeXProcessor:
         def restore(match: re.Match) -> str:
             idx = int(match.group(1))
             if idx < len(self.inline_math_cache):
-                return f"${self.inline_math_cache[idx]}$"
+                # Декодируем HTML-сущности (markdown экранирует > и <)
+                formula = html.unescape(self.inline_math_cache[idx])
+                return f"${formula}$"
             return str(match.group(0))
 
-        html = re.sub(r"<!--\s*inline-math-(\d+)\s*-->", restore, html)
-        html = re.sub(r"&lt;!--\s*inline-math-(\d+)\s*--&gt;", restore, html)
-        return str(html)
+        html_text = re.sub(r"<!--\s*inline-math-(\d+)\s*-->", restore, html_text)
+        html_text = re.sub(r"&lt;!--\s*inline-math-(\d+)\s*--&gt;", restore, html_text)
+        return str(html_text)
 
 
 class StrikethroughProcessor:
