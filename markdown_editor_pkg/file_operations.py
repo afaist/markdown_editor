@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import base64
 import logging
 import os
+import re
 import tempfile
 from dataclasses import dataclass
 
@@ -322,6 +324,14 @@ class FileExport:
             headers=headers,
         )
 
+        # Встраиваем изображения как data URI — file:// не работает из temp-файла
+        current_file = self._editor.current_file
+        file_dir = ""
+        if current_file:
+            file_dir = os.path.dirname(os.path.abspath(current_file))
+
+        html_content = self._embed_images(html_content, file_dir)
+
         tmp_path: str | None = None
         with tempfile.NamedTemporaryFile(
             suffix=".html", delete=False, mode="w", encoding="utf-8"
@@ -330,6 +340,50 @@ class FileExport:
             tmp_path = tmp.name
 
         return tmp_path  # type: ignore[return-value]
+
+    @staticmethod
+    def _embed_images(html: str, file_dir: str) -> str:
+        """Заменить src у <img> на data URI для корректного отображения в PDF."""
+
+        def replace_img_src(match: re.Match) -> str:
+            full_tag: str = match.group(0)
+            src_match = re.search(r'src=["\']([^"\']*)["\']', full_tag)
+            if not src_match:
+                return full_tag
+
+            src = src_match.group(1)
+            # Пропускаем http(s), data:, и другие внешние URL
+            if src.startswith(("http://", "https://", "data:", "mailto:")):
+                return full_tag
+
+            # Определяем MIME-тип по расширению
+            ext = os.path.splitext(src)[1].lower()
+            mime_map = {
+                ".png": "image/png",
+                ".jpg": "image/jpeg",
+                ".jpeg": "image/jpeg",
+                ".gif": "image/gif",
+                ".webp": "image/webp",
+                ".svg": "image/svg+xml",
+                ".bmp": "image/bmp",
+            }
+            mime_type = mime_map.get(ext, "image/png")
+
+            # Разрешаем путь относительно директории markdown-файла
+            if not os.path.isabs(src):
+                resolved = os.path.normpath(os.path.join(file_dir, src))
+            else:
+                resolved = src
+
+            # Читаем файл и конвертируем в base64
+            try:
+                with open(resolved, "rb") as f:
+                    data = base64.b64encode(f.read()).decode("ascii")
+                return full_tag.replace(src, f"data:{mime_type};base64,{data}", 1)
+            except OSError:
+                return full_tag
+
+        return re.sub(r"<img[^>]+>", replace_img_src, html)
 
     def _do_pdf_write(self, page, filepath: str, tmp_path: str) -> None:
         """Выполняет запись PDF из страницы."""
