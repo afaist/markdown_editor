@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.resources
+import sys
 from pathlib import Path
 
 
@@ -18,7 +19,18 @@ def _read_theme_file(package: str, filename: str) -> str:
     except (FileNotFoundError, OSError):
         pass
 
-    # Fallback for PyInstaller frozen mode: read directly from themes_data dir
+    # PyInstaller frozen mode: files are in sys._MEIPASS
+    meipass = getattr(sys, "_MEIPASS", None)
+    if meipass:
+        pkg_parts = package.split(".")
+        pkg_path = Path(meipass)
+        for part in pkg_parts:
+            pkg_path = pkg_path / part
+        fpath = pkg_path / filename
+        if fpath.exists():
+            return fpath.read_text(encoding="utf-8")
+
+    # Fallback: read directly from themes_data dir
     try:
         pkg = importlib.import_module(package)
         pkg_file = getattr(pkg, "__file__", None)

@@ -3,8 +3,6 @@
  * Блокирует загрузку libgvfsdbus.so, libgvfscommon.so и других GIO-модулей через:
  *   1. dlopen/dlsym/dlclose — для прямого динамического линкинга
  *   2. g_module_open/g_module_symbol/g_module_close — для GLib API
- *   3. g_io_modules_load_all_in_directory — загрузка всех модулей из директории
- *   4. g_io_module_load — загрузка конкретного модуля
  *
  * Проблема: системный libgvfsdbus.so и libgvfscommon.so требуют glib 2.80+
  * (g_variant_builder_init_static), но запускаются на системах со старым glib.
@@ -15,8 +13,6 @@
 #define _GNU_SOURCE
 #include <dlfcn.h>
 #include <string.h>
-#include <stdio.h>
-#include <dirent.h>
 
 /* ─── Маркер "заблокированного модуля" ─── */
 static const char g_blocked_module_marker = 0;
@@ -31,12 +27,6 @@ static orig_g_module_symbol_t orig_g_module_symbol = NULL;
 typedef void (*orig_g_module_close_t)(void*);
 static orig_g_module_close_t orig_g_module_close = NULL;
 
-typedef void (*orig_g_io_modules_load_all_in_directory_t)(const char*, void*);
-static orig_g_io_modules_load_all_in_directory_t orig_g_io_modules_load_all_in_directory = NULL;
-
-typedef void (*orig_g_io_module_load_t)(void*);
-static orig_g_io_module_load_t orig_g_io_module_load = NULL;
-
 /* ─── Проверка, нужно ли блокировать загрузку ─── */
 static int should_block_module(const char* filename) {
     if (!filename)
@@ -46,8 +36,7 @@ static int should_block_module(const char* filename) {
     if (strstr(filename, "gio/modules")       ||
         strstr(filename, "libgvfs")            ||
         strstr(filename, "libgioremote")       ||
-        strstr(filename, "libdconfsettings")   ||
-        strstr(filename, "libgvfsdbus")) {
+        strstr(filename, "libdconfsettings")) {
         return 1;
     }
     return 0;
@@ -64,8 +53,6 @@ static void init_preload(void) {
     orig_g_module_open  = (orig_g_module_open_t)dlsym(RTLD_NEXT, "g_module_open");
     orig_g_module_symbol = (orig_g_module_symbol_t)dlsym(RTLD_NEXT, "g_module_symbol");
     orig_g_module_close = (orig_g_module_close_t)dlsym(RTLD_NEXT, "g_module_close");
-    orig_g_io_modules_load_all_in_directory = (orig_g_io_modules_load_all_in_directory_t)dlsym(RTLD_NEXT, "g_io_modules_load_all_in_directory");
-    orig_g_io_module_load = (orig_g_io_module_load_t)dlsym(RTLD_NEXT, "g_io_module_load");
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -131,26 +118,4 @@ void g_module_close(void* module) {
         return;
     if (orig_g_module_close)
         orig_g_module_close(module);
-}
-
-/* ═══════════════════════════════════════════════════════════
- * Перехват g_io_modules_load_all_in_directory
- * — блокирует загрузку всех GIO-модулей из директории
- * ═══════════════════════════════════════════════════════════ */
-
-void g_io_modules_load_all_in_directory(const char* directory, void* error) {
-    /* Игнорируем — не загружаем ни один GIO-модуль из директории */
-    (void)directory;
-    (void)error;
-}
-
-/* ═══════════════════════════════════════════════════════════
- * Перехват g_io_module_load
- * ═══════════════════════════════════════════════════════════ */
-
-void g_io_module_load(void* module) {
-    if (is_blocked_module(module))
-        return;
-    if (orig_g_io_module_load)
-        orig_g_io_module_load(module);
 }
