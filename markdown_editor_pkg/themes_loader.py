@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import sys
+import pkgutil
 from pathlib import Path
 
 
@@ -11,24 +11,12 @@ def _read_theme_file(package: str, filename: str) -> str:
 
     Works both in normal Python and PyInstaller frozen mode.
     """
-    # PyInstaller frozen mode: files are in sys._MEIPASS
-    meipass = getattr(sys, "_MEIPASS", None)
-    if meipass:
-        pkg_parts = package.split(".")
-        pkg_path = Path(meipass)
-        for part in pkg_parts:
-            pkg_path = pkg_path / part
-        fpath = pkg_path / filename
-        if fpath.exists():
-            return fpath.read_text(encoding="utf-8")
-
-    # Normal mode: use importlib.resources
+    # Try pkgutil.get_data first — most reliable for PyInstaller
     try:
-        import importlib.resources
-
-        with importlib.resources.files(package).joinpath(filename).open(encoding="utf-8") as f:
-            return f.read()
-    except (FileNotFoundError, OSError, ImportError):
+        data = pkgutil.get_data(package, filename)
+        if data is not None:
+            return data.decode("utf-8")
+    except (ImportError, FileNotFoundError):
         pass
 
     # Fallback: read directly from themes_data dir
