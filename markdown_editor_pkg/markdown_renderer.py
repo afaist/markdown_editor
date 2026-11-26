@@ -100,7 +100,7 @@ class MarkdownRenderer:
         # Инлайним MathJax setup + local script
         mathjax_setup_code = _MATHJAX_SETUP_JS
         if _MATHJAX_LIB_JS:
-            mathjax_lib_code = f'<script>\n{_MATHJAX_LIB_JS}\n</script>'
+            mathjax_lib_code = f"<script>\n{_MATHJAX_LIB_JS}\n</script>"
         else:
             mathjax_lib_code = f'<script src="{_MATHJAX_LOCAL_PATH}"></script>'
         mathjax_code = f"{mathjax_setup_code}\n{mathjax_lib_code}"

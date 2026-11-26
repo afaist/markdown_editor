@@ -1,9 +1,8 @@
 """download_mathjax.py — Загрузка MathJax из CDN."""
 
 import os
-import sys
-import urllib.request
 import urllib.error
+import urllib.request
 
 
 def download_file(url: str, destination: str) -> None:
