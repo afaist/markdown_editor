@@ -102,11 +102,13 @@ cd markdown-editor
 
 ```bash
 # Debian/Ubuntu
-sudo apt-get install -y libgl1 libxkbcommon-x11-0 libxcb-cursor0 libegl1 libwebp-dev libfontconfig1 libfreetype6 libx11-xcb1
+sudo apt-get install -y libgl1 libxkbcommon-x11-0 libxcb-cursor0 libegl1 libwebp-dev libfontconfig1 libfreetype6 libx11-xcb1 libglib2.0-0 libgio2.0-cil
 
 # Fedora
-sudo dnf install -y libglvnd-glx libxkbcommon libegl libwebp fontconfig
+sudo dnf install -y libglvnd-glx libxkbcommon libegl libwebp fontconfig glib2
 ```
+
+> **Note:** AppImage bundles Qt libraries that may conflict with system GIO modules (`libgvfsdbus.so`). If you encounter errors like `undefined symbol: g_variant_builder_init_static`, use the `tar.gz` release instead, or install `libglib2.0-0` matching your system's glib version.
 
 #### Windows
 
@@ -618,6 +620,7 @@ The application is built into a standalone binary using PyInstaller.
 | LaTeX formulas not displayed | Check that files exist in `markdown_editor_pkg/katex/` (`katex.min.css`, `katex.min.js`, `auto-render.min.js`) |
 | Error during PDF export | Ensure `PyQt6-WebEngine` is installed |
 | Preview not updating | Check that KaTeX JavaScript is loaded correctly |
+| GIO/GVFS errors in AppImage | Use `tar.gz` release instead, or install `libglib2.0-0` matching your system |
 | Syntax highlighting not working | Check that files exist in `markdown_editor_pkg/prism/` |
 
 ### Downloading Resources

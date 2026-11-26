@@ -62,23 +62,13 @@ if "QT_QPA_PLATFORM" not in os.environ and os.name == "posix":
 # Redirect stderr to /dev/null before QApplication initialization,
 # then restore it after the app is created so Python errors are visible.
 
-# ── Disable system GIO modules to avoid glib version conflicts ───────────
-# AppImage is built on Ubuntu 24.04 (glib 2.80) and distributed to users
-# on older systems (e.g. Ubuntu 22.04 with glib 2.74). The system GIO
-# modules (libgvfsdbus.so) are compiled against glib 2.80 and reference
-# symbols like g_variant_builder_init_static that do not exist in glib 2.74.
-# Qt may try to load these system GIO modules, causing a crash.
-#
-# We prevent this by:
-# 1. QT_QPA_PLATFORMTHEME=none — skip GTK/GIO platform theme integration
-# 2. QT_QPA_PLATFORM=xcb — force xcb platform (no GTK integration)
-# 3. GIO_EXTRA_MODULES="" — prevent GIO from loading system GIO modules
-#
-# The AppImage bundles its own Qt6 libraries and plugins, so this is safe.
-# These settings are POSIX-specific and should not be set on Windows.
+# ── Disable GTK/GIO platform theme to avoid conflicts ────────────────────
+# AppImage bundles its own Qt6 libraries. System GIO modules (libgvfsdbus.so)
+# may be compiled against a different glib version, causing crashes.
+# We disable the GTK platform theme to avoid this — the app still works fine
+# without it. These settings are POSIX-specific and should not be set on Windows.
 if os.name == "posix":
     os.environ["QT_QPA_PLATFORMTHEME"] = "none"
-    os.environ["GIO_EXTRA_MODULES"] = ""
 
 # ── Force stderr suppression on POSIX systems ──────────────────────────
 

@@ -102,11 +102,13 @@ cd markdown-editor
 
 ```bash
 # Debian/Ubuntu
-sudo apt-get install -y libgl1 libxkbcommon-x11-0 libxcb-cursor0 libegl1 libwebp-dev libfontconfig1 libfreetype6 libx11-xcb1
+sudo apt-get install -y libgl1 libxkbcommon-x11-0 libxcb-cursor0 libegl1 libwebp-dev libfontconfig1 libfreetype6 libx11-xcb1 libglib2.0-0 libgio2.0-cil
 
 # Fedora
-sudo dnf install -y libglvnd-glx libxkbcommon libegl libwebp fontconfig
+sudo dnf install -y libglvnd-glx libxkbcommon libegl libwebp fontconfig glib2
 ```
+
+> **Примечание:** AppImage собирает собственные библиотеки Qt, которые могут конфликтовать с системными GIO-модулями (`libgvfsdbus.so`). Если возникают ошибки вида `undefined symbol: g_variant_builder_init_static`, используйте релиз `tar.gz` вместо AppImage, или установите `libglib2.0-0`, соответствующую версии glib вашей системы.
 
 #### Windows
 
@@ -618,6 +620,7 @@ build.bat clean            # Очистка артефактов
 | LaTeX-формулы не отображаются | Проверьте наличие файлов в папке `markdown_editor_pkg/katex/` (`katex.min.css`, `katex.min.js`, `auto-render.min.js`) |
 | Ошибка при экспорте в PDF | Убедитесь, что `PyQt6-WebEngine` установлен |
 | Предпросмотр не обновляется | Проверьте, что JavaScript KaTeX загружен корректно |
+| Ошибки GIO/GVFS в AppImage | Используйте релиз `tar.gz` вместо AppImage, или установите `libglib2.0-0` соответствующей версии |
 | Подсветка синтаксиса не работает | Проверьте наличие файлов в папке `markdown_editor_pkg/prism/` |
 
 ### Загрузка ресурсов
