@@ -40,12 +40,8 @@ if [ -f "$ORIG_BIN" ]; then
     # Бинарник всегда в usr/bin/ относительно AppImage root.
     cat > "$ORIG_BIN" << WRAPPER
 #!/bin/bash
-# Обёртка для предотвращения конфликтов системных GIO/GVFS модулей
-# GIO_USE_VFS=local — не загружать GVFS бэкенды
-# GIO_EXTRA_MODULES="" — отключить GIO-модули Qt
+# Обёртка для предотвращения конфликтов тем интеграции
 # QT_QPA_PLATFORMTHEME=none — отключить тему интеграции (GTK/Qt конфликт)
-export GIO_USE_VFS=local
-export GIO_EXTRA_MODULES=""
 export QT_QPA_PLATFORMTHEME=none
 export QT_QPA_PLATFORM=xcb
 # readlink -f разрешает символьную ссылку AppRun -> usr/bin/\${APP_NAME}
