@@ -41,7 +41,6 @@ if [ -f "$ORIG_BIN" ]; then
     cat > "$ORIG_BIN" << WRAPPER
 #!/bin/bash
 # Обёртка для предотвращения конфликтов системных GIO/GVFS модулей
-# LD_PRELOAD перехватывает dlopen/g_module_open и блокирует загрузку GIO-модулей
 # GIO_USE_VFS=local — не загружать GVFS бэкенды
 # GIO_EXTRA_MODULES="" — отключить GIO-модули Qt
 # QT_QPA_PLATFORMTHEME=none — отключить тему интеграции (GTK/Qt конфликт)
@@ -52,8 +51,6 @@ export QT_QPA_PLATFORM=xcb
 # readlink -f разрешает символьную ссылку AppRun -> usr/bin/\${APP_NAME}
 # и даёт путь к реальному скрипту в usr/bin/
 _SCRIPT_DIR="\$(cd "\$(dirname "\$(readlink -f "\$0")")" && pwd)"
-# libgio_preload.so и ${APP_NAME}.bin всегда лежат в одном каталоге
-export LD_PRELOAD="\${_SCRIPT_DIR}/libgio_preload.so"
 exec "\${_SCRIPT_DIR}/${APP_NAME}.bin" "\$@"
 WRAPPER
     chmod +x "$ORIG_BIN"
@@ -134,18 +131,6 @@ cp markdown-editor.desktop "$APPDIR/usr/share/applications/${APP_NAME}.desktop"
 sed -i 's|Exec=/opt/markdown-editor/markdown-editor|Exec=markdown-editor|' \
     "$APPDIR/usr/share/applications/${APP_NAME}.desktop"
 echo "[OK] Desktop файл создан"
-
-# Компилируем LD_PRELOAD для перехвата g_module_open GIO-модулей
-echo "[INFO] Компиляция GIO LD_PRELOAD..."
-if ! gcc -shared -fPIC -o "$APPDIR/usr/bin/libgio_preload.so" ld_preload_gio.c -ldl; then
-    echo "[ERROR] Не удалось скомпилировать GIO LD_PRELOAD"
-    exit 1
-fi
-if [ ! -f "$APPDIR/usr/bin/libgio_preload.so" ]; then
-    echo "[ERROR] libgio_preload.so не создан"
-    exit 1
-fi
-echo "[OK] GIO LD_PRELOAD скомпилирован"
 
 # Icon — resize to 256x256 square
 if [ -f "icon.png" ]; then
