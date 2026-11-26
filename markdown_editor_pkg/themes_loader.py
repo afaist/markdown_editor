@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import importlib.resources
 import sys
 from pathlib import Path
 
@@ -12,13 +11,6 @@ def _read_theme_file(package: str, filename: str) -> str:
 
     Works both in normal Python and PyInstaller frozen mode.
     """
-    # Try importlib.resources first (normal mode)
-    try:
-        with importlib.resources.files(package).joinpath(filename).open(encoding="utf-8") as f:
-            return f.read()
-    except (FileNotFoundError, OSError):
-        pass
-
     # PyInstaller frozen mode: files are in sys._MEIPASS
     meipass = getattr(sys, "_MEIPASS", None)
     if meipass:
@@ -30,9 +22,18 @@ def _read_theme_file(package: str, filename: str) -> str:
         if fpath.exists():
             return fpath.read_text(encoding="utf-8")
 
+    # Normal mode: use importlib.resources
+    try:
+        import importlib.resources
+
+        with importlib.resources.files(package).joinpath(filename).open(encoding="utf-8") as f:
+            return f.read()
+    except (FileNotFoundError, OSError, ImportError):
+        pass
+
     # Fallback: read directly from themes_data dir
     try:
-        pkg = importlib.import_module(package)
+        pkg = __import__(package, fromlist=[""])
         pkg_file = getattr(pkg, "__file__", None)
         if pkg_file is not None:
             pkg_dir = Path(pkg_file).parent
