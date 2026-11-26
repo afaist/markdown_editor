@@ -19,6 +19,13 @@ hiddenimports = [
 tmp_ret = collect_all('markdown_editor_pkg')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
+# Explicitly collect themes_data files (PyInstaller collect_all may miss them)
+themes_data_dir = Path("markdown_editor_pkg/themes_data")
+if themes_data_dir.is_dir():
+    for f in themes_data_dir.iterdir():
+        if f.is_file() and f.suffix in ('.css', '.qss'):
+            datas.append((str(f), "markdown_editor_pkg/themes_data"))
+
 # Collect prism/ and mathjax/ as data files (not Python packages)
 for root, dirs, files in os.walk('markdown_editor_pkg/prism'):
     for f in files:
