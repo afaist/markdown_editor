@@ -3,14 +3,12 @@
 from __future__ import annotations
 
 import importlib.resources
-import os
 
 import markdown
 
 from markdown_editor_pkg.callout_processor import CalloutProcessor
 from markdown_editor_pkg.latex_processor import LaTeXProcessor, StrikethroughProcessor
 from markdown_editor_pkg.prism_processor import PrismJSProcessor
-from markdown_editor_pkg.resource_path import get_base_dir
 from markdown_editor_pkg.themes import ThemesManager
 
 # ─── Шаблоны из файлов ────────────────────────────────────────────────────
@@ -30,13 +28,14 @@ def _read_template(filename: str) -> str:
 
 
 def _read_mathjax_lib() -> str:
-    """Прочитать MathJax библиотеку из файловой системы (fallback)."""
-    base = get_base_dir()
-    path = os.path.join(base, "mathjax/tex-mml-chtml.js") if base else "mathjax/tex-mml-chtml.js"
+    """Прочитать MathJax библиотеку из package resources (работает в AppImage/PyInstaller)."""
     try:
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
+        return (
+            importlib.resources.files("markdown_editor_pkg.mathjax")
+            .joinpath("tex-mml-chtml.js")
+            .read_text(encoding="utf-8")
+        )
+    except Exception:
         return ""
 
 
@@ -47,13 +46,11 @@ _MATHJAX_LOCAL_PATH = "mathjax/tex-mml-chtml.js"
 _PRINT_STYLES_TEMPLATE: str = ""
 _MATHJAX_SETUP_JS: str = ""
 _PAGE_NUMBERING_JS: str = ""
-_MATHJAX_LIB_JS: str = ""
 
 try:
     _PRINT_STYLES_TEMPLATE = _read_template("print_styles.css")
     _MATHJAX_SETUP_JS = _read_template("mathjax_setup.js")
     _PAGE_NUMBERING_JS = _read_template("page_numbering.js")
-    _MATHJAX_LIB_JS = _read_mathjax_lib()
 except Exception:
     pass
 
@@ -99,8 +96,9 @@ class MarkdownRenderer:
 
         # Инлайним MathJax setup + local script
         mathjax_setup_code = _MATHJAX_SETUP_JS
-        if _MATHJAX_LIB_JS:
-            mathjax_lib_code = f"<script>\n{_MATHJAX_LIB_JS}\n</script>"
+        mathjax_lib_js = _read_mathjax_lib()
+        if mathjax_lib_js:
+            mathjax_lib_code = f"<script>\n{mathjax_lib_js}\n</script>"
         else:
             mathjax_lib_code = f'<script src="{_MATHJAX_LOCAL_PATH}"></script>'
         mathjax_code = f"{mathjax_setup_code}\n{mathjax_lib_code}"
