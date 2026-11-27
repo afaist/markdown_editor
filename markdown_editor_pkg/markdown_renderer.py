@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import importlib.resources
+import os
+import re
 
 import markdown
 
@@ -58,6 +60,16 @@ except Exception:
 class MarkdownRenderer:
     """Конвертирует Markdown-текст в полный HTML-документ с LaTeX и темами."""
 
+    LOG_FILE = os.path.join(os.path.expanduser("~"), "renderer_debug.log")
+
+    def _log(self, msg: str) -> None:
+        """Записать сообщение в лог-файл."""
+        try:
+            with open(self.LOG_FILE, "a", encoding="utf-8") as f:
+                f.write(msg + "\n")
+        except Exception:
+            pass
+
     def __init__(self, themes: ThemesManager):
         """Инициализация рендерера Markdown.
 
@@ -80,10 +92,20 @@ class MarkdownRenderer:
         headers: dict | None = None,
     ) -> str:
         """Рендерит Markdown в полный HTML-документ."""
+        self._log("=== MARKDOWN RENDERER START ===")
+        self._log(f"Input text (first 500 chars): {text[:500]}")
+
         # Pipeline: Markdown → HTML
         processed_text = self._extract_latex(text)
+        self._log(f"After LaTeX extraction (first 500 chars): {processed_text[:500]}")
+        self._log(f"Display math cache: {len(self.latex_processor.display_math_cache)}")
+        self._log(f"Inline math cache: {len(self.latex_processor.inline_math_cache)}")
+
         html_content = self._markdown_to_html(processed_text)
+        self._log(f"After markdown conversion (first 500 chars): {html_content[:500]}")
+
         html_content = self._restore_latex(html_content)
+        self._log(f"After LaTeX restore (first 500 chars): {html_content[:500]}")
         html_content = self._apply_strikethrough(html_content)
         html_content = self._apply_callouts(html_content)
 
@@ -116,6 +138,14 @@ class MarkdownRenderer:
 
         # Встраиваем Prism.js
         full_html = self.prism_processor.inject_prism(full_html, theme_name, base_dir)
+
+        # Ищем в финальном HTML все вхождения $
+        dollar_positions = [m.start() for m in re.finditer(r"\$", full_html)]
+        self._log(f"Final HTML: {len(dollar_positions)} dollar signs found")
+        for pos in dollar_positions[:20]:
+            context = full_html[max(0, pos - 20) : pos + 20]
+            self._log(f"  Dollar at {pos}: ...{context}...")
+        self._log("=== MARKDOWN RENDERER END ===\n")
 
         return full_html
 
