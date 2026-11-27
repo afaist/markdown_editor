@@ -27,6 +27,17 @@ window.MathJax = {
   startup: {
     ready: function() {
       MathJax.startup.defaultReady();
+      // Запускаем рендеринг после загрузки DOM
+      function typeset() {
+        MathJax.typesetPromise().catch(function(err) {
+          console.warn('MathJax typeset error:', err.message);
+        });
+      }
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", typeset);
+      } else {
+        typeset();
+      }
     }
   }
 };
