@@ -19,10 +19,13 @@ window.MathJax = {
     tagIndent: '0.8em'
   },
   options: {
-    skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+    skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'mjx-container'],
     renderActions: {
       addMenu: []
     }
+  },
+  chtml: {
+    fontURL: ''
   },
   startup: {
     ready: function() {

@@ -45,16 +45,71 @@ def _read_mathjax_lib() -> str:
 _MATHJAX_LOCAL_PATH = "mathjax/tex-mml-chtml.js"
 
 
+# Встроенная конфигурация MathJax (fallback, если templates не доступны)
+_MATHJAX_SETUP_JS_FALLBACK = """<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [
+      ['$', '$'],
+      ['\\\\(', '\\\\)']
+    ],
+    displayMath: [
+      ['$$', '$$'],
+      ['\\\\[', '\\\\]']
+    ],
+    processEscapes: true,
+    processEnvironments: true,
+    packages: {
+      '[+]': ['ams', 'bbox', 'textcomp']
+    },
+    tagSide: 'right',
+    tagIndent: '0.8em'
+  },
+  options: {
+    skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'mjx-container'],
+    renderActions: {
+      addMenu: []
+    }
+  },
+  chtml: {
+    fontURL: ''
+  },
+  startup: {
+    ready: function() {
+      MathJax.startup.defaultReady();
+      function typeset() {
+        MathJax.typesetPromise().catch(function(err) {
+          console.warn('MathJax typeset error:', err.message);
+        });
+      }
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", typeset);
+      } else {
+        typeset();
+      }
+    }
+  }
+};
+</script>"""
+
 _PRINT_STYLES_TEMPLATE: str = ""
-_MATHJAX_SETUP_JS: str = ""
 _PAGE_NUMBERING_JS: str = ""
 
 try:
     _PRINT_STYLES_TEMPLATE = _read_template("print_styles.css")
-    _MATHJAX_SETUP_JS = _read_template("mathjax_setup.js")
     _PAGE_NUMBERING_JS = _read_template("page_numbering.js")
 except Exception:
     pass
+
+
+# Читаем mathjax_setup.js при каждом вызове (для AppImage)
+def _get_mathjax_setup_js() -> str:
+    """Получить MathJax setup JS — из templates или fallback."""
+    try:
+        return _read_template("mathjax_setup.js")
+    except Exception:
+        pass
+    return _MATHJAX_SETUP_JS_FALLBACK
 
 
 class MarkdownRenderer:
@@ -117,7 +172,7 @@ class MarkdownRenderer:
         header_html, footer_html = self._build_header_footer(show_headers, header_text, footer_text)
 
         # Инлайним MathJax setup + local script
-        mathjax_setup_code = _MATHJAX_SETUP_JS
+        mathjax_setup_code = _get_mathjax_setup_js()
         mathjax_lib_js = _read_mathjax_lib()
         if mathjax_lib_js:
             mathjax_lib_code = f"<script>\n{mathjax_lib_js}\n</script>"
