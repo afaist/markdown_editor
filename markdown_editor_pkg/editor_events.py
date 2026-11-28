@@ -1,5 +1,6 @@
 """Event handlers — editor event processing."""
 
+import logging
 import os
 import urllib.parse
 from typing import TYPE_CHECKING
@@ -9,6 +10,8 @@ from PyQt6.QtCore import QUrl
 from markdown_editor_pkg.i18n import tr
 from markdown_editor_pkg.markdown_validator import MarkdownValidator
 from markdown_editor_pkg.resource_path import get_base_dir
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from markdown_editor_pkg.editor import MarkdownEditorPyQt
@@ -113,31 +116,34 @@ class EventHandler:
 
     def update_preview(self) -> None:
         """Обновить предпросмотр."""
-        markdown_text = self.editor.editor.toPlainText()
-        base_dir = get_base_dir()
-        html = self.editor.renderer.render(
-            markdown_text,
-            theme_name=self.editor.theme_manager.theme_name,
-            base_dir=base_dir,
-        )
+        try:
+            markdown_text = self.editor.editor.toPlainText()
+            base_dir = get_base_dir()
+            html = self.editor.renderer.render(
+                markdown_text,
+                theme_name=self.editor.theme_manager.theme_name,
+                base_dir=base_dir,
+            )
 
-        # Определяем baseUrl для разрешения относительных путей (изображения, стили и т.д.)
-        # QWebEngineView.setHtml() принимает baseUrl как второй аргумент —
-        # он автоматически разрешит src="pk.webp" относительно этой директории.
-        # file:// URL не нужны и на Windows ломают пути (file:///C:/...).
-        current_file = self.editor.current_file
-        file_dir = ""
-        if current_file:
-            file_dir = os.path.dirname(os.path.abspath(current_file))
+            # Определяем baseUrl для разрешения относительных путей (изображения, стили и т.д.)
+            # QWebEngineView.setHtml() принимает baseUrl как второй аргумент —
+            # он автоматически разрешит src="pk.webp" относительно этой директории.
+            # file:// URL не нужны и на Windows ломают пути (file:///C:/...).
+            current_file = self.editor.current_file
+            file_dir = ""
+            if current_file:
+                file_dir = os.path.dirname(os.path.abspath(current_file))
 
-        base_url = QUrl.fromLocalFile(file_dir + "/") if file_dir else QUrl()
-        self.editor.preview.setHtml(html, base_url)
-        # После обновления превью — синхронизируем прокрутку к курсору
-        self.editor._scroll_preview_to_cursor()
-        # Перезапускаем JS-трекер скролла
-        self.editor.scroll_sync._init_scroll_tracker(delay=50)
-        if self.editor._statusbar_ref:
-            self.editor._statusbar_ref.showMessage(tr("Preview updated"))
+            base_url = QUrl.fromLocalFile(file_dir + "/") if file_dir else QUrl()
+            self.editor.preview.setHtml(html, base_url)
+            # После обновления превью — синхронизируем прокрутку к курсору
+            self.editor._scroll_preview_to_cursor()
+            # Перезапускаем JS-трекер скролла
+            self.editor.scroll_sync._init_scroll_tracker(delay=50)
+            if self.editor._statusbar_ref:
+                self.editor._statusbar_ref.showMessage(tr("Preview updated"))
+        except Exception:
+            logger.exception("Failed to update preview")
 
     def update_char_count(self) -> None:
         """Обновить счётчики символов и слов."""

@@ -84,7 +84,14 @@ class FileIO:
 
     def _on_file_opened(self, filepath: str) -> None:
         """Общий хук после успешного открытия файла."""
-        content = self._read_file(filepath)
+        logger.info("Opening file: %s", filepath)
+        try:
+            content = self._read_file(filepath)
+            logger.debug("File read successfully: %d chars", len(content))
+        except Exception:
+            logger.exception("Failed to read file: %s", filepath)
+            raise
+
         self._editor._set_editor_text_without_dirty(content)
         self._state.current_file = filepath
         self._state.mark_clean()
@@ -116,8 +123,9 @@ class FileIO:
 
         try:
             self._on_file_opened(filepath)
-        except Exception as e:
-            self._error_msg("Ошибка", f"Не удалось открыть файл:\n{e!s}")
+        except Exception:
+            logger.exception("Failed to open file: %s", filepath)
+            self._error_msg("Ошибка", f"Не удалось открыть файл:\n{filepath}")
 
     def save_file(self) -> None:
         """Сохранить текущий файл в _state.current_file.
@@ -135,8 +143,10 @@ class FileIO:
             self._state.mark_clean()
             self._editor.update_file_status()
             self._status_msg(f"Файл сохранен: {self._state.current_file}")
-        except Exception as e:
-            self._error_msg("Ошибка", f"Не удалось сохранить файл:\n{e!s}")
+            logger.info("File saved: %s (%d chars)", self._state.current_file, len(content))
+        except Exception:
+            logger.exception("Failed to save file: %s", self._state.current_file)
+            self._error_msg("Ошибка", f"Не удалось сохранить файл:\n{self._state.current_file}")
 
     def save_file_as(self) -> None:
         """Сохранить файл под новым именем через диалог QFileDialog.
@@ -254,6 +264,7 @@ class FileExport:
             filepath += ".html"
 
         try:
+            logger.info("Exporting to HTML: %s", filepath)
             html = self._renderer.render(
                 self._editor.editor.toPlainText(),
                 theme_name=self._editor.theme_manager.theme_name,
@@ -261,8 +272,10 @@ class FileExport:
             )
             self._write_file(filepath, html)
             self._status_msg(f"Экспорт в HTML завершен: {filepath}")
-        except Exception as e:
-            self._error_msg("Ошибка", f"Не удалось экспортировать в HTML:\n{e!s}")
+            logger.info("HTML export completed: %s (%d bytes)", filepath, len(html))
+        except Exception:
+            logger.exception("Failed to export HTML: %s", filepath)
+            self._error_msg("Ошибка", f"Не удалось экспортировать в HTML:\n{filepath}")
 
     def export_to_pdf(self) -> None:
         """Экспортировать Markdown в PDF через QWebEngineView.

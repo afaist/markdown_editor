@@ -2,12 +2,9 @@
 
 import html
 import logging
-import os
 import re
 
 logger = logging.getLogger(__name__)
-
-LOG_FILE = os.path.join(os.path.expanduser("~"), "latex_debug.log")
 
 # Unicode → LaTeX-команды для математических символов
 UNICODE_TO_LATEX: dict[str, str] = {
@@ -106,14 +103,6 @@ class LaTeXProcessor:
         self.display_math_cache = []
         self.inline_math_cache = []
 
-    def _log(self, msg: str) -> None:
-        """Записать сообщение в лог-файл."""
-        try:
-            with open(LOG_FILE, "a", encoding="utf-8") as f:
-                f.write(msg + "\n")
-        except Exception:
-            pass
-
     def process(self, text: str) -> str:
         """Заменить LaTeX-формлы на плейсхолдеры, сохранив формулы в кэше.
 
@@ -127,8 +116,7 @@ class LaTeXProcessor:
             Текст с плейсхолдерами вместо формул.
         """
         self.reset()
-        self._log("=== LaTeXProcessor.process START ===")
-        self._log(f"Input text (first 500 chars): {text[:500]}")
+        logger.debug("LaTeXProcessor.process: extracting formulas from %d chars", len(text))
 
         def store_display(match: re.Match) -> str:
             formula = match.group(1)
@@ -136,7 +124,6 @@ class LaTeXProcessor:
             formula = _unicode_to_latex(formula)
             placeholder = f"<!-- display-math-{len(self.display_math_cache)} -->"
             self.display_math_cache.append(formula)
-            self._log(f"  [display] matched: {formula[:100]} -> {placeholder}")
             return placeholder
 
         def store_inline(match: re.Match) -> str:
@@ -145,18 +132,19 @@ class LaTeXProcessor:
             formula = _unicode_to_latex(formula)
             placeholder = f"<!-- inline-math-{len(self.inline_math_cache)} -->"
             self.inline_math_cache.append(formula)
-            self._log(f"  [inline] matched: {formula[:100]} -> {placeholder}")
             return placeholder
 
         # Сначала блочные формулы $$...$$
         result = re.sub(r"\$\$(.+?)\$\$", store_display, text, flags=re.DOTALL)
-        self._log(f"After display Math: {len(self.display_math_cache)} formulas cached")
 
         # Затем встроенные $...$
         result = re.sub(r"(?<!\$)\$(.+?)\$(?!\$)", store_inline, result)
-        self._log(f"After inline Math: {len(self.inline_math_cache)} formulas cached")
-        self._log(f"Processed text (first 500 chars): {result[:500]}")
-        self._log("=== LaTeXProcessor.process END ===\n")
+
+        logger.info(
+            "LaTeXProcessor.process: extracted %d display and %d inline formulas",
+            len(self.display_math_cache),
+            len(self.inline_math_cache),
+        )
 
         return result
 
@@ -169,25 +157,18 @@ class LaTeXProcessor:
         Returns:
             HTML с восстановленными $$...$$ формулами.
         """
-        self._log("=== restore_display START ===")
-        self._log(f"HTML text (first 500 chars): {html_text[:500]}")
 
         def restore(match: re.Match) -> str:
             idx = int(match.group(1))
             if idx < len(self.display_math_cache):
                 # Декодируем HTML-сущности (markdown экранирует > и <)
                 formula = html.unescape(self.display_math_cache[idx])
-                result = f"$${formula}$$"
-                self._log(f"  Restored display-math-{idx}: {formula[:100]} -> {result[:120]}")
-                return result
-            self._log(
-                f"  display-math-{idx} index out of range (cache size: {len(self.display_math_cache)})"
-            )
+                return f"$${formula}$$"
+            logger.warning("display-math-%s index out of range (cache size: %d)", idx, len(self.display_math_cache))
             return str(match.group(0))
 
         html_text = re.sub(r"<!--\s*display-math-(\d+)\s*-->", restore, html_text)
         html_text = re.sub(r"&lt;!--\s*display-math-(\d+)\s*--&gt;", restore, html_text)
-        self._log("=== restore_display END ===\n")
         return html_text
 
     def restore_inline(self, html_text: str) -> str:
@@ -199,25 +180,18 @@ class LaTeXProcessor:
         Returns:
             HTML с восстановленными $...$ формулами.
         """
-        self._log("=== restore_inline START ===")
-        self._log(f"HTML text (first 500 chars): {html_text[:500]}")
 
         def restore(match: re.Match) -> str:
             idx = int(match.group(1))
             if idx < len(self.inline_math_cache):
                 # Декодируем HTML-сущности (markdown экранирует > и <)
                 formula = html.unescape(self.inline_math_cache[idx])
-                result = f"${formula}$"
-                self._log(f"  Restored inline-math-{idx}: {formula[:100]} -> {result[:120]}")
-                return result
-            self._log(
-                f"  inline-math-{idx} index out of range (cache size: {len(self.inline_math_cache)})"
-            )
+                return f"${formula}$"
+            logger.warning("inline-math-%s index out of range (cache size: %d)", idx, len(self.inline_math_cache))
             return str(match.group(0))
 
         html_text = re.sub(r"<!--\s*inline-math-(\d+)\s*-->", restore, html_text)
         html_text = re.sub(r"&lt;!--\s*inline-math-(\d+)\s*--&gt;", restore, html_text)
-        self._log("=== restore_inline END ===\n")
         return str(html_text)
 
 
