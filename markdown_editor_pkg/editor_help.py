@@ -52,13 +52,17 @@ class HelpHandler:
 
     @staticmethod
     def _open_url_silent(url: str) -> None:
-        """Открыть URL через xdg-open с подавлением вывода браузера."""
+        """Открыть URL в системном браузере через xdg-open с подавлением GTK-ошибок."""
         if os.name == "posix":
+            env = os.environ.copy()
+            env["QT_QPA_PLATFORMTHEME"] = "none"
+            env["GTK_CSD"] = "0"
             try:
                 subprocess.Popen(
                     ["xdg-open", url],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
+                    env=env,
                 )
                 return
             except OSError:
