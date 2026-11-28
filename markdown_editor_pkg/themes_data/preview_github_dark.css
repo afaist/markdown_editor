@@ -31,3 +31,16 @@
         table { border-collapse: collapse; }
         th, td { border: 1px solid #30363D; padding: 6px; }
         th { background-color: #161B22; }
+
+        /* Callouts */
+        .callout {
+            padding: 1em;
+            margin: 1em 0;
+            border-left: 4px solid;
+            background-color: var(--callout-bg, transparent);
+        }
+        .callout-note { border-color: #58A6FF; background-color: #1a2a30; color: #C9D1D9; }
+        .callout-tip { border-color: #3FB950; background-color: #1a2a1a; color: #C9D1D9; }
+        .callout-important { border-color: #A371F7; background-color: #2a1a30; color: #C9D1D9; }
+        .callout-warning { border-color: #D29922; background-color: #2a2510; color: #C9D1D9; }
+        .callout-caution { border-color: #F85149; background-color: #2a1a1a; color: #C9D1D9; }
