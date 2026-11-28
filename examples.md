@@ -221,7 +221,7 @@ $$x_{1,2} = {-b\pm\sqrt{b^2 - 4ac} \over 2a}.$$
 
 $$|\vec{A}|=\sqrt{A_x^2 + A_y^2 + A_z^2}.$$(1)
 
-### Квадратичная формула:
+### Квадратичная формула
 
 $$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
 
@@ -310,7 +310,6 @@ $$x_{1,2} = \frac{-b \pm \sqrt{D}}{2a}$$
 ```python
 import math
 
-
 def solve_quadratic(a, b, c):
     """Решает квадратное уравнение ax^2 + bx + c = 0."""
     D = b**2 - 4 * a * c
@@ -324,7 +323,6 @@ def solve_quadratic(a, b, c):
         return x
     else:
         return None  # Действительных корней нет
-
 
 # Пример
 roots = solve_quadratic(2, -5, 2)
