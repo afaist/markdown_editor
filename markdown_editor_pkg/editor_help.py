@@ -383,7 +383,7 @@ class HelpHandler:
         layout.addWidget(scroll)
 
         link_label = QLabel(
-            tr('For a detailed Markdown guide, visit: <a href="{}">markdownguide.org</a>').format(
+            tr('For a detailed Markdown guide, visit: <a href="{}">www.markdownguide.org</a>').format(
                 _MARKDOWN_GUIDE_URL
             )
         )
