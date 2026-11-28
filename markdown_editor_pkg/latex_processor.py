@@ -164,7 +164,11 @@ class LaTeXProcessor:
                 # Декодируем HTML-сущности (markdown экранирует > и <)
                 formula = html.unescape(self.display_math_cache[idx])
                 return f"$${formula}$$"
-            logger.warning("display-math-%s index out of range (cache size: %d)", idx, len(self.display_math_cache))
+            logger.warning(
+                "display-math-%s index out of range (cache size: %d)",
+                idx,
+                len(self.display_math_cache),
+            )
             return str(match.group(0))
 
         html_text = re.sub(r"<!--\s*display-math-(\d+)\s*-->", restore, html_text)
@@ -187,7 +191,11 @@ class LaTeXProcessor:
                 # Декодируем HTML-сущности (markdown экранирует > и <)
                 formula = html.unescape(self.inline_math_cache[idx])
                 return f"${formula}$"
-            logger.warning("inline-math-%s index out of range (cache size: %d)", idx, len(self.inline_math_cache))
+            logger.warning(
+                "inline-math-%s index out of range (cache size: %d)",
+                idx,
+                len(self.inline_math_cache),
+            )
             return str(match.group(0))
 
         html_text = re.sub(r"<!--\s*inline-math-(\d+)\s*-->", restore, html_text)

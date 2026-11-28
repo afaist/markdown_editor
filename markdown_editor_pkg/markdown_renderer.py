@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import importlib.resources
 import logging
-import re
 
 import markdown
 
